@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+body {
+  font-family: "Almarena Neue", sans-serif;
+}
+
+/* Critical CSS - Load immediately */
+body {
+  font-family: "Almarena Neue", sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* Custom Animations - Only used ones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom hover effects */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient text animation */
+.gradient-text {
+  background: linear-gradient(
+    -45deg,
+    #ef4444,
+    #f97316,
+    #eab308,
+    #22c55e,
+    #3b82f6,
+    #8b5cf6
+  );
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Blog Content Styling */
+.blog-content {
+  line-height: 1.7;
+  color: #374151;
+}
+
+.dark .blog-content {
+  color: #d1d5db;
+}
+
+.blog-content h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 2rem 0 1rem 0;
+  color: #111827;
+}
+
+.dark .blog-content h1 {
+  color: #ffffff;
+}
+
+.blog-content h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 2rem 0 1rem 0;
+  color: #111827;
+}
+
+.dark .blog-content h2 {
+  color: #ffffff;
+}
+
+.blog-content h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin: 1.5rem 0 0.75rem 0;
+  color: #111827;
+}
+
+.dark .blog-content h3 {
+  color: #ffffff;
+}
+
+.blog-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.dark .blog-content p {
+  color: #d1d5db;
+}
+
+.blog-content ul {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.blog-content ol {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.blog-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.dark .blog-content li {
+  color: #d1d5db;
+}
+
+.blog-content strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.dark .blog-content strong {
+  color: #ffffff;
+}
+
+.blog-content em {
+  font-style: italic;
+}
+
+.blog-content blockquote {
+  border-left: 4px solid #ef4444;
+  background-color: #f9fafb;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.dark .blog-content blockquote {
+  background-color: #1f2937;
+  color: #9ca3af;
+}
+
+.blog-content code {
+  background-color: #f3f4f6;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+.dark .blog-content code {
+  background-color: #374151;
+  color: #f3f4f6;
+}
+
+.blog-content pre {
+  background-color: #1f2937;
+  color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.blog-content pre code {
+  background-color: transparent;
+  padding: 0;
+  color: inherit;
+}

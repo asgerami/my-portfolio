@@ -1,0 +1,130 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+// Get blog posts from content collection
+const posts = await getCollection('blog');
+// Sort by publication date (most recent first)
+posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+---
+
+<Layout title="Blog - Amir" description="Thoughts on software engineering, technology, and the craft of building software." wideLayout={true}>
+  <div class="py-8">
+    <div>
+      <h1 class="text-2xl md:text-4xl font-bold mb-4" style="font-family: 'Times New Roman', serif;">Blog</h1>
+      <p class="text-base mb-8">
+        My thoughts on different stuff and recommendations.
+      </p>
+
+      {posts.length > 0 ? (
+        <div class="space-y-8">
+          {posts.map((post) => (
+            <article class="pb-6 border-b dark:border-gray-800 border-gray-200 last:border-b-0">
+              <div class="mb-3">
+                <h2 class="text-lg font-bold mb-2">
+                  <a href={`/blog/${post.slug}`} class="hover:text-red-400 transition-colors">{post.data.title}</a>
+                </h2>
+                <p class="text-sm mb-3 leading-relaxed">
+                  {post.data.description}
+                </p>
+                <div class="flex items-center justify-between">
+                  <time datetime={post.data.pubDate.toISOString()} class="text-xs text-gray-500">
+                    {post.data.pubDate.toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                  <a 
+                    href={`/blog/${post.slug}`}
+                    class="text-xs text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    Read more →
+                  </a>
+                </div>
+              </div>
+              
+              {post.data.tags && post.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2">
+                  {post.data.tags.map((tag) => (
+                    <span class="blog-tag text-xs px-2 py-1 rounded">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <h2 class="text-2xl font-bold mb-4">Blog Posts Coming Soon</h2>
+          <p class="text-gray-400 mb-6">
+            I'm working on some interesting posts about software engineering, technology, and my learning journey.
+          </p>
+          <p class="text-sm text-gray-500">
+            Check back soon for my latest thoughts and insights!
+          </p>
+        </div>
+      )}
+
+      <!-- Sample Blog Posts (if no posts yet) -->
+      {posts.length === 0 && (
+        <div class="mt-16">
+          <h2 class="text-3xl font-bold mb-8">What I'm Writing About</h2>
+          
+          <div class="space-y-8">
+            <div>
+              <h3 class="text-xl font-bold mb-4 text-blue-400">Technical Deep Dives</h3>
+              <p class="text-gray-400 mb-4">
+                In-depth explorations of technologies, frameworks, and programming concepts I'm learning and using.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-gray-500 text-sm">#React</span>
+                <span class="text-gray-500 text-sm">#TypeScript</span>
+                <span class="text-gray-500 text-sm">#Architecture</span>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-bold mb-4 text-green-400">Learning Journey</h3>
+              <p class="text-gray-400 mb-4">
+                Reflections on my path as a software engineer, challenges faced, and lessons learned along the way.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-gray-500 text-sm">#Learning</span>
+                <span class="text-gray-500 text-sm">#Career</span>
+                <span class="text-gray-500 text-sm">#Growth</span>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-bold mb-4 text-purple-400">Project Insights</h3>
+              <p class="text-gray-400 mb-4">
+                Behind-the-scenes looks at projects I'm working on, decisions made, and problems solved.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-gray-500 text-sm">#Projects</span>
+                <span class="text-gray-500 text-sm">#Case Studies</span>
+                <span class="text-gray-500 text-sm">#Problem Solving</span>
+              </div>
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-bold mb-4 text-yellow-400">Industry Thoughts</h3>
+              <p class="text-gray-400 mb-4">
+                Observations about the software industry, trends, and the future of technology.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <span class="text-gray-500 text-sm">#Industry</span>
+                <span class="text-gray-500 text-sm">#Trends</span>
+                <span class="text-gray-500 text-sm">#Future</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  </div>
+</Layout>

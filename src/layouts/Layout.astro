@@ -1,0 +1,286 @@
+---
+import '../styles/global.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+  wideLayout?: boolean;
+}
+
+const { title, description = "Software Engineer ", wideLayout = false } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- Performance optimizations -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarena+Neue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/logo.png" as="image" type="image/png">
+    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    
+    <!-- Cache control -->
+    <meta http-equiv="Cache-Control" content="public, max-age=31536000">
+    
+    <title>{title} | Software Engineer</title>
+  </head>
+  <body class="min-h-screen flex flex-col" id="body">
+    <div class={`${wideLayout ? 'max-w-6xl' : 'max-w-2xl'} mx-auto px-6 flex-1`}>
+      <nav class="pt-6 pb-4" id="nav">
+        <div class="flex items-center justify-between">
+          <a href="/" class="hover:opacity-80">
+            <img 
+              src="/logo.png" 
+              alt="Amir Aman" 
+              class="w-12 h-12 rounded-full object-cover" 
+              width="48" 
+              height="48"
+              loading="eager"
+              decoding="async"
+            />
+          </a>
+          <div class="flex items-center space-x-6 md:space-x-8">
+            <a href="/" class="text-md dark:hover:text-gray-300 hover:text-gray-700 transition-all duration-300 hover:scale-105 relative group">
+              /Index
+              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="/experience" class="text-md dark:hover:text-gray-300 hover:text-gray-700 transition-all duration-300 hover:scale-105 relative group">
+              Experience
+              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <a href="/blog" class="text-md dark:hover:text-gray-300 hover:text-gray-700 transition-all duration-300 hover:scale-105 relative group">
+              My Blog
+              <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+            <button id="theme-toggle" class="p-2 rounded-lg hover:bg-transparent dark:hover:bg-transparent transition-all duration-300 hover:rotate-180">
+              <svg id="sun-icon" class="w-5 h-5 hidden dark:block drop-shadow-none" fill="currentColor" viewBox="0 0 20 20" style="filter: none;">
+                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"></path>
+              </svg>
+              <svg id="moon-icon" class="w-5 h-5 block dark:hidden drop-shadow-none" fill="currentColor" viewBox="0 0 20 20" style="filter: none;">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+              </svg>
+            </button>
+          </div>
+      </nav>
+      
+      <main>
+        <slot />
+      </main>
+    </div>
+    
+    <footer class="py-6 border-t dark:border-gray-800 border-gray-200 mt-16 animate-fade-in">
+      <div class="max-w-2xl mx-auto px-6">
+        <div class="flex justify-between items-center dark:text-gray-400 text-gray-600">
+          <p class="hover:text-red-400 transition-colors duration-300">&copy; 2025 asgerami.com</p>
+          <div class="flex space-x-6">
+            <!-- GitHub Icon -->
+            <a 
+              href="https://github.com/asgerami" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="hover:text-red-400 transition-all duration-300 hover:scale-125 hover:-translate-y-1"
+              aria-label="GitHub"
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+              </svg>
+            </a>
+            
+            <!-- Twitter/X Icon -->
+            <a 
+              href="https://x.com/asgerami" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="hover:text-red-400 transition-all duration-300 hover:scale-125 hover:-translate-y-1"
+              aria-label="Twitter/X"
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+            
+            <!-- LinkedIn Icon -->
+            <a 
+              href="https://www.linkedin.com/in/amiramaan/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="hover:text-red-400 transition-all duration-300 hover:scale-125 hover:-translate-y-1"
+              aria-label="LinkedIn"
+            >
+              <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+            </a>
+            
+            <!-- Email Icon -->
+            <a 
+              href="mailto:amiraman467@gmail.com" 
+              class="hover:text-red-400 transition-all duration-300 hover:scale-125 hover:-translate-y-1"
+              aria-label="Email"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Optimized theme toggle with immediate execution
+      (function() {
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+        const html = document.documentElement;
+
+        // Check if elements exist
+        if (!themeToggle || !sunIcon || !moonIcon) {
+          console.error('Theme toggle elements not found');
+          return;
+        }
+
+        // Check for saved theme preference or default to dark mode
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        
+        // Apply the saved theme immediately to prevent flash
+        function applyTheme(isDark: boolean) {
+          if (isDark) {
+            html.classList.add('dark');
+            document.body.style.backgroundColor = '#000000';
+            document.body.style.color = '#ffffff';
+            sunIcon?.classList.remove('hidden');
+            moonIcon?.classList.add('hidden');
+          } else {
+            html.classList.remove('dark');
+            document.body.style.backgroundColor = '#ffffff';
+            document.body.style.color = '#000000';
+            sunIcon?.classList.add('hidden');
+            moonIcon?.classList.remove('hidden');
+          }
+          
+          // Update specific text elements
+          const mainTitle = document.getElementById('main-title');
+          const subtitle = document.getElementById('subtitle');
+          const description = document.getElementById('description');
+          const projectsTitle = document.getElementById('projects-title');
+          const blogTitle = document.getElementById('blog-title');
+          
+          if (mainTitle) mainTitle.style.color = isDark ? '#ffffff' : '#000000';
+          if (subtitle) subtitle.style.color = '#ef4444'; // Keep red for subtitle
+          if (description) description.style.color = isDark ? '#ffffff' : '#6b7280';
+          if (projectsTitle) projectsTitle.style.color = isDark ? '#ffffff' : '#000000';
+          if (blogTitle) blogTitle.style.color = isDark ? '#ffffff' : '#000000';
+          
+          // Update all paragraph and text elements
+          const paragraphs = document.querySelectorAll('p, span, a, time');
+          paragraphs.forEach(el => {
+            if (el.id !== 'subtitle') { // Don't change subtitle color
+              (el as HTMLElement).style.color = isDark ? '#ffffff' : '#6b7280';
+            }
+          });
+          
+          // Update project cards
+          const projectCards = document.querySelectorAll('.group');
+          projectCards.forEach(card => {
+            const htmlCard = card as HTMLElement;
+            if (isDark) {
+              htmlCard.style.backgroundColor = '#000000';
+              htmlCard.style.borderColor = '#ffffff';
+            } else {
+              htmlCard.style.backgroundColor = '#ffffff';
+              htmlCard.style.borderColor = '#000000';
+            }
+            
+            // Update text inside project cards
+            const cardTitles = card.querySelectorAll('h3');
+            const cardTexts = card.querySelectorAll('p');
+            const cardLinks = card.querySelectorAll('a');
+            
+            cardTitles.forEach(title => {
+              title.style.color = isDark ? '#ffffff' : '#000000';
+            });
+            cardTexts.forEach(text => {
+              text.style.color = isDark ? '#ffffff' : '#6b7280';
+            });
+            cardLinks.forEach(link => {
+              if (!link.href.includes('github.com')) {
+                link.style.color = isDark ? '#ffffff' : '#000000';
+              }
+            });
+          });
+          
+          // Update technology tags
+          const techTags = document.querySelectorAll('.tech-tag');
+          techTags.forEach(tag => {
+            const htmlTag = tag as HTMLElement;
+            if (isDark) {
+              htmlTag.style.backgroundColor = '#1f2937';
+              htmlTag.style.color = '#9ca3af';
+            } else {
+              htmlTag.style.backgroundColor = '#f3f4f6';
+              htmlTag.style.color = '#6b7280';
+            }
+          });
+          
+          // Update blog tags
+          const blogTags = document.querySelectorAll('.blog-tag');
+          blogTags.forEach(tag => {
+            const htmlTag = tag as HTMLElement;
+            if (isDark) {
+              htmlTag.style.backgroundColor = '#1f2937';
+              htmlTag.style.color = '#9ca3af';
+            } else {
+              htmlTag.style.backgroundColor = '#f3f4f6';
+              htmlTag.style.color = '#6b7280';
+            }
+          });
+          
+          // Update navigation and footer borders
+          const nav = document.getElementById('nav');
+          const footer = document.querySelector('footer');
+          if (nav) {
+            nav.style.borderColor = isDark ? '#374151' : '#e5e7eb';
+          }
+          if (footer) {
+            footer.style.borderColor = isDark ? '#374151' : '#e5e7eb';
+          }
+        }
+
+        if (currentTheme === 'dark') {
+          applyTheme(true);
+        } else {
+          applyTheme(false);
+        }
+
+        // Theme toggle event listener with optimized performance
+        themeToggle.addEventListener('click', function() {
+          if (html.classList.contains('dark')) {
+            // Switch to light mode
+            applyTheme(false);
+            localStorage.setItem('theme', 'light');
+          } else {
+            // Switch to dark mode
+            applyTheme(true);
+            localStorage.setItem('theme', 'dark');
+          }
+        });
+      })();
+    </script>
+
+  </body>
+</html>
