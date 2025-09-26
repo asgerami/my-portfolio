@@ -1,0 +1,56 @@
+---
+// Performance monitoring component
+---
+
+<script>
+  // Performance monitoring
+  if (typeof window !== 'undefined') {
+    // Core Web Vitals monitoring
+    function measureWebVitals() {
+      // Largest Contentful Paint (LCP)
+      new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        const lastEntry = entries[entries.length - 1];
+        console.log('LCP:', lastEntry.startTime);
+      }).observe({ entryTypes: ['largest-contentful-paint'] });
+
+      // First Input Delay (FID)
+      new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        entries.forEach((entry) => {
+          console.log('FID:', entry.processingStart - entry.startTime);
+        });
+      }).observe({ entryTypes: ['first-input'] });
+
+      // Cumulative Layout Shift (CLS)
+      let clsValue = 0;
+      new PerformanceObserver((entryList) => {
+        const entries = entryList.getEntries();
+        entries.forEach((entry) => {
+          if (!entry.hadRecentInput) {
+            clsValue += entry.value;
+          }
+        });
+        console.log('CLS:', clsValue);
+      }).observe({ entryTypes: ['layout-shift'] });
+    }
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', measureWebVitals);
+    } else {
+      measureWebVitals();
+    }
+
+    // Resource timing
+    window.addEventListener('load', () => {
+      const resources = performance.getEntriesByType('resource');
+      const totalSize = resources.reduce((acc, resource) => {
+        return acc + (resource.transferSize || 0);
+      }, 0);
+      
+      console.log('Total resources size:', totalSize, 'bytes');
+      console.log('Number of resources:', resources.length);
+    });
+  }
+</script>

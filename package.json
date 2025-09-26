@@ -6,7 +6,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "build:analyze": "astro build && npx astro-bundle-analyzer",
+    "perf:test": "npm run build && npx lighthouse http://localhost:4321 --output=html --output-path=./lighthouse-report.html",
+    "perf:audit": "npm run build && npx webpack-bundle-analyzer dist/_astro/*.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",

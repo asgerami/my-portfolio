@@ -1,7 +1,86 @@
 @import "tailwindcss";
 
+/* Performance optimizations */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: "Almarena Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Prevent horizontal scrolling in main content without blocking layout */
+  main,
+  header,
+  footer,
+  section,
+  div {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  /* Improve touch targets */
+  a,
+  button {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Optimize text for mobile reading */
+  p {
+    line-height: 1.6;
+    word-break: break-word;
+  }
+
+  /* Improve card interactions */
+  .group:hover {
+    transform: none;
+  }
+
+  .group:active {
+    transform: scale(0.98);
+  }
+
+  /* Fix navigation spacing */
+  .flex.items-center.space-x-2 {
+    gap: 0.5rem;
+  }
+
+  /* Ensure proper text wrapping */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    word-break: break-word;
+    hyphens: auto;
+  }
 }
 
 /* Critical CSS - Load immediately */
@@ -12,7 +91,7 @@ body {
   line-height: 1.6;
 }
 
-/* Custom Animations - Only used ones */
+/* Performance-optimized animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -22,6 +101,14 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* GPU acceleration for animations */
+.animate-fade-in,
+.animate-fade-in-up {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 @keyframes fadeInUp {
