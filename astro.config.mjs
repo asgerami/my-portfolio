@@ -18,14 +18,8 @@ export default defineConfig({
           },
         },
       },
-      // Enable minification
-      minify: "terser",
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-        },
-      },
+      // Use default esbuild minifier (no terser dependency required)
+      minify: true,
     },
   },
   // Performance optimizations
