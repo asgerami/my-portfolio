@@ -1,9 +1,9 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import Layout from "../../layouts/Layout.astro";
+import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection("blog");
   return posts.map((post) => ({
     params: { slug: post.slug },
     props: { post },
@@ -14,77 +14,114 @@ const { post } = Astro.props;
 const { Content } = await post.render();
 ---
 
-<Layout title={`${post.data.title} - Amir's Blog`} description={post.data.description}>
+<Layout
+  title={`${post.data.title} - Amir's Blog`}
+  description={post.data.description}
+>
   <article class="py-8">
     <div class="max-w-2xl mx-auto">
       <!-- Back to blog link -->
-      <a 
-        href="/blog" 
+      <a
+        href="/blog"
         class="inline-flex items-center text-sm text-gray-500 hover:text-red-400 transition-colors mb-6"
       >
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        <svg
+          class="w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"></path>
         </svg>
         Back to Blog
       </a>
 
       <!-- Article header -->
       <header class="mb-10 pb-6 border-b dark:border-gray-800 border-gray-200">
-        <h1 class="text-3xl md:text-4xl font-bold mb-6 leading-tight" style="font-family: 'Times New Roman', serif;">
+        <h1
+          class="text-3xl md:text-4xl font-bold mb-6 leading-tight font-serif text-gray-900 dark:text-white"
+        >
           {post.data.title}
         </h1>
-        
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+
+        <div
+          class="flex flex-col md:flex-row md:items-center md:justify-between mb-6"
+        >
           <div class="flex items-center text-sm text-gray-500 mb-3 md:mb-0">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
             </svg>
             <time datetime={post.data.pubDate.toISOString()}>
-              {post.data.pubDate.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {
+                post.data.pubDate.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              }
             </time>
-            {post.data.updatedDate && post.data.updatedDate.getTime() !== post.data.pubDate.getTime() && (
-              <span class="ml-4 text-xs text-gray-500">
-                Updated {post.data.updatedDate.toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </span>
-            )}
+            {
+              post.data.updatedDate &&
+                post.data.updatedDate.getTime() !==
+                  post.data.pubDate.getTime() && (
+                  <span class="ml-4 text-xs text-gray-500">
+                    Updated{" "}
+                    {post.data.updatedDate.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </span>
+                )
+            }
           </div>
-          
-          {post.data.tags && post.data.tags.length > 0 && (
-            <div class="flex flex-wrap gap-2">
-              {post.data.tags.map((tag) => (
-                <span class="blog-tag text-xs px-3 py-1 rounded-full">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+
+          {
+            post.data.tags && post.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2">
+                {post.data.tags.map((tag) => (
+                  <span class="text-xs px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )
+          }
         </div>
-        
+
         <p class="text-lg leading-relaxed text-gray-600 dark:text-gray-400">
           {post.data.description}
         </p>
       </header>
 
       <!-- Hero image (if exists) -->
-      {post.data.heroImage && (
-        <div class="mb-12">
-          <img 
-            src={post.data.heroImage} 
-            alt={post.data.title}
-            class="w-full h-64 md:h-96 object-cover rounded-lg"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
-      )}
+      {
+        post.data.heroImage && (
+          <div class="mb-12">
+            <img
+              src={post.data.heroImage}
+              alt={post.data.title}
+              class="w-full h-64 md:h-96 object-cover rounded-lg"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        )
+      }
 
       <!-- Article content -->
       <div class="blog-content">
@@ -94,16 +131,25 @@ const { Content } = await post.render();
       <!-- Related posts or navigation -->
       <div class="mt-12 pt-8 border-t dark:border-gray-800 border-gray-200">
         <div class="flex items-center justify-between">
-          <a 
-            href="/blog" 
+          <a
+            href="/blog"
             class="inline-flex items-center text-sm text-red-400 hover:text-red-300 transition-colors group"
           >
-            <svg class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <svg
+              class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"></path>
             </svg>
             All Posts
           </a>
-          
+
           <div class="text-xs text-gray-500">
             <span>Reading time: ~3 min</span>
           </div>
