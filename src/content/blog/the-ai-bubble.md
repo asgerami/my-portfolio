@@ -2,6 +2,7 @@
 title: "The AI Bubble: We’re Building Cathedrals for a Religion That Doesn't Exist Yet"
 description: "The AI hype is cooling, but let’s be clear: it isn’t dying. It’s just hitting a wall of reality. An opinion piece on the current state of AI investment."
 pubDate: 2026-02-09
+heroImage: "/images/blog/the-ai-bubble/bubble.jpg"
 tags: ["AI", "Technology", "Opinion", "Market"]
 ---
 
@@ -14,6 +15,8 @@ To understand where we are, we have to look back at the "pipes."
 During the dot-com boom, the world was convinced internet traffic would grow infinitely and immediately. The mantra was simple: whoever owns the pipes controls the future.
 Trillions of dollars poured into fiber-optic infrastructure. Millions of kilometers of fiber were laid, wiring entire continents multiple times over. By 2001, reality checked in: only 5% to 10% of that fiber was actually being used. The rest sat as "dark fiber" billions of dollars of glass buried in the dirt, doing nothing.
 
+![Dark Fiber Ruins](/images/blog/the-ai-bubble/internet_cables.webp)
+
 The fallout was catastrophic:
 *   **Massive Bankruptcies:** Telecom giants vanished overnight.
 *   **Job Losses:** Over two million people were laid off.
@@ -25,6 +28,8 @@ Was the internet a mistake? Of course not. It changed the world. But that overbu
 
 We are seeing the exact same pattern with AI infrastructure. We are vastly overestimating the near-term value of AI while the technology is only improving marginally compared to the vertical climb of the hype.
 Today, AI spending is effectively propping up a massive chunk of US GDP growth. But what happens when the "AGI isn't coming" realization sets in?
+
+![AI Investment Circle](/images/blog/the-ai-bubble/ai-investment-circle.jpeg)
 
 *   **A Deeper Crash:** I expect the fallout to be worse than 2001. More capital will vanish, and many AI startups will be liquidated, leaving only the "Too Big To Fail" players like Google standing.
 *   **Fire Sales:** Just as fiber-optic installation dropped from $1,000 per meter to $10, today’s high-end compute power will eventually sell for pennies on the dollar.
