@@ -111,11 +111,11 @@ const { Content } = await post.render();
       <!-- Hero image (if exists) -->
       {
         post.data.heroImage && (
-          <div class="mb-12">
+          <div class="mb-12 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center min-h-64 md:min-h-96">
             <img
               src={post.data.heroImage}
               alt={post.data.title}
-              class="w-full h-64 md:h-96 object-cover rounded-lg"
+              class="w-full max-h-[24rem] md:max-h-[28rem] object-contain rounded-lg"
               loading="lazy"
               decoding="async"
             />
