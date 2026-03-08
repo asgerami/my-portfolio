@@ -6,7 +6,10 @@ import { getCollection } from "astro:content";
 
 const allPosts = await getCollection("blog");
 const latestPosts = allPosts
-  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+  .sort(
+    (a, b) =>
+      new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime(),
+  )
   .slice(0, 2);
 
 const projects = await getCollection("projects");
@@ -28,18 +31,29 @@ const projectGradients = [
     <!-- Hero -->
     <section class="mb-12 md:mb-16 animate-fade-in">
       <p class="section-label mb-4">001. About</p>
-      <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-3" style="color: var(--text);">
+      <h1
+        class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-3"
+        style="color: var(--text);"
+      >
         Amir Aman
       </h1>
-      <p class="text-xl md:text-2xl font-display font-medium mb-4 max-w-2xl" style="color: var(--accent);">
+      <p
+        class="text-xl md:text-2xl font-display font-medium mb-4 max-w-2xl"
+        style="color: var(--accent);"
+      >
         The software developer who builds things that scale.
       </p>
-      <div class="max-w-2xl space-y-4 text-base md:text-lg leading-relaxed mb-8" style="color: var(--text-muted);">
+      <div
+        class="max-w-2xl space-y-4 text-base md:text-lg leading-relaxed mb-8"
+        style="color: var(--text-muted);"
+      >
         <p>
-          I build modern web applications with Node.js, Next.js, and React. I focus on scalable backends and clear, maintainable architecture.
+          I build modern web applications with Node.js, Next.js, and React. I
+          focus on scalable backends and clear, maintainable architecture.
         </p>
         <p>
-          I’m into high-performance systems and clean UX. Currently learning C++ and ML and writing about it on my blog.
+          I’m into high-performance systems and clean UX. Currently learning C++
+          and ML and writing about it on my blog.
         </p>
       </div>
       <a
@@ -50,14 +64,31 @@ const projectGradients = [
         style="border-color: var(--accent); color: var(--accent);"
       >
         View my resume
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg
+        >
       </a>
     </section>
 
     <!-- Tech Stack -->
-    <section class="section-reveal mb-16 md:mb-24" aria-labelledby="tech-heading">
+    <section
+      class="section-reveal mb-16 md:mb-24"
+      aria-labelledby="tech-heading"
+    >
       <p class="section-label mb-3">002. Stack</p>
-      <h2 id="tech-heading" class="font-display text-2xl md:text-3xl font-bold mb-8" style="color: var(--text);">
+      <h2
+        id="tech-heading"
+        class="font-display text-2xl md:text-3xl font-bold mb-8"
+        style="color: var(--text);"
+      >
         Tech stack
       </h2>
       <div class="stagger-item">
@@ -66,65 +97,111 @@ const projectGradients = [
     </section>
 
     <!-- Projects -->
-    <section class="section-reveal mb-16 md:mb-24" aria-labelledby="projects-heading">
+    <section
+      class="section-reveal mb-16 md:mb-24"
+      aria-labelledby="projects-heading"
+    >
       <p class="section-label mb-3">003. Work</p>
-      <h2 id="projects-heading" class="font-display text-2xl md:text-3xl font-bold mb-8" style="color: var(--text);">
+      <h2
+        id="projects-heading"
+        class="font-display text-2xl md:text-3xl font-bold mb-8"
+        style="color: var(--text);"
+      >
         Projects
       </h2>
-      {projects.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-          {projects.map((project, i) => (
-            <div class="stagger-item">
-              <ProjectCard
-                project={project}
-                gradient={projectGradients[i % projectGradients.length]}
-              />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p class="text-base" style="color: var(--text-muted);">Projects coming soon.</p>
-      )}
+      {
+        projects.length > 0 ? (
+          <div
+            class="flex flex-col gap-5 md:gap-0 md:divide-y"
+            style="--tw-divide-opacity:1; border-color: var(--border);"
+          >
+            {projects.map((project, i) => (
+              <div class="stagger-item">
+                <ProjectCard
+                  project={project}
+                  gradient={projectGradients[i % projectGradients.length]}
+                  index={i}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="text-base" style="color: var(--text-muted);">
+            Projects coming soon.
+          </p>
+        )
+      }
     </section>
 
     <!-- Blog -->
     <section class="section-reveal mb-8" aria-labelledby="blog-heading">
       <p class="section-label mb-3">004. Writing</p>
-      <h2 id="blog-heading" class="font-display text-2xl md:text-3xl font-bold mb-8" style="color: var(--text);">
+      <h2
+        id="blog-heading"
+        class="font-display text-2xl md:text-3xl font-bold mb-8"
+        style="color: var(--text);"
+      >
         Recent posts
       </h2>
-      {latestPosts.length > 0 ? (
-        <div class="space-y-4 mb-6">
-          {latestPosts.map((post, i) => (
-            <div class="stagger-item">
-              <a
-                href={`/blog/${post.slug}`}
-                rel="prefetch"
-                class="card card-hover block p-5 md:p-6 group"
-              >
-                <h3 class="font-display font-semibold text-lg mb-1 group-hover:opacity-90 transition-opacity" style="color: var(--text);">
-                  {post.data.title}
-                </h3>
-                <p class="text-sm mb-3 line-clamp-2" style="color: var(--text-muted);">
-                  {post.data.description}
-                </p>
-                <time class="text-xs font-medium" style="color: var(--accent);">
-                  {post.data.pubDate.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-                </time>
-              </a>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p class="text-base mb-6" style="color: var(--text-muted);">No posts yet.</p>
-      )}
+      {
+        latestPosts.length > 0 ? (
+          <div class="space-y-4 mb-6">
+            {latestPosts.map((post, i) => (
+              <div class="stagger-item">
+                <a
+                  href={`/blog/${post.slug}`}
+                  rel="prefetch"
+                  class="card card-hover block p-5 md:p-6 group"
+                >
+                  <h3
+                    class="font-display font-semibold text-lg mb-1 group-hover:opacity-90 transition-opacity"
+                    style="color: var(--text);"
+                  >
+                    {post.data.title}
+                  </h3>
+                  <p
+                    class="text-sm mb-3 line-clamp-2"
+                    style="color: var(--text-muted);"
+                  >
+                    {post.data.description}
+                  </p>
+                  <time
+                    class="text-xs font-medium"
+                    style="color: var(--accent);"
+                  >
+                    {post.data.pubDate.toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </time>
+                </a>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p class="text-base mb-6" style="color: var(--text-muted);">
+            No posts yet.
+          </p>
+        )
+      }
       <a
         href="/blog"
         class="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:opacity-90"
         style="color: var(--accent);"
       >
         View all posts
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg
+        >
       </a>
     </section>
   </div>
