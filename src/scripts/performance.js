@@ -18,10 +18,21 @@
     });
   }, observerOptions);
 
-  // Observe elements for animation
+  // Scroll-reveal: add .is-visible when section enters viewport
+  const revealOptions = { root: null, rootMargin: "0px 0px -80px 0px", threshold: 0 };
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, revealOptions);
+
   document.addEventListener("DOMContentLoaded", () => {
     const animatedElements = document.querySelectorAll(".animate-fade-in-up");
     animatedElements.forEach((el) => observer.observe(el));
+    document.querySelectorAll(".section-reveal").forEach((el) => revealObserver.observe(el));
   });
 
   // Preload critical resources on hover

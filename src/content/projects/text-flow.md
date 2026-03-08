@@ -5,6 +5,7 @@ techStack: ["React", "TypeScript", "Tiptap", "Liveblocks", "Clerk", "Convex"]
 githubUrl: "https://github.com/asgerami/text-flow"
 demoUrl: "https://textflow-theta.vercel.app/"
 featured: true
+image: "/images/projects/textflow.png"
 ---
 
 A modern, real-time collaborative text editor that brings teams together for seamless document creation and editing. Built with cutting-edge technologies to provide a Google Docs-like experience with enhanced features.

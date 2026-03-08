@@ -1,0 +1,54 @@
+---
+export interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+
+// All icons from Devicons (devicon.dev) for consistent look. Fallback: Simple Icons slug in icon field.
+const devicon = (name: string, variant = "original") =>
+  `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}/${name}-${variant}.svg`;
+
+const tech = [
+  { name: "React", icon: "react", iconUrl: devicon("react") },
+  { name: "Next.js", icon: "nextdotjs", iconUrl: devicon("nextjs") },
+  { name: "TypeScript", icon: "typescript", iconUrl: devicon("typescript") },
+  { name: "Tailwind CSS", icon: "tailwindcss", iconUrl: devicon("tailwindcss") },
+  { name: "Node.js", icon: "nodedotjs" },
+  { name: "Express", icon: "express", iconUrl: devicon("express") },
+  { name: "Astro", icon: "astro" },
+  { name: "PostgreSQL", icon: "postgresql", iconUrl: devicon("postgresql") },
+  { name: "MongoDB", icon: "mongodb", iconUrl: devicon("mongodb") },
+  { name: "Redis", icon: "redis", iconUrl: devicon("redis") },
+  { name: "Go", icon: "go", iconUrl: devicon("go") },
+  { name: "Python", icon: "python", iconUrl: devicon("python") },
+  { name: "Git", icon: "git", iconUrl: devicon("git") },
+  { name: "Docker", icon: "docker", iconUrl: devicon("docker") },
+  { name: "Jest", icon: "jest" },
+  { name: "Prisma", icon: "prisma", iconUrl: devicon("prisma") },
+  { name: "Supabase", icon: "supabase", iconUrl: devicon("supabase") },
+  { name: "Vercel", icon: "vercel", iconUrl: devicon("vercel") },
+  { name: "Linux", icon: "linux", iconUrl: devicon("linux", "original") },
+  { name: "Arch Linux", icon: "archlinux", iconUrl: devicon("archlinux") },
+];
+---
+
+<ul
+  class={`grid grid-cols-6 gap-4 py-2 sm:gap-5 md:grid-cols-8 md:gap-6 lg:grid-cols-10 ${className}`}
+  aria-label="Tech stack"
+>
+  {
+    tech.map((t) => (
+      <li class="flex items-center justify-center p-2 sm:p-3">
+        <img
+          src={t.iconUrl ?? `https://cdn.simpleicons.org/${t.icon}`}
+          alt={t.name}
+          class="h-9 w-9 shrink-0 opacity-90 transition-opacity hover:opacity-100 sm:h-10 sm:w-10 md:h-10 md:w-10"
+          width="40"
+          height="40"
+          loading="lazy"
+          title={t.name}
+        />
+      </li>
+    ))
+  }
+</ul>

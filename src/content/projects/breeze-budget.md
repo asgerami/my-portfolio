@@ -5,14 +5,13 @@ techStack: ["React", "TypeScript", "Vite", "Tailwind CSS", "Chart.js"]
 githubUrl: "https://github.com/asgerami/BreezeBudget"
 demoUrl: "https://breeze-budget.vercel.app/"
 featured: true
+image: "/images/projects/breezebudget.png"
 ---
 
 A comprehensive AC energy cost calculator that helps homeowners make informed decisions about their air conditioning systems by providing accurate cost estimates based on real-world data.
 
 ## Key Features
-
-- **Real-time Weather Data** integration using Open-Meteo API
-- **Energy Cost Calculations** based on ZIP code, house size, and SEER2 rating
+ 
 - **Interactive Charts** showing daily, monthly, and yearly cost breakdowns
 - **PDF Report Generation** for easy sharing and documentation
 - **Responsive Design** that works on all devices
