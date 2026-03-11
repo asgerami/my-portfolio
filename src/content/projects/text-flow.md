@@ -16,7 +16,7 @@ A modern, real-time collaborative text editor that brings teams together for sea
 - **Rich Text Editing** with Tiptap editor for professional formatting
 - **Document Templates** for quick project setup
 - **Image Upload & Management** with drag-and-drop functionality
-- **Table Support** for structured data presentation
+- **Table Support** for structured data presentation.
 - **User Authentication** with secure login and user management
 - **Document Sharing** with customizable permissions
 
