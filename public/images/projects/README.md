@@ -2,9 +2,9 @@
 
 Add images here to show on the homepage project cards:
 
-- `breeze-budget.jpg` — Breeze Budget
-- `iconnect.jpg` — Iconnect
-- `text-flow.jpg` — Text Flow
+- `breeze-budget.jpg` - Breeze Budget
+- `iconnect.jpg` - Iconnect
+- `text-flow.jpg` - Text Flow
 
 Then set the `image` field in each project’s frontmatter, e.g.:
 
