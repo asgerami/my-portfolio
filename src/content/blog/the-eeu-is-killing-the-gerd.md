@@ -1,5 +1,5 @@
 ---
-title: "The EEU is Killing the GERD: How One Incompetent Utility is Sabotaging Ethiopia’s Future"
+title: "The EEU is Killing the GERD: How One Incompetent Utility Company is Sabotaging Ethiopia’s Future"
 description: "Is the Ethiopian Electric Utility actually a service provider, or is it a systemic chokehold masquerading as one? An essay on Ethiopia's energy crisis."
 pubDate: 2026-04-21
 heroImage: "/images/blog/the-eeu-is-killing-the-gerd/hero.jpg"
