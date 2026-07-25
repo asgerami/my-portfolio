@@ -24,6 +24,7 @@ const projects = defineCollection({
     image: z.string().optional(),
     year: z.string().optional(),
     clientWork: z.boolean().optional(),
+    order: z.number().optional(),
   }),
 });
 

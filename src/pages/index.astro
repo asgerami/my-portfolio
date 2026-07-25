@@ -19,6 +19,9 @@ const featuredProjects = allProjects
   .sort((a, b) => {
     if (a.data.featured && !b.data.featured) return -1;
     if (!a.data.featured && b.data.featured) return 1;
+    const orderA = a.data.order ?? Infinity;
+    const orderB = b.data.order ?? Infinity;
+    if (orderA !== orderB) return orderA - orderB;
     return a.data.title.localeCompare(b.data.title);
   });
 

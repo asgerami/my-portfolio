@@ -4,6 +4,8 @@ description: "An open-source CLI that turns any REST API into an agent-ready MCP
 techStack: ["TypeScript", "Node.js", "MCP", "Docker", "PostgreSQL"]
 githubUrl: "https://github.com/asgerami/wrangl"
 featured: true
+order: 0
+image: "/images/projects/wrangl.png"
 ---
 
 Wrangl bridges the gap between AI agents that speak MCP (Model Context Protocol) and the REST APIs that don't. Point it at an API and it discovers the spec, generates typed tools, and runs an MCP proxy in front of it - no hand-written server required.
