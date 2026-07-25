@@ -35,6 +35,32 @@
     document.querySelectorAll(".section-reveal").forEach((el) => revealObserver.observe(el));
   });
 
+  // Index rail: highlight whichever section is currently in view
+  const initRailObserver = () => {
+    const railLinks = document.querySelectorAll(".index-rail__item");
+    if (!railLinks.length) return;
+
+    const railObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const link = document.querySelector(
+            `.index-rail__item[data-rail-target="${entry.target.id}"]`
+          );
+          if (!link) return;
+          link.classList.toggle("is-active", entry.isIntersecting);
+        });
+      },
+      { root: null, rootMargin: "-40% 0px -50% 0px", threshold: 0 }
+    );
+
+    railLinks.forEach((link) => {
+      const target = document.getElementById(link.dataset.railTarget || "");
+      if (target) railObserver.observe(target);
+    });
+  };
+
+  document.addEventListener("DOMContentLoaded", initRailObserver);
+
   // Preload critical resources on hover
   const preloadOnHover = (selector, href) => {
     const elements = document.querySelectorAll(selector);

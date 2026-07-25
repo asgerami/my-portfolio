@@ -19,6 +19,8 @@
     --border: #e2e8f0;
     --accent: #0d9488;
     --accent-hover: #0f766e;
+    /* Darker, AA-compliant teal for small text set directly on --bg/--bg-elevated */
+    --accent-text: #0f766e;
   }
 
   .dark {
@@ -29,6 +31,8 @@
     --border: #334155;
     --accent: #2dd4bf;
     --accent-hover: #5eead4;
+    /* The bright accent already clears AA on dark surfaces */
+    --accent-text: #2dd4bf;
   }
 
   html {
@@ -42,21 +46,27 @@
     color: var(--text);
   }
 
+  /* Quiet ruled-paper texture instead of a busy dot-grid */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background-image:
-      linear-gradient(var(--border) 1px, transparent 1px),
-      linear-gradient(90deg, var(--border) 1px, transparent 1px);
-    background-size: 64px 64px;
-    opacity: 0.15;
+    background-image: linear-gradient(var(--border) 1px, transparent 1px);
+    background-size: 100% 88px;
+    opacity: 0.12;
     pointer-events: none;
     z-index: -1;
   }
 
   .dark body::before {
-    opacity: 0.06;
+    opacity: 0.05;
+  }
+
+  /* Visible, on-brand keyboard focus */
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
 }
 
@@ -74,6 +84,16 @@
 @keyframes glow-pulse {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 0.8; }
+}
+
+@keyframes ping-ring {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
 }
 
 .animate-fade-in {
@@ -117,15 +137,117 @@
 .section-reveal .stagger-item:nth-child(8) { transition-delay: 0.4s; }
 .section-reveal .stagger-item:nth-child(9) { transition-delay: 0.45s; }
 
+/* Reduce all motion when the user asks for it */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .section-reveal,
+  .section-reveal .stagger-item {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
-/* Section label */
+/* Section label (mobile / fallback numbering, shown when no rail is present) */
 .section-label {
   font-family: var(--font-display);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Section header: number + title on a rule line, editorial-index style */
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-head .section-label {
+  margin-bottom: 0;
+}
+.section-head h2,
+.section-head h1 {
+  margin-bottom: 0 !important;
+}
+
+/* Index rail: persistent section index, wide viewports only */
+.index-rail {
+  position: fixed;
+  left: clamp(1.5rem, 3.5vw, 3.25rem);
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 1.4rem;
+  border-left: 1px solid var(--border);
+  padding-left: 1.1rem;
+  z-index: 40;
+}
+.index-rail__item {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+.index-rail__item::before {
+  content: "";
+  position: absolute;
+  left: -1.35rem;
+  top: 0.4rem;
+  width: 6px;
+  height: 1px;
+  background: var(--border);
+  transition: background 0.3s ease, width 0.3s ease;
+}
+.index-rail__item.is-active::before {
+  background: var(--accent);
+  width: 11px;
+}
+.index-rail__num {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  opacity: 0.6;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+.index-rail__item.is-active .index-rail__num {
+  color: var(--accent-text);
+  opacity: 1;
+}
+.index-rail__label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition: max-width 0.3s ease, opacity 0.3s ease;
+}
+.index-rail__item:hover .index-rail__label,
+.index-rail__item.is-active .index-rail__label {
+  max-width: 10rem;
+  opacity: 1;
 }
 
 /* Cards */
@@ -135,16 +257,26 @@
   @apply rounded-2xl transition-all duration-300;
 }
 
+/* Hard, offset-shadow hover - editorial/print, not a soft glow */
 .card-hover {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 .card-hover:hover {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent), 0 20px 40px -12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 5px 5px 0 0 var(--accent);
+  transform: translate(-3px, -3px);
 }
-.dark .card-hover:hover {
-  box-shadow: 0 0 0 1px var(--accent), 0 20px 40px -12px rgba(0, 0, 0, 0.4);
+
+/* Rule-line list rows (used for compact, lower-emphasis lists like Client Work) */
+.rule-row {
+  border-top: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+}
+.rule-row:last-child {
+  border-bottom: 1px solid var(--border);
+}
+.rule-row:hover {
+  background-color: var(--accent-muted);
 }
 
 /* Utilities */
@@ -239,7 +371,7 @@
   .blog-content code {
     @apply rounded px-1.5 py-0.5 text-sm font-mono;
     background: var(--accent-muted);
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   .blog-content pre code {
@@ -254,7 +386,7 @@
   }
 
   .blog-content a {
-    color: var(--accent);
+    color: var(--accent-text);
     text-decoration: underline;
     text-underline-offset: 2px;
     text-decoration-color: rgba(45, 212, 191, 0.4);

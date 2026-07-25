@@ -6,12 +6,14 @@ export interface Props {
   title: string;
   description?: string;
   wideLayout?: boolean;
+  railItems?: { num: string; label: string; id: string }[];
 }
 
 const {
   title,
   description = "Software Engineer",
   wideLayout = false,
+  railItems = [],
 } = Astro.props;
 
 const navLinks = [
@@ -45,14 +47,34 @@ const navLinks = [
     <link rel="prefetch" href="/blog" />
 
     <title>{title} | Software Engineer</title>
+
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) return localStorage.getItem("theme");
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+        return "light";
+      })();
+      if (theme === "light") document.documentElement.classList.remove("dark");
+      else document.documentElement.classList.add("dark");
+    </script>
     <script src="../scripts/performance.js"></script>
   </head>
   <body class="min-h-screen flex flex-col" id="body">
+    {railItems.length > 0 && (
+      <nav class="index-rail hidden 2xl:flex" aria-label="Section index">
+        {railItems.map((item) => (
+          <a href={`#${item.id}`} class="index-rail__item" data-rail-target={item.id}>
+            <span class="index-rail__num">{item.num}</span>
+            <span class="index-rail__label">{item.label}</span>
+          </a>
+        ))}
+      </nav>
+    )}
     <div class={`${wideLayout ? "max-w-5xl" : "max-w-2xl"} mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1`}>
       <!-- Nav -->
       <header class="sticky top-0 z-50 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pt-4 pb-2 md:pt-6">
         <nav
-          class="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 backdrop-blur-xl px-4 py-3 shadow-sm"
+          class="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 backdrop-blur-xl px-4 py-3"
           aria-label="Main"
         >
           <a href="/" class="flex items-center gap-2 rounded-lg transition-opacity hover:opacity-90">
@@ -127,14 +149,6 @@ const navLinks = [
       </footer>
 
       <script is:inline>
-        const theme = (() => {
-          if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) return localStorage.getItem("theme");
-          if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
-          return "light";
-        })();
-        if (theme === "light") document.documentElement.classList.remove("dark");
-        else document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", theme);
         document.getElementById("theme-toggle")?.addEventListener("click", () => {
           document.documentElement.classList.toggle("dark");
           localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");

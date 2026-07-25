@@ -12,34 +12,44 @@ const latestPosts = allPosts
   )
   .slice(0, 2);
 
-const projects = await getCollection("projects");
-projects.sort((a, b) => {
-  if (a.data.featured && !b.data.featured) return -1;
-  if (!a.data.featured && b.data.featured) return 1;
-  return a.data.title.localeCompare(b.data.title);
-});
+const allProjects = await getCollection("projects");
 
-const projectGradients = [
-  "from-teal-500/20 to-cyan-500/20",
-  "from-violet-500/20 to-fuchsia-500/20",
-  "from-amber-500/20 to-orange-500/20",
+const featuredProjects = allProjects
+  .filter((p) => !p.data.clientWork)
+  .sort((a, b) => {
+    if (a.data.featured && !b.data.featured) return -1;
+    if (!a.data.featured && b.data.featured) return 1;
+    return a.data.title.localeCompare(b.data.title);
+  });
+
+const clientProjects = allProjects
+  .filter((p) => p.data.clientWork)
+  .sort((a, b) => Number(b.data.year ?? 0) - Number(a.data.year ?? 0));
+
+const railItems = [
+  { num: "01", label: "About", id: "about" },
+  { num: "02", label: "Stack", id: "stack" },
+  { num: "03", label: "Work", id: "work" },
+  { num: "04", label: "Client Work", id: "client-work" },
+  { num: "05", label: "Writing", id: "writing" },
 ];
 ---
 
-<Layout title="Amir - Software Engineer" wideLayout={true}>
+<Layout title="Amir - Software Engineer" wideLayout={true} railItems={railItems}>
   <div class="py-8 md:py-12">
-    <!-- Hero -->
-    <section class="mb-12 md:mb-16 animate-fade-in">
-      <p class="section-label mb-4">001. About</p>
+    <!-- Hero / About -->
+    <section id="about" class="mb-16 md:mb-20 animate-fade-in">
+      <p class="section-label mb-4 2xl:hidden">01</p>
       <h1
-        class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-3"
+        class="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-5"
         style="color: var(--text);"
       >
         Amir Aman
       </h1>
+      <div class="w-16 h-px mb-6" style="background: var(--accent);"></div>
       <p
         class="text-xl md:text-2xl font-display font-medium mb-4 max-w-2xl"
-        style="color: var(--accent);"
+        style="color: var(--accent-text);"
       >
         Software Engineer specializing in scalable web architectures.
       </p>
@@ -60,7 +70,7 @@ const projectGradients = [
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 rounded-xl border-2 px-6 py-2.5 text-sm font-semibold transition-all hover:scale-[1.02]"
-          style="border-color: var(--accent); color: var(--accent); background-color: transparent;"
+          style="border-color: var(--accent); color: var(--accent-text); background-color: transparent;"
         >
           View LinkedIn
           <svg
@@ -91,48 +101,50 @@ const projectGradients = [
 
     <!-- Tech Stack -->
     <section
+      id="stack"
       class="section-reveal mb-16 md:mb-24"
       aria-labelledby="tech-heading"
     >
-      <p class="section-label mb-3">002. Stack</p>
-      <h2
-        id="tech-heading"
-        class="font-display text-2xl md:text-3xl font-bold mb-8"
-        style="color: var(--text);"
-      >
-        Tech stack
-      </h2>
+      <div class="section-head">
+        <span class="section-label 2xl:hidden">02</span>
+        <h2
+          id="tech-heading"
+          class="font-display text-2xl md:text-3xl font-bold"
+          style="color: var(--text);"
+        >
+          Stack
+        </h2>
+      </div>
       <div class="stagger-item">
         <TechStack />
       </div>
     </section>
 
-    <!-- Projects -->
+    <!-- Work -->
     <section
+      id="work"
       class="section-reveal mb-16 md:mb-24"
-      aria-labelledby="projects-heading"
+      aria-labelledby="work-heading"
     >
-      <p class="section-label mb-3">003. Work</p>
-      <h2
-        id="projects-heading"
-        class="font-display text-2xl md:text-3xl font-bold mb-8"
-        style="color: var(--text);"
-      >
-        Projects
-      </h2>
+      <div class="section-head">
+        <span class="section-label 2xl:hidden">03</span>
+        <h2
+          id="work-heading"
+          class="font-display text-2xl md:text-3xl font-bold"
+          style="color: var(--text);"
+        >
+          Work
+        </h2>
+      </div>
       {
-        projects.length > 0 ? (
+        featuredProjects.length > 0 ? (
           <div
             class="flex flex-col gap-5 md:gap-0 md:divide-y"
             style="--tw-divide-opacity:1; border-color: var(--border);"
           >
-            {projects.map((project, i) => (
+            {featuredProjects.map((project, i) => (
               <div class="stagger-item">
-                <ProjectCard
-                  project={project}
-                  gradient={projectGradients[i % projectGradients.length]}
-                  index={i}
-                />
+                <ProjectCard project={project} index={i} />
               </div>
             ))}
           </div>
@@ -144,16 +156,92 @@ const projectGradients = [
       }
     </section>
 
+    <!-- Client Work -->
+    <section
+      id="client-work"
+      class="section-reveal mb-16 md:mb-24"
+      aria-labelledby="client-work-heading"
+    >
+      <div class="section-head">
+        <span class="section-label 2xl:hidden">04</span>
+        <h2
+          id="client-work-heading"
+          class="font-display text-2xl md:text-3xl font-bold"
+          style="color: var(--text);"
+        >
+          Client Work
+        </h2>
+      </div>
+      <p class="text-sm mb-2 max-w-xl" style="color: var(--text-muted);">
+        Smaller freelance builds - microsites and client projects.
+      </p>
+      {
+        clientProjects.length > 0 && (
+          <div>
+            {clientProjects.map((project) => (
+              <a
+                href={project.data.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="rule-row stagger-item flex items-center justify-between gap-4 py-4 px-2 -mx-2 rounded-lg group"
+              >
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3
+                      class="font-display font-semibold text-base"
+                      style="color: var(--text);"
+                    >
+                      {project.data.title}
+                    </h3>
+                    {project.data.year && (
+                      <span
+                        class="text-xs font-medium"
+                        style="color: var(--text-muted);"
+                      >
+                        {project.data.year}
+                      </span>
+                    )}
+                  </div>
+                  <p
+                    class="text-sm mt-1 line-clamp-2 max-w-xl"
+                    style="color: var(--text-muted);"
+                  >
+                    {project.data.description}
+                  </p>
+                </div>
+                <svg
+                  class="w-4 h-4 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style="color: var(--text-muted);"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 17L17 7M17 7H7m10 0v10"
+                  />
+                </svg>
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </section>
+
     <!-- Blog -->
-    <section class="section-reveal mb-8" aria-labelledby="blog-heading">
-      <p class="section-label mb-3">004. Writing</p>
-      <h2
-        id="blog-heading"
-        class="font-display text-2xl md:text-3xl font-bold mb-8"
-        style="color: var(--text);"
-      >
-        Recent posts
-      </h2>
+    <section id="writing" class="section-reveal mb-8" aria-labelledby="blog-heading">
+      <div class="section-head">
+        <span class="section-label 2xl:hidden">05</span>
+        <h2
+          id="blog-heading"
+          class="font-display text-2xl md:text-3xl font-bold"
+          style="color: var(--text);"
+        >
+          Recent posts
+        </h2>
+      </div>
       {
         latestPosts.length > 0 ? (
           <div class="space-y-4 mb-6">
@@ -161,7 +249,6 @@ const projectGradients = [
               <div class="stagger-item">
                 <a
                   href={`/blog/${post.slug}`}
-                  rel="prefetch"
                   class="card card-hover block p-5 md:p-6 group"
                 >
                   <h3
@@ -178,7 +265,7 @@ const projectGradients = [
                   </p>
                   <time
                     class="text-xs font-medium"
-                    style="color: var(--accent);"
+                    style="color: var(--accent-text);"
                   >
                     {post.data.pubDate.toLocaleDateString("en-US", {
                       year: "numeric",
@@ -199,7 +286,7 @@ const projectGradients = [
       <a
         href="/blog"
         class="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:opacity-90"
-        style="color: var(--accent);"
+        style="color: var(--accent-text);"
       >
         View all posts
         <svg

@@ -17,11 +17,13 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    techStack: z.array(z.string()),
+    techStack: z.array(z.string()).optional(),
     githubUrl: z.string().optional(),
     demoUrl: z.string().optional(),
     featured: z.boolean().optional(),
     image: z.string().optional(),
+    year: z.string().optional(),
+    clientWork: z.boolean().optional(),
   }),
 });
 

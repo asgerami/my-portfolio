@@ -14,19 +14,6 @@ function formatDate(dateStr: string) {
     year: "numeric",
   });
 }
-
-function getDuration(start: string, end?: string) {
-  const startDate = new Date(start);
-  const endDate = end ? new Date(end) : new Date();
-  const months =
-    (endDate.getFullYear() - startDate.getFullYear()) * 12 +
-    (endDate.getMonth() - startDate.getMonth());
-  const years = Math.floor(months / 12);
-  const remainingMonths = months % 12;
-  if (years > 0 && remainingMonths > 0) return `${years}y ${remainingMonths}m`;
-  if (years > 0) return `${years}y`;
-  return `${remainingMonths || 1}m`;
-}
 ---
 
 <Layout
@@ -38,7 +25,7 @@ function getDuration(start: string, end?: string) {
     <!-- Hero Header -->
     <header class="exp-hero section-reveal mb-14 md:mb-20">
       <div class="exp-hero__label-row">
-        <p class="section-label mb-0">010. Experience</p>
+        <p class="section-label mb-0">06 — Experience</p>
         <span class="exp-hero__line"></span>
       </div>
       <h1 class="exp-hero__title">
@@ -73,8 +60,7 @@ function getDuration(start: string, end?: string) {
             <!-- Date Badge (desktop: opposite side of card) -->
             <div class="exp-timeline__date-badge">
               <time>
-                {formatDate(experience.data.startDate)}
-                {"  "}
+                {formatDate(experience.data.startDate)} –{" "}
                 {experience.data.endDate
                   ? formatDate(experience.data.endDate)
                   : "Present"}
@@ -168,7 +154,7 @@ function getDuration(start: string, end?: string) {
         <p class="text-sm mb-6" style="color: var(--text-muted);">
           I'm updating this section. Check back soon.
         </p>
-        <a href="/" class="text-sm font-semibold" style="color: var(--accent);">
+        <a href="/" class="text-sm font-semibold" style="color: var(--accent-text);">
           Back to home
         </a>
       </div>
@@ -248,15 +234,16 @@ function getDuration(start: string, end?: string) {
 
   .exp-hero__title {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-size: clamp(2.25rem, 5.5vw, 4rem);
     font-weight: 700;
     line-height: 1.1;
+    letter-spacing: -0.01em;
     color: var(--text);
     margin-bottom: 0.75rem;
   }
 
   .exp-hero__title-accent {
-    background: linear-gradient(135deg, var(--accent) 0%, #818cf8 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -285,7 +272,7 @@ function getDuration(start: string, end?: string) {
     transform: translateX(-50%);
     background: var(--border);
     z-index: 0;
-    border-radius: 2px;
+    border-radius: 0;
     overflow: hidden;
   }
 
@@ -295,10 +282,10 @@ function getDuration(start: string, end?: string) {
     left: 0;
     width: 100%;
     height: 0%;
-    background: linear-gradient(180deg, var(--accent), #818cf8);
-    border-radius: 2px;
+    background: linear-gradient(180deg, var(--accent), var(--accent-hover));
+    border-radius: 0;
     transition: height 0.15s ease-out;
-    box-shadow: 0 0 8px rgba(45, 212, 191, 0.35);
+    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 35%, transparent);
   }
 
   /* ===== Timeline Item ===== */
@@ -340,14 +327,14 @@ function getDuration(start: string, end?: string) {
     height: 16px;
     border-color: var(--accent);
     background: var(--accent);
-    box-shadow: 0 0 16px rgba(45, 212, 191, 0.5);
+    box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
   }
 
   /* Dots illuminate when the scroll fill reaches them */
   .exp-timeline__dot--lit:not(.exp-timeline__dot--active) {
     border-color: var(--accent);
     background: var(--accent);
-    box-shadow: 0 0 12px rgba(45, 212, 191, 0.4);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
     transform: scale(1.15);
   }
 
@@ -358,17 +345,6 @@ function getDuration(start: string, end?: string) {
     border: 2px solid var(--accent);
     opacity: 0;
     animation: ping-ring 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-
-  @keyframes ping-ring {
-    0% {
-      transform: scale(0.8);
-      opacity: 0.6;
-    }
-    100% {
-      transform: scale(2.2);
-      opacity: 0;
-    }
   }
 
   /* ===== Date Badge ===== */
@@ -389,13 +365,7 @@ function getDuration(start: string, end?: string) {
       font-size: 0.85rem;
       font-weight: 600;
       color: var(--text-muted);
-    }
-
-    .exp-timeline__duration {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--accent);
-      opacity: 0.8;
+      font-variant-numeric: tabular-nums;
     }
 
     /* Left items: card left, date right */
@@ -426,23 +396,15 @@ function getDuration(start: string, end?: string) {
     position: relative;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 1rem;
+    border-radius: 0.75rem;
     overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
   }
 
   .exp-card:hover {
-    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-    transform: translateY(-3px);
-    box-shadow:
-      0 16px 48px -12px rgba(0, 0, 0, 0.08),
-      0 0 0 1px color-mix(in srgb, var(--accent) 20%, transparent);
-  }
-
-  :global(.dark) .exp-card:hover {
-    box-shadow:
-      0 16px 48px -12px rgba(0, 0, 0, 0.35),
-      0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+    border-color: var(--accent);
+    transform: translate(-3px, -3px);
+    box-shadow: 5px 5px 0 0 var(--accent);
   }
 
   .exp-card__inner {
@@ -464,22 +426,17 @@ function getDuration(start: string, end?: string) {
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: #10b981;
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: var(--accent-text);
+    background: var(--accent-muted);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
   }
 
   .exp-card__current-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #10b981;
+    background: var(--accent);
     animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.7); }
   }
 
   /* Position & Company */
@@ -498,7 +455,7 @@ function getDuration(start: string, end?: string) {
     gap: 0.4rem;
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--accent);
+    color: var(--accent-text);
     margin-bottom: 0.75rem;
   }
 
@@ -524,15 +481,6 @@ function getDuration(start: string, end?: string) {
     height: 14px;
     flex-shrink: 0;
     opacity: 0.4;
-  }
-
-  .exp-card__duration-pill {
-    font-size: 0.65rem;
-    font-weight: 700;
-    color: var(--accent);
-    background: var(--accent-muted);
-    padding: 0.15rem 0.5rem;
-    border-radius: 9999px;
   }
 
   @media (min-width: 768px) {
@@ -570,14 +518,14 @@ function getDuration(start: string, end?: string) {
     padding: 0.3rem 0.625rem;
     border-radius: 0.375rem;
     background: var(--accent-muted);
-    color: var(--accent);
+    color: var(--accent-text);
     border: 1px solid transparent;
     transition: all 0.25s ease;
     cursor: default;
   }
 
   .exp-card:hover .exp-card__tech-tag {
-    border-color: rgba(45, 212, 191, 0.12);
+    border-color: color-mix(in srgb, var(--accent) 15%, transparent);
   }
 
   .exp-card__tech-tag:hover {

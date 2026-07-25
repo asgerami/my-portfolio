@@ -3,16 +3,12 @@ import type { CollectionEntry } from "astro:content";
 
 export interface Props {
   project: CollectionEntry<"projects">;
-  gradient?: string;
   index?: number;
 }
-const {
-  project,
-  gradient = "from-teal-500/20 to-cyan-500/20",
-  index = 0,
-} = Astro.props;
+const { project, index = 0 } = Astro.props;
 const { data } = project;
 const imageUrl = data.image || null;
+const linkUrl = data.demoUrl || data.githubUrl;
 const isEven = index % 2 === 0;
 ---
 
@@ -20,17 +16,10 @@ const isEven = index % 2 === 0;
 <article
   class="project-card-mobile md:hidden card card-hover overflow-hidden group"
 >
-  <a
-    href={data.demoUrl || data.githubUrl || "#"}
-    target={data.demoUrl || data.githubUrl ? "_blank" : undefined}
-    rel={data.demoUrl || data.githubUrl ? "noopener noreferrer" : undefined}
-    class="block"
-  >
-    <div
-      class="aspect-video w-full overflow-hidden bg-gradient-to-br dark:from-[var(--bg-elevated)] dark:to-[var(--bg)]"
-    >
-      {
-        imageUrl ? (
+  <div class="aspect-video w-full overflow-hidden">
+    {
+      imageUrl ? (
+        <a href={linkUrl} target={linkUrl ? "_blank" : undefined} rel={linkUrl ? "noopener noreferrer" : undefined} class="block h-full w-full">
           <img
             src={imageUrl}
             alt={`${data.title} screenshot`}
@@ -38,32 +27,38 @@ const isEven = index % 2 === 0;
             loading="lazy"
             decoding="async"
           />
-        ) : (
-          <div
-            class={`flex h-full w-full items-center justify-center bg-gradient-to-br ${gradient} dark:from-[var(--bg-elevated)] dark:to-[var(--bg)]`}
+        </a>
+      ) : (
+        <div class="project-placeholder relative flex h-full w-full items-center justify-center">
+          <span class="project-placeholder__corner project-placeholder__corner--tl" aria-hidden="true" />
+          <span class="project-placeholder__corner project-placeholder__corner--br" aria-hidden="true" />
+          <span
+            class="font-display text-4xl font-bold select-none"
+            style="color: var(--text-muted); opacity: 0.35;"
           >
-            <span
-              class="font-display text-4xl font-bold select-none opacity-40"
-              style="color: var(--text);"
-            >
-              {data.title.charAt(0)}
-            </span>
-          </div>
-        )
-      }
-    </div>
-  </a>
+            {data.title.charAt(0)}
+          </span>
+        </div>
+      )
+    }
+  </div>
   <div class="p-4 md:p-5">
     <div class="flex items-start justify-between gap-2">
-      <a
-        href={data.demoUrl || data.githubUrl || "#"}
-        target={data.demoUrl || data.githubUrl ? "_blank" : undefined}
-        rel={data.demoUrl || data.githubUrl ? "noopener noreferrer" : undefined}
-        class="font-display font-semibold text-lg transition-colors hover:opacity-90"
-        style="color: var(--text);"
-      >
-        {data.title}
-      </a>
+      {linkUrl ? (
+        <a
+          href={linkUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="font-display font-semibold text-lg transition-colors hover:opacity-90"
+          style="color: var(--text);"
+        >
+          {data.title}
+        </a>
+      ) : (
+        <h3 class="font-display font-semibold text-lg" style="color: var(--text);">
+          {data.title}
+        </h3>
+      )}
       <div class="flex shrink-0 gap-1">
         {
           data.githubUrl && (
@@ -82,9 +77,9 @@ const isEven = index % 2 === 0;
           )
         }
         {
-          (data.demoUrl || data.githubUrl) && (
+          data.demoUrl && (
             <a
-              href={data.demoUrl || data.githubUrl}
+              href={data.demoUrl}
               target="_blank"
               rel="noopener noreferrer"
               class="rounded-lg p-1.5 transition-colors hover:bg-[var(--accent-muted)]"
@@ -122,7 +117,7 @@ const isEven = index % 2 === 0;
             <li>
               <span
                 class="rounded-md px-2 py-0.5 text-xs font-medium"
-                style="background: var(--accent-muted); color: var(--accent);"
+                style="background: var(--accent-muted); color: var(--accent-text);"
               >
                 {tech}
               </span>
@@ -134,21 +129,21 @@ const isEven = index % 2 === 0;
   </div>
 </article>
 
-<!-- Desktop: inspired two-column layout -->
+<!-- Desktop: rule-line two-column layout with hard-shadow hover -->
 <div
   class="project-card-desktop hidden md:grid grid-cols-2 gap-6 lg:gap-10 items-center py-8 group"
 >
   <!-- Image side -->
   <div class={`${isEven ? "order-1" : "order-2"}`}>
-    <a
-      href={data.demoUrl || data.githubUrl || "#"}
-      target={data.demoUrl || data.githubUrl ? "_blank" : undefined}
-      rel={data.demoUrl || data.githubUrl ? "noopener noreferrer" : undefined}
-      class="block overflow-hidden rounded-xl border transition-all duration-500 group-hover:shadow-[0_0_30px_-5px_var(--accent)] group-hover:border-[var(--accent)]"
-      style="border-color: var(--border);"
-    >
-      {
-        imageUrl ? (
+    {
+      imageUrl ? (
+        <a
+          href={linkUrl}
+          target={linkUrl ? "_blank" : undefined}
+          rel={linkUrl ? "noopener noreferrer" : undefined}
+          class="project-frame block overflow-hidden rounded-xl border"
+          style="border-color: var(--border);"
+        >
           <img
             src={imageUrl}
             alt={`${data.title} screenshot`}
@@ -156,20 +151,23 @@ const isEven = index % 2 === 0;
             loading="lazy"
             decoding="async"
           />
-        ) : (
-          <div
-            class={`flex aspect-video w-full items-center justify-center bg-gradient-to-br ${gradient}`}
+        </a>
+      ) : (
+        <div
+          class="project-frame project-placeholder relative flex aspect-video w-full items-center justify-center rounded-xl border"
+          style="border-color: var(--border);"
+        >
+          <span class="project-placeholder__corner project-placeholder__corner--tl" aria-hidden="true" />
+          <span class="project-placeholder__corner project-placeholder__corner--br" aria-hidden="true" />
+          <span
+            class="font-display font-bold select-none"
+            style="color: var(--text-muted); opacity: 0.3; font-size: clamp(2.5rem, 5vw, 4.5rem);"
           >
-            <span
-              class="font-display text-6xl font-bold select-none opacity-20"
-              style="color: var(--text);"
-            >
-              {data.title.charAt(0)}
-            </span>
-          </div>
-        )
-      }
-    </a>
+            {data.title.charAt(0)}
+          </span>
+        </div>
+      )
+    }
   </div>
 
   <!-- Content side -->
@@ -182,10 +180,10 @@ const isEven = index % 2 === 0;
       {data.title}
     </h3>
 
-    <!-- Description box with accent background -->
+    <!-- Description box with rule-line accent -->
     <div
-      class="rounded-xl p-5 lg:p-6 mb-6"
-      style="background: var(--accent-muted);"
+      class="rounded-xl p-5 lg:p-6 mb-6 border-l-2"
+      style="background: var(--accent-muted); border-color: var(--accent);"
     >
       <p
         class="text-sm lg:text-base leading-relaxed"
@@ -202,7 +200,7 @@ const isEven = index % 2 === 0;
           {data.techStack.map((tech) => (
             <span
               class="text-sm font-semibold tracking-wide"
-              style="color: var(--accent);"
+              style="color: var(--accent-text);"
             >
               {tech}
             </span>
@@ -230,9 +228,9 @@ const isEven = index % 2 === 0;
         )
       }
       {
-        (data.demoUrl || data.githubUrl) && (
+        data.demoUrl && (
           <a
-            href={data.demoUrl || data.githubUrl}
+            href={data.demoUrl}
             target="_blank"
             rel="noopener noreferrer"
             class="rounded-lg p-1.5 transition-all hover:bg-[var(--accent-muted)] hover:scale-110"
@@ -258,3 +256,38 @@ const isEven = index % 2 === 0;
     </div>
   </div>
 </div>
+
+<style>
+  .project-frame {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .group:hover .project-frame {
+    border-color: var(--accent);
+    box-shadow: 6px 6px 0 0 var(--accent);
+    transform: translate(-3px, -3px);
+  }
+
+  .project-placeholder {
+    background: var(--bg-elevated);
+  }
+  .project-placeholder__corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-style: solid;
+    border-width: 0;
+    border-color: var(--border);
+  }
+  .project-placeholder__corner--tl {
+    top: 10px;
+    left: 10px;
+    border-top-width: 2px;
+    border-left-width: 2px;
+  }
+  .project-placeholder__corner--br {
+    bottom: 10px;
+    right: 10px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+  }
+</style>
