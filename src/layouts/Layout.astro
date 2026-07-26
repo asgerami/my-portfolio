@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 import PerformanceMonitor from "../components/PerformanceMonitor.astro";
 
 export interface Props {
@@ -42,20 +43,100 @@ const navLinks = [
     <link rel="preload" href="/logo.png" as="image" type="image/png" />
     <link rel="dns-prefetch" href="//fonts.googleapis.com" />
     <link rel="dns-prefetch" href="//fonts.gstatic.com" />
-    <link rel="dns-prefetch" href="//cdn.simpleicons.org" />
     <link rel="prefetch" href="/experience" />
     <link rel="prefetch" href="/blog" />
 
     <title>{title} | Software Engineer</title>
 
+    <ClientRouter />
+
     <script is:inline>
-      const theme = (() => {
-        if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) return localStorage.getItem("theme");
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
-        return "light";
+      (function () {
+        var root = document.documentElement;
+
+        function preferredTheme() {
+          try {
+            var stored = localStorage.getItem("theme");
+            if (stored === "light" || stored === "dark") return stored;
+          } catch (e) {}
+          return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        }
+
+        function applyTheme(theme) {
+          root.classList.toggle("dark", theme !== "light");
+        }
+
+        /* Scroll-reveal capability flag.
+           Only opt into the JS-driven hidden state when the browser cannot do
+           native scroll-driven animations. With no JS (or no support for
+           either) the class is never added and all content renders visible. */
+        var hasViewTimeline =
+          typeof CSS !== "undefined" &&
+          typeof CSS.supports === "function" &&
+          CSS.supports("animation-timeline: view()");
+
+        function prefersReducedMotion() {
+          return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+
+        function applyRevealMode() {
+          root.classList.toggle("js-reveal", !hasViewTimeline && !prefersReducedMotion());
+        }
+
+        /* Runs before first paint, and again after every client-side swap
+           (Astro's ClientRouter replaces every attribute on <html>). */
+        applyTheme(preferredTheme());
+        applyRevealMode();
+
+        if (window.__portfolioBooted) return;
+        window.__portfolioBooted = true;
+
+        document.addEventListener("astro:after-swap", function () {
+          applyTheme(preferredTheme());
+          applyRevealMode();
+        });
+
+        document.addEventListener("click", function (event) {
+          var target = event.target;
+          var button = target && target.closest ? target.closest("#theme-toggle") : null;
+          if (!button) return;
+
+          var next = root.classList.contains("dark") ? "light" : "dark";
+          function commit() {
+            applyTheme(next);
+            try {
+              localStorage.setItem("theme", next);
+            } catch (e) {}
+          }
+
+          if (typeof document.startViewTransition !== "function" || prefersReducedMotion()) {
+            commit();
+            return;
+          }
+
+          /* Radial reveal originating at the click point. Keyboard activation
+             reports clientX/Y of 0, so fall back to the button's centre. */
+          var rect = button.getBoundingClientRect();
+          var x = event.clientX || rect.left + rect.width / 2;
+          var y = event.clientY || rect.top + rect.height / 2;
+          var radius = Math.hypot(
+            Math.max(x, window.innerWidth - x),
+            Math.max(y, window.innerHeight - y)
+          );
+
+          root.style.setProperty("--theme-x", x + "px");
+          root.style.setProperty("--theme-y", y + "px");
+          root.style.setProperty("--theme-r", radius + "px");
+          root.setAttribute("data-theme-transition", "");
+
+          var transition = document.startViewTransition(commit);
+          transition.finished
+            .catch(function () {})
+            .then(function () {
+              root.removeAttribute("data-theme-transition");
+            });
+        });
       })();
-      if (theme === "light") document.documentElement.classList.remove("dark");
-      else document.documentElement.classList.add("dark");
     </script>
     <script src="../scripts/performance.js"></script>
   </head>
@@ -74,10 +155,10 @@ const navLinks = [
       <!-- Nav -->
       <header class="sticky top-0 z-50 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pt-4 pb-2 md:pt-6">
         <nav
-          class="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 backdrop-blur-xl px-4 py-3"
+          class="site-nav flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 backdrop-blur-xl px-4 py-3"
           aria-label="Main"
         >
-          <a href="/" class="flex items-center gap-2 rounded-lg transition-opacity hover:opacity-90">
+          <a href="/" class="flex items-center gap-2 rounded-lg">
             <img
               src="/logo.png"
               alt="Amir Aman"
@@ -94,15 +175,14 @@ const navLinks = [
             {navLinks.map((link) => (
               <a
                 href={link.href}
-                class="font-display text-sm font-medium px-3 py-2 rounded-lg transition-colors hover:bg-[var(--accent-muted)]"
-                style="color: var(--text-muted);"
+                class="nav-link font-display text-sm font-medium px-3 py-2 rounded-lg hover:bg-[var(--accent-muted)]"
               >
                 {link.label}
               </a>
             ))}
             <button
               id="theme-toggle"
-              class="p-2 rounded-lg transition-colors hover:bg-[var(--accent-muted)] touch-manipulation"
+              class="p-2 rounded-lg hover:bg-[var(--accent-muted)] touch-manipulation"
               aria-label="Toggle theme"
             >
               <svg id="sun-icon" class="w-5 h-5 hidden dark:block" fill="currentColor" viewBox="0 0 20 20" style="color: var(--text);">
@@ -147,13 +227,6 @@ const navLinks = [
           </div>
         </div>
       </footer>
-
-      <script is:inline>
-        document.getElementById("theme-toggle")?.addEventListener("click", () => {
-          document.documentElement.classList.toggle("dark");
-          localStorage.setItem("theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
-        });
-      </script>
 
       <PerformanceMonitor />
     </div>

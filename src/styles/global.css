@@ -9,6 +9,19 @@
   --color-accent-muted: rgba(45, 212, 191, 0.15);
 }
 
+/* Animatable custom properties (registered so they can be interpolated) */
+@property --hero-sheen {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: -30%;
+}
+
+@property --accent-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 135deg;
+}
+
 /* Base */
 @layer base {
   :root {
@@ -21,6 +34,17 @@
     --accent-hover: #0f766e;
     /* Darker, AA-compliant teal for small text set directly on --bg/--bg-elevated */
     --accent-text: #0f766e;
+
+    /* Subtle spring/overshoot easing (~9% overshoot, settles cleanly).
+       Used for every interactive hover/press transition. */
+    --ease-spring: linear(
+      0, 0.06 4%, 0.203 8%, 0.382 12.5%, 0.563 17%, 0.727 21%, 0.86 25%,
+      0.96 29%, 1.028 33%, 1.068 37.5%, 1.086 42%, 1.088 46%, 1.08 50%,
+      1.067 54%, 1.052 58%, 1.037 62.5%, 1.024 67%, 1.014 71%, 1.007 75%,
+      1.002 79%, 0.999 83%, 0.998 88%, 1
+    );
+    /* Non-overshooting companion for colour/opacity fades */
+    --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .dark {
@@ -108,34 +132,77 @@
   animation: glow-pulse 3s ease-in-out infinite;
 }
 
-/* Scroll-reveal: elements start hidden and animate in when in view */
-.section-reveal {
+/* ===========================================================================
+   Scroll reveals - progressive enhancement, three tiers:
+
+   Tier 0 (no JS, no scroll-timeline support): nothing below applies, content
+           is plain visible markup. This is the default, so a broken/blocked
+           script can never leave the page permanently blank.
+   Tier 1 (CSS `animation-timeline: view()`): native scroll-driven reveal,
+           works with JavaScript fully disabled.
+   Tier 2 (JS only, no scroll-timeline): the inline head script adds
+           `.js-reveal` to <html> before first paint and the IntersectionObserver
+           in performance.js flips `.is-visible`.
+
+   The head script only adds `.js-reveal` when Tier 1 is unavailable, so the two
+   animated paths are mutually exclusive and never fight over opacity/transform.
+   =========================================================================== */
+
+/* --- Tier 2: JS / IntersectionObserver fallback --- */
+.js-reveal .section-reveal {
   opacity: 0;
   transform: translateY(24px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.6s var(--ease-soft), transform 0.6s var(--ease-soft);
 }
-.section-reveal.is-visible {
+.js-reveal .section-reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
-.section-reveal .stagger-item {
+.js-reveal .section-reveal .stagger-item {
   opacity: 0;
   transform: translateY(16px);
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  transition: opacity 0.5s var(--ease-soft), transform 0.5s var(--ease-soft);
 }
-.section-reveal.is-visible .stagger-item {
+.js-reveal .section-reveal.is-visible .stagger-item {
   opacity: 1;
   transform: translateY(0);
 }
-.section-reveal .stagger-item:nth-child(1) { transition-delay: 0.05s; }
-.section-reveal .stagger-item:nth-child(2) { transition-delay: 0.1s; }
-.section-reveal .stagger-item:nth-child(3) { transition-delay: 0.15s; }
-.section-reveal .stagger-item:nth-child(4) { transition-delay: 0.2s; }
-.section-reveal .stagger-item:nth-child(5) { transition-delay: 0.25s; }
-.section-reveal .stagger-item:nth-child(6) { transition-delay: 0.3s; }
-.section-reveal .stagger-item:nth-child(7) { transition-delay: 0.35s; }
-.section-reveal .stagger-item:nth-child(8) { transition-delay: 0.4s; }
-.section-reveal .stagger-item:nth-child(9) { transition-delay: 0.45s; }
+.js-reveal .section-reveal .stagger-item:nth-child(1) { transition-delay: 0.05s; }
+.js-reveal .section-reveal .stagger-item:nth-child(2) { transition-delay: 0.1s; }
+.js-reveal .section-reveal .stagger-item:nth-child(3) { transition-delay: 0.15s; }
+.js-reveal .section-reveal .stagger-item:nth-child(4) { transition-delay: 0.2s; }
+.js-reveal .section-reveal .stagger-item:nth-child(5) { transition-delay: 0.25s; }
+.js-reveal .section-reveal .stagger-item:nth-child(6) { transition-delay: 0.3s; }
+.js-reveal .section-reveal .stagger-item:nth-child(7) { transition-delay: 0.35s; }
+.js-reveal .section-reveal .stagger-item:nth-child(8) { transition-delay: 0.4s; }
+.js-reveal .section-reveal .stagger-item:nth-child(9) { transition-delay: 0.45s; }
+
+@keyframes reveal-rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes reveal-slide {
+  from { transform: translateY(18px); }
+  to   { transform: translateY(0); }
+}
+
+/* --- Tier 1: native scroll-driven reveal (no JS required) --- */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .section-reveal:not(.is-visible) {
+      animation: reveal-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 55%;
+    }
+    /* Children only translate (no second opacity ramp) so the two animations
+       compose instead of double-darkening the section. */
+    .section-reveal .stagger-item {
+      animation: reveal-slide linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 70%;
+    }
+  }
+}
 
 /* Reduce all motion when the user asks for it */
 @media (prefers-reduced-motion: reduce) {
@@ -146,12 +213,83 @@
   .section-reveal .stagger-item {
     opacity: 1 !important;
     transform: none !important;
+    animation: none !important;
   }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  /* View Transitions (theme swap + client-side navigation) */
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* ===========================================================================
+   Theme toggle: radial "flashlight" reveal from the click point.
+   Driven by document.startViewTransition() in Layout.astro's inline script,
+   which sets --theme-x / --theme-y / --theme-r and the data attribute below.
+   Scoped by [data-theme-transition] so it never affects page navigation.
+   =========================================================================== */
+@keyframes theme-sweep {
+  from {
+    clip-path: circle(0 at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-r, 150vmax) at var(--theme-x, 50%) var(--theme-y, 50%));
+  }
+}
+
+html[data-theme-transition]::view-transition-old(root),
+html[data-theme-transition]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html[data-theme-transition]::view-transition-old(root) {
+  z-index: 0;
+}
+html[data-theme-transition]::view-transition-new(root) {
+  z-index: 1;
+  animation: theme-sweep 520ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ===========================================================================
+   Animated gradient accents (@property-driven, no JS)
+   =========================================================================== */
+@keyframes hero-rule-sheen {
+  from { --hero-sheen: -30%; }
+  to   { --hero-sheen: 130%; }
+}
+@keyframes accent-angle-drift {
+  from { --accent-angle: 135deg; }
+  to   { --accent-angle: 495deg; }
+}
+
+.hero-rule {
+  width: 4rem;
+  height: 2px;
+  border-radius: 2px;
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent calc(var(--hero-sheen) - 16%),
+      color-mix(in srgb, var(--accent-hover) 85%, #ffffff) var(--hero-sheen),
+      transparent calc(var(--hero-sheen) + 16%)
+    ),
+    linear-gradient(
+      90deg,
+      var(--accent) 0%,
+      color-mix(in srgb, var(--accent) 45%, transparent) 100%
+    );
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-rule {
+    animation: hero-rule-sheen 7s var(--ease-soft) infinite;
   }
 }
 
@@ -202,7 +340,7 @@
   align-items: baseline;
   gap: 0.6rem;
   text-decoration: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s var(--ease-soft);
 }
 .index-rail__item::before {
   content: "";
@@ -212,7 +350,12 @@
   width: 6px;
   height: 1px;
   background: var(--border);
-  transition: background 0.3s ease, width 0.3s ease;
+  transition: background 0.3s var(--ease-soft), width 0.35s var(--ease-spring);
+}
+/* :has() - the rail dims its non-hovered ticks while any one is pointed at,
+   with no JS and no extra classes. */
+.index-rail:has(.index-rail__item:hover) .index-rail__item:not(:hover) {
+  opacity: 0.4;
 }
 .index-rail__item.is-active::before {
   background: var(--accent);
@@ -259,9 +402,13 @@
 
 /* Hard, offset-shadow hover - editorial/print, not a soft glow */
 .card-hover {
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  transition:
+    border-color 0.25s var(--ease-soft),
+    box-shadow 0.4s var(--ease-spring),
+    transform 0.4s var(--ease-spring);
 }
-.card-hover:hover {
+.card-hover:hover,
+.card-hover:focus-within {
   border-color: var(--accent);
   box-shadow: 5px 5px 0 0 var(--accent);
   transform: translate(-3px, -3px);
@@ -270,13 +417,73 @@
 /* Rule-line list rows (used for compact, lower-emphasis lists like Client Work) */
 .rule-row {
   border-top: 1px solid var(--border);
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s var(--ease-soft);
 }
 .rule-row:last-child {
   border-bottom: 1px solid var(--border);
 }
-.rule-row:hover {
+.rule-row:hover,
+.rule-row:focus-visible {
   background-color: var(--accent-muted);
+}
+
+/* ===========================================================================
+   Primary nav - parent-aware states via :has(), no JS and no extra classes
+   =========================================================================== */
+.site-nav {
+  transition:
+    border-color 0.3s var(--ease-soft),
+    box-shadow 0.45s var(--ease-spring);
+}
+/* The whole bar warms up when anything inside it is pointed at or focused */
+.site-nav:has(a:hover),
+.site-nav:has(button:hover),
+.site-nav:has(:focus-visible) {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+.site-nav:has(:focus-visible) {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.site-nav a,
+.site-nav button {
+  transition:
+    opacity 0.25s var(--ease-soft),
+    color 0.25s var(--ease-soft),
+    background-color 0.25s var(--ease-soft),
+    transform 0.45s var(--ease-spring);
+}
+/* ...and the siblings of the hovered item recede */
+.site-nav:has(a:hover) a:not(:hover),
+.site-nav:has(a:hover) button,
+.site-nav:has(button:hover) a {
+  opacity: 0.45;
+}
+
+.nav-link {
+  color: var(--text-muted);
+}
+.nav-link:hover {
+  color: var(--accent-text);
+  transform: translateY(-1px);
+}
+.nav-link:active {
+  transform: translateY(0);
+}
+
+/* Spring-loaded buttons / pill links */
+.btn-spring {
+  transition:
+    transform 0.45s var(--ease-spring),
+    border-color 0.25s var(--ease-soft),
+    background-color 0.25s var(--ease-soft),
+    color 0.25s var(--ease-soft),
+    box-shadow 0.45s var(--ease-spring);
+}
+.btn-spring:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+.btn-spring:active {
+  transform: translateY(0) scale(0.99);
 }
 
 /* Utilities */

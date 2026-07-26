@@ -1,54 +1,179 @@
 ---
+/**
+ * Tech stack grid.
+ *
+ * Icons come from the `simple-icons` package and are inlined as SVG at build
+ * time - no runtime network requests, no CDN. Simple Icons ships single-colour
+ * brand marks, so every glyph is filled with `currentColor` and inherits the
+ * design-system colours (--text-muted, shifting to --accent on hover).
+ *
+ * The import is resolved during the build (Astro frontmatter runs server-side),
+ * so none of the package reaches the client bundle - only the ~20 path strings
+ * embedded in the HTML.
+ */
+import {
+  siReact,
+  siNextdotjs,
+  siTypescript,
+  siTailwindcss,
+  siNodedotjs,
+  siExpress,
+  siAstro,
+  siPostgresql,
+  siMongodb,
+  siRedis,
+  siGo,
+  siPython,
+  siGit,
+  siDocker,
+  siJest,
+  siPrisma,
+  siSupabase,
+  siVercel,
+  siLinux,
+  siArchlinux,
+} from "simple-icons";
+
 export interface Props {
   class?: string;
 }
 const { class: className = "" } = Astro.props;
 
-// All icons from Devicons (devicon.dev) for consistent look. Fallback: Simple Icons slug in icon field.
-const devicon = (name: string, variant = "original") =>
-  `https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/${name}/${name}-${variant}.svg`;
+type Icon = { title: string; path: string };
 
-const tech = [
-  { name: "React", icon: "react", iconUrl: devicon("react") },
-  { name: "Next.js", icon: "nextdotjs", iconUrl: devicon("nextjs") },
-  { name: "TypeScript", icon: "typescript", iconUrl: devicon("typescript") },
-  { name: "Tailwind CSS", icon: "tailwindcss", iconUrl: devicon("tailwindcss") },
-  { name: "Node.js", icon: "nodedotjs" },
-  { name: "Express", icon: "express", iconUrl: devicon("express") },
-  { name: "Astro", icon: "astro" },
-  { name: "PostgreSQL", icon: "postgresql", iconUrl: devicon("postgresql") },
-  { name: "MongoDB", icon: "mongodb", iconUrl: devicon("mongodb") },
-  { name: "Redis", icon: "redis", iconUrl: devicon("redis") },
-  { name: "Go", icon: "go", iconUrl: devicon("go") },
-  { name: "Python", icon: "python", iconUrl: devicon("python") },
-  { name: "Git", icon: "git", iconUrl: devicon("git") },
-  { name: "Docker", icon: "docker", iconUrl: devicon("docker") },
-  { name: "Jest", icon: "jest" },
-  { name: "Prisma", icon: "prisma", iconUrl: devicon("prisma") },
-  { name: "Supabase", icon: "supabase", iconUrl: devicon("supabase") },
-  { name: "Vercel", icon: "vercel", iconUrl: devicon("vercel") },
-  { name: "Linux", icon: "linux", iconUrl: devicon("linux", "original") },
-  { name: "Arch Linux", icon: "archlinux", iconUrl: devicon("archlinux") },
+const tech: { name: string; icon: Icon }[] = [
+  { name: "React", icon: siReact },
+  { name: "Next.js", icon: siNextdotjs },
+  { name: "TypeScript", icon: siTypescript },
+  { name: "Tailwind CSS", icon: siTailwindcss },
+  { name: "Node.js", icon: siNodedotjs },
+  { name: "Express", icon: siExpress },
+  { name: "Astro", icon: siAstro },
+  { name: "PostgreSQL", icon: siPostgresql },
+  { name: "MongoDB", icon: siMongodb },
+  { name: "Redis", icon: siRedis },
+  { name: "Go", icon: siGo },
+  { name: "Python", icon: siPython },
+  { name: "Git", icon: siGit },
+  { name: "Docker", icon: siDocker },
+  { name: "Jest", icon: siJest },
+  { name: "Prisma", icon: siPrisma },
+  { name: "Supabase", icon: siSupabase },
+  { name: "Vercel", icon: siVercel },
+  { name: "Linux", icon: siLinux },
+  { name: "Arch Linux", icon: siArchlinux },
 ];
 ---
 
-<ul
-  class={`grid grid-cols-6 gap-4 py-2 sm:gap-5 md:grid-cols-8 md:gap-6 lg:grid-cols-10 ${className}`}
-  aria-label="Tech stack"
->
-  {
-    tech.map((t) => (
-      <li class="flex items-center justify-center p-2 sm:p-3">
-        <img
-          src={t.iconUrl ?? `https://cdn.simpleicons.org/${t.icon}`}
-          alt={t.name}
-          class="h-9 w-9 shrink-0 opacity-90 transition-opacity hover:opacity-100 sm:h-10 sm:w-10 md:h-10 md:w-10"
-          width="40"
-          height="40"
-          loading="lazy"
-          title={t.name}
-        />
-      </li>
-    ))
+<div class={`tech-shell ${className}`}>
+  <ul class="tech-grid" aria-label="Tech stack">
+    {
+      tech.map((t) => (
+        <li class="tech-cell">
+          <span class="tech-icon" title={t.name}>
+            <svg
+              class="tech-icon__svg"
+              role="img"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d={t.icon.path} />
+            </svg>
+            <span class="sr-only">{t.name}</span>
+          </span>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  /* The grid sizes itself against its own container, not the viewport. */
+  .tech-shell {
+    container-type: inline-size;
+    container-name: tech;
   }
-</ul>
+
+  .tech-grid {
+    display: grid;
+    /* Baseline that works even without container-query support */
+    grid-template-columns: repeat(auto-fit, minmax(3.25rem, 1fr));
+    gap: 1rem;
+    padding: 0.5rem 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  @container tech (min-width: 22rem) {
+    .tech-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 1.25rem;
+    }
+  }
+  @container tech (min-width: 34rem) {
+    .tech-grid {
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+  @container tech (min-width: 46rem) {
+    .tech-grid {
+      grid-template-columns: repeat(10, minmax(0, 1fr));
+    }
+  }
+
+  .tech-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+  }
+
+  .tech-icon {
+    display: inline-flex;
+    color: var(--text-muted);
+    transition:
+      color 0.25s var(--ease-soft),
+      opacity 0.25s var(--ease-soft),
+      transform 0.45s var(--ease-spring);
+  }
+
+  .tech-icon__svg {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: block;
+  }
+
+  @container tech (min-width: 22rem) {
+    .tech-icon__svg {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+  }
+
+  /* :has() - the grid recedes around whichever mark is being pointed at */
+  .tech-grid:has(.tech-icon:hover) .tech-cell:not(:hover) .tech-icon {
+    opacity: 0.45;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .tech-icon:hover {
+      color: var(--accent);
+      transform: translateY(-3px) scale(1.08);
+    }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>

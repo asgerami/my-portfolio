@@ -242,11 +242,25 @@ function formatDate(dateStr: string) {
     margin-bottom: 0.75rem;
   }
 
+  /* Gradient angle is an @property-registered <angle> (declared in global.css)
+     so it can actually be interpolated by @keyframes - a plain unregistered
+     custom property would jump discretely instead of sweeping. */
   .exp-hero__title-accent {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    background: linear-gradient(
+      var(--accent-angle),
+      var(--accent) 0%,
+      var(--accent-hover) 50%,
+      var(--accent) 100%
+    );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .exp-hero__title-accent {
+      animation: accent-angle-drift 14s linear infinite;
+    }
   }
 
   .exp-hero__subtitle {
@@ -398,10 +412,14 @@ function formatDate(dateStr: string) {
     border: 1px solid var(--border);
     border-radius: 0.75rem;
     overflow: hidden;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    transition:
+      border-color 0.3s var(--ease-soft),
+      box-shadow 0.45s var(--ease-spring),
+      transform 0.45s var(--ease-spring);
   }
 
-  .exp-card:hover {
+  .exp-card:hover,
+  .exp-card:focus-within {
     border-color: var(--accent);
     transform: translate(-3px, -3px);
     box-shadow: 5px 5px 0 0 var(--accent);
@@ -520,7 +538,11 @@ function formatDate(dateStr: string) {
     background: var(--accent-muted);
     color: var(--accent-text);
     border: 1px solid transparent;
-    transition: all 0.25s ease;
+    transition:
+      background-color 0.25s var(--ease-soft),
+      color 0.25s var(--ease-soft),
+      border-color 0.25s var(--ease-soft),
+      transform 0.4s var(--ease-spring);
     cursor: default;
   }
 

@@ -1,50 +1,80 @@
-// Performance optimization script
+// Performance optimization + progressive-enhancement script.
+//
+// Everything that touches the DOM lives in an idempotent init function bound to
+// BOTH `DOMContentLoaded` (hard load / no ClientRouter) and `astro:page-load`
+// (initial load *and* every client-side navigation once View Transitions are
+// enabled). Observers are disconnected before re-binding so repeated init calls
+// never stack up.
 (function () {
   "use strict";
 
-  // Intersection Observer for lazy loading and animations
-  const observerOptions = {
-    root: null,
-    rootMargin: "50px",
-    threshold: 0.1,
-  };
+  var reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("animate-fade-in-up");
-        observer.unobserve(entry.target);
-      }
+  // True when the browser can run the CSS `animation-timeline: view()` reveals
+  // defined in global.css. When it can, JavaScript must NOT also drive the
+  // reveal or the two paths fight over opacity/transform.
+  var hasViewTimeline =
+    typeof CSS !== "undefined" &&
+    typeof CSS.supports === "function" &&
+    CSS.supports("animation-timeline: view()");
+
+  var revealObserver = null;
+  var railObserver = null;
+
+  // ---------------------------------------------------------------------
+  // Scroll reveal (fallback path only)
+  // ---------------------------------------------------------------------
+  function initReveal() {
+    if (revealObserver) {
+      revealObserver.disconnect();
+      revealObserver = null;
+    }
+
+    var sections = document.querySelectorAll(".section-reveal");
+
+    // CSS handles it, or the user asked for reduced motion: leave the markup
+    // alone. `.js-reveal` is never set on <html> in those cases, so the
+    // sections are plain visible content.
+    if (hasViewTimeline || reduceMotionQuery.matches) {
+      sections.forEach(function (el) {
+        el.classList.remove("is-visible");
+      });
+      return;
+    }
+
+    revealObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          if (revealObserver) revealObserver.unobserve(entry.target);
+        });
+      },
+      { root: null, rootMargin: "0px 0px -80px 0px", threshold: 0 }
+    );
+
+    sections.forEach(function (el) {
+      revealObserver.observe(el);
     });
-  }, observerOptions);
+  }
 
-  // Scroll-reveal: add .is-visible when section enters viewport
-  const revealOptions = { root: null, rootMargin: "0px 0px -80px 0px", threshold: 0 };
-  const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  }, revealOptions);
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const animatedElements = document.querySelectorAll(".animate-fade-in-up");
-    animatedElements.forEach((el) => observer.observe(el));
-    document.querySelectorAll(".section-reveal").forEach((el) => revealObserver.observe(el));
-  });
-
+  // ---------------------------------------------------------------------
   // Index rail: highlight whichever section is currently in view
-  const initRailObserver = () => {
-    const railLinks = document.querySelectorAll(".index-rail__item");
+  // ---------------------------------------------------------------------
+  function initRail() {
+    if (railObserver) {
+      railObserver.disconnect();
+      railObserver = null;
+    }
+
+    var railLinks = document.querySelectorAll(".index-rail__item");
     if (!railLinks.length) return;
 
-    const railObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const link = document.querySelector(
-            `.index-rail__item[data-rail-target="${entry.target.id}"]`
+    railObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          var link = document.querySelector(
+            '.index-rail__item[data-rail-target="' + entry.target.id + '"]'
           );
           if (!link) return;
           link.classList.toggle("is-active", entry.isIntersecting);
@@ -53,22 +83,30 @@
       { root: null, rootMargin: "-40% 0px -50% 0px", threshold: 0 }
     );
 
-    railLinks.forEach((link) => {
-      const target = document.getElementById(link.dataset.railTarget || "");
+    railLinks.forEach(function (link) {
+      var target = document.getElementById(link.dataset.railTarget || "");
       if (target) railObserver.observe(target);
     });
-  };
+  }
 
-  document.addEventListener("DOMContentLoaded", initRailObserver);
+  // ---------------------------------------------------------------------
+  // Misc
+  // ---------------------------------------------------------------------
+  function optimizeImages() {
+    document.querySelectorAll("img").forEach(function (img) {
+      if (!img.loading) img.loading = "lazy";
+      if (!img.decoding) img.decoding = "async";
+    });
+  }
 
-  // Preload critical resources on hover
-  const preloadOnHover = (selector, href) => {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach((el) => {
+  function preloadOnHover(selector, href) {
+    document.querySelectorAll(selector).forEach(function (el) {
+      if (el.dataset.preloadBound) return;
+      el.dataset.preloadBound = "1";
       el.addEventListener(
         "mouseenter",
-        () => {
-          const link = document.createElement("link");
+        function () {
+          var link = document.createElement("link");
           link.rel = "prefetch";
           link.href = href;
           document.head.appendChild(link);
@@ -76,58 +114,35 @@
         { once: true }
       );
     });
-  };
+  }
 
-  // Preload navigation links
-  preloadOnHover('a[href="/experience"]', "/experience");
-  preloadOnHover('a[href="/blog"]', "/blog");
+  function init() {
+    initReveal();
+    initRail();
+    optimizeImages();
+    preloadOnHover('a[href="/experience"]', "/experience");
+    preloadOnHover('a[href="/blog"]', "/blog");
+  }
 
-  // Optimize images
-  const optimizeImages = () => {
-    const images = document.querySelectorAll("img");
-    images.forEach((img) => {
-      if (!img.loading) {
-        img.loading = "lazy";
-      }
-      if (!img.decoding) {
-        img.decoding = "async";
-      }
-    });
-  };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+  // Fires on the initial load and after every client-side navigation.
+  document.addEventListener("astro:page-load", init);
+
+  // Re-evaluate when the user flips their motion preference mid-session.
+  if (typeof reduceMotionQuery.addEventListener === "function") {
+    reduceMotionQuery.addEventListener("change", initReveal);
+  }
 
   // Service Worker registration for caching
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("/sw.js")
-        .then((registration) => {
-          console.log("SW registered: ", registration);
-        })
-        .catch((registrationError) => {
-          console.log("SW registration failed: ", registrationError);
-        });
-    });
-  }
-
-  // Initialize optimizations
-  document.addEventListener("DOMContentLoaded", () => {
-    optimizeImages();
-  });
-
-  // Performance monitoring
-  if ("performance" in window) {
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        const perfData = performance.getEntriesByType("navigation")[0];
-        console.log("Performance metrics:", {
-          loadTime: perfData.loadEventEnd - perfData.loadEventStart,
-          domContentLoaded:
-            perfData.domContentLoadedEventEnd -
-            perfData.domContentLoadedEventStart,
-          firstPaint:
-            performance.getEntriesByType("paint")[0]?.startTime || "N/A",
-        });
-      }, 0);
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("/sw.js").catch(function () {
+        /* offline caching is a nice-to-have; never surface a failure */
+      });
     });
   }
 })();

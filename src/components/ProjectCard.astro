@@ -12,9 +12,10 @@ const linkUrl = data.demoUrl || data.githubUrl;
 const isEven = index % 2 === 0;
 ---
 
-<!-- Mobile: vertical card (unchanged feel) -->
+<div class="project-shell">
+<!-- Narrow container: vertical card -->
 <article
-  class="project-card-mobile md:hidden card card-hover overflow-hidden group"
+  class="project-card-mobile card card-hover overflow-hidden group"
 >
   <div class="aspect-video w-full overflow-hidden">
     {
@@ -129,19 +130,18 @@ const isEven = index % 2 === 0;
   </div>
 </article>
 
-<!-- Desktop: rule-line two-column layout with hard-shadow hover -->
-<div
-  class="project-card-desktop hidden md:grid grid-cols-2 gap-6 lg:gap-10 items-center py-8 group"
->
+<!-- Wide container: rule-line two-column layout with hard-shadow hover -->
+<div class="project-card-desktop group" data-tilt>
+  <span class="project-spotlight" aria-hidden="true"></span>
   <!-- Image side -->
-  <div class={`${isEven ? "order-1" : "order-2"}`}>
+  <div class={`project-col ${isEven ? "order-1" : "order-2"}`}>
     {
       imageUrl ? (
         <a
           href={linkUrl}
           target={linkUrl ? "_blank" : undefined}
           rel={linkUrl ? "noopener noreferrer" : undefined}
-          class="project-frame block overflow-hidden rounded-xl border"
+          class="project-frame relative block overflow-hidden rounded-xl border"
           style="border-color: var(--border);"
         >
           <img
@@ -171,7 +171,7 @@ const isEven = index % 2 === 0;
   </div>
 
   <!-- Content side -->
-  <div class={`${isEven ? "order-2" : "order-1"} flex flex-col`}>
+  <div class={`project-col ${isEven ? "order-2" : "order-1"} flex flex-col`}>
     <!-- Title -->
     <h3
       class="font-display font-bold text-3xl lg:text-4xl xl:text-5xl mb-6 transition-colors group-hover:opacity-90"
@@ -217,7 +217,7 @@ const isEven = index % 2 === 0;
             href={data.githubUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="rounded-lg p-1.5 transition-all hover:bg-[var(--accent-muted)] hover:scale-110"
+            class="btn-spring rounded-lg p-1.5 hover:bg-[var(--accent-muted)]"
             style="color: var(--text-muted);"
             aria-label="GitHub"
           >
@@ -233,7 +233,7 @@ const isEven = index % 2 === 0;
             href={data.demoUrl}
             target="_blank"
             rel="noopener noreferrer"
-            class="rounded-lg p-1.5 transition-all hover:bg-[var(--accent-muted)] hover:scale-110"
+            class="btn-spring rounded-lg p-1.5 hover:bg-[var(--accent-muted)]"
             style="color: var(--text-muted);"
             aria-label="View demo"
           >
@@ -256,15 +256,105 @@ const isEven = index % 2 === 0;
     </div>
   </div>
 </div>
+</div>
 
 <style>
-  .project-frame {
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  /* ---------------------------------------------------------------------
+     Container queries: the card picks its layout from the width of its own
+     wrapper, not the viewport, so it stays correct inside any column.
+     Without @container support the narrow (stacked) card is what renders -
+     a safe, fully-readable default.
+     --------------------------------------------------------------------- */
+  .project-shell {
+    container-type: inline-size;
+    container-name: project;
   }
-  .group:hover .project-frame {
+
+  .project-card-mobile {
+    display: block;
+  }
+  .project-card-desktop {
+    display: none;
+  }
+
+  @container project (min-width: 44rem) {
+    .project-card-mobile {
+      display: none;
+    }
+    .project-card-desktop {
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+      align-items: center;
+      padding: 2rem 0;
+    }
+  }
+  @container project (min-width: 58rem) {
+    .project-card-desktop {
+      gap: 2.5rem;
+    }
+  }
+
+  .project-col {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------------------------------------------------------------------
+     Cursor-reactive spotlight + tilt.
+     --mx/--my/--tilt-rx/--tilt-ry are written by the shared script below,
+     desktop pointers only, and never when reduced motion is requested.
+     --------------------------------------------------------------------- */
+  .project-spotlight {
+    display: none;
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .project-spotlight {
+      display: block;
+      position: absolute;
+      inset: -1.5rem;
+      z-index: -1;
+      pointer-events: none;
+      border-radius: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-soft);
+      background: radial-gradient(
+        28rem 28rem at var(--mx, 50%) var(--my, 50%),
+        color-mix(in srgb, var(--accent) 18%, transparent) 0%,
+        color-mix(in srgb, var(--accent) 7%, transparent) 35%,
+        transparent 70%
+      );
+    }
+    .project-card-desktop[data-tilt-on] .project-spotlight {
+      opacity: 1;
+    }
+  }
+
+  .project-frame {
+    transition:
+      border-color 0.3s var(--ease-soft),
+      box-shadow 0.45s var(--ease-spring),
+      transform 0.45s var(--ease-spring);
+  }
+  .group:hover .project-frame,
+  .group:focus-within .project-frame {
     border-color: var(--accent);
     box-shadow: 6px 6px 0 0 var(--accent);
     transform: translate(-3px, -3px);
+  }
+
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .project-card-desktop[data-tilt-on] .project-frame {
+      transform: translate(-3px, -3px) perspective(1200px)
+        rotateX(var(--tilt-rx, 0deg)) rotateY(var(--tilt-ry, 0deg));
+      transition:
+        border-color 0.3s var(--ease-soft),
+        box-shadow 0.45s var(--ease-spring),
+        transform 120ms ease-out;
+    }
   }
 
   .project-placeholder {
@@ -291,3 +381,91 @@ const isEven = index % 2 === 0;
     border-right-width: 2px;
   }
 </style>
+
+<script>
+  /**
+   * Cursor-reactive spotlight + tilt for project cards.
+   *
+   * Bundled once by Astro no matter how many cards are on the page, and bound
+   * with event delegation on `document`, so it survives client-side navigation
+   * without needing an `astro:page-load` re-init.
+   *
+   * Gated on `(hover: hover) and (pointer: fine)` and disabled outright under
+   * `prefers-reduced-motion: reduce` - both checked live, so toggling either
+   * mid-session takes effect immediately.
+   */
+  (function () {
+    if ((window as any).__projectTiltBound) return;
+    (window as any).__projectTiltBound = true;
+
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const enabled = () => finePointer.matches && !reduceMotion.matches;
+
+    let active: HTMLElement | null = null;
+    let pending: PointerEvent | null = null;
+    let frame = 0;
+
+    function clear(el: HTMLElement) {
+      el.removeAttribute("data-tilt-on");
+      el.style.removeProperty("--mx");
+      el.style.removeProperty("--my");
+      el.style.removeProperty("--tilt-rx");
+      el.style.removeProperty("--tilt-ry");
+    }
+
+    function release() {
+      if (active) clear(active);
+      active = null;
+    }
+
+    function apply() {
+      frame = 0;
+      const event = pending;
+      pending = null;
+      if (!event || !active) return;
+
+      const rect = active.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const px = (event.clientX - rect.left) / rect.width;
+      const py = (event.clientY - rect.top) / rect.height;
+
+      active.style.setProperty("--mx", (px * 100).toFixed(2) + "%");
+      active.style.setProperty("--my", (py * 100).toFixed(2) + "%");
+      // Small angles only - this is a nudge, not a carousel.
+      active.style.setProperty("--tilt-rx", ((0.5 - py) * 4).toFixed(2) + "deg");
+      active.style.setProperty("--tilt-ry", ((px - 0.5) * 5).toFixed(2) + "deg");
+    }
+
+    document.addEventListener(
+      "pointermove",
+      (event) => {
+        if (event.pointerType !== "mouse" || !enabled()) {
+          release();
+          return;
+        }
+
+        const target = event.target as Element | null;
+        const card =
+          target && target.closest ? (target.closest("[data-tilt]") as HTMLElement | null) : null;
+
+        if (card !== active) {
+          release();
+          active = card;
+          if (card) card.setAttribute("data-tilt-on", "");
+        }
+        if (!active) return;
+
+        pending = event;
+        if (!frame) frame = requestAnimationFrame(apply);
+      },
+      { passive: true }
+    );
+
+    document.addEventListener("pointerleave", release);
+    window.addEventListener("blur", release);
+    document.addEventListener("astro:before-swap", release);
+    reduceMotion.addEventListener("change", release);
+  })();
+</script>
