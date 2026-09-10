@@ -34,6 +34,10 @@
     --accent-hover: #0f766e;
     /* Darker, AA-compliant teal for small text set directly on --bg/--bg-elevated */
     --accent-text: #0f766e;
+    /* Filled-button pair. --accent itself is too light to carry white text in
+       light mode (3.6:1), so solid buttons use their own token. */
+    --accent-solid: #0f766e;
+    --on-accent-solid: #ffffff;
 
     /* Subtle spring/overshoot easing (~9% overshoot, settles cleanly).
        Used for every interactive hover/press transition. */
@@ -57,6 +61,8 @@
     --accent-hover: #5eead4;
     /* The bright accent already clears AA on dark surfaces */
     --accent-text: #2dd4bf;
+    --accent-solid: #2dd4bf;
+    --on-accent-solid: #0f172a;
   }
 
   html {
@@ -77,7 +83,9 @@
     inset: 0;
     background-image: linear-gradient(var(--border) 1px, transparent 1px);
     background-size: 100% 88px;
-    opacity: 0.12;
+    /* Light mode has far more contrast between --border and --bg than dark
+       does, so 0.12 read as visible stripes rather than as texture. */
+    opacity: 0.07;
     pointer-events: none;
     z-index: -1;
   }
@@ -414,17 +422,365 @@ html[data-theme-transition]::view-transition-new(root) {
   transform: translate(-3px, -3px);
 }
 
-/* Rule-line list rows (used for compact, lower-emphasis lists like Client Work) */
-.rule-row {
-  border-top: 1px solid var(--border);
-  transition: background-color 0.2s var(--ease-soft);
+/* ===========================================================================
+   Client Work - asymmetric "index card" grid.
+
+   These are small live builds with no screenshots, so each card carries its own
+   identity instead: a monogram tile, a faint index numeral, and the live
+   hostname. The first card spans two tracks so the grid reads as an editorial
+   composition rather than a uniform row of tiles; `dense` packing keeps it
+   gap-free whatever the item count.
+   =========================================================================== */
+.client-grid {
+  display: grid;
+  grid-auto-flow: dense;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
 }
-.rule-row:last-child {
+@media (min-width: 640px) {
+  .client-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.15rem;
+  }
+  .client-card--feature {
+    grid-column: span 2;
+  }
+}
+@media (min-width: 1024px) {
+  .client-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.client-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  overflow: hidden;
+  padding: 1.35rem 1.35rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background-color: var(--bg-elevated);
+  text-decoration: none;
+  transition:
+    border-color 0.25s var(--ease-soft),
+    box-shadow 0.4s var(--ease-spring),
+    transform 0.4s var(--ease-spring);
+}
+/* Accent hairline that draws across the top edge on hover */
+.client-card::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  height: 2px;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.45s var(--ease-spring);
+}
+.client-card:hover,
+.client-card:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 5px 5px 0 0 var(--accent);
+  transform: translate(-3px, -3px);
+}
+.client-card:hover::before,
+.client-card:focus-visible::before {
+  width: 100%;
+}
+
+/* Oversized index numeral bled off the bottom corner - texture, not content.
+   Drawn from a data attribute rather than a text node: as real text it was a
+   1.1:1 contrast failure that only surfaced for readers with reduced motion,
+   where the reveal animation was not there to hide it from the audit. */
+.client-card::after {
+  content: attr(data-index);
+  position: absolute;
+  right: 0.5rem;
+  bottom: -1.5rem;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-size: 4.75rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+}
+
+.client-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+/* Monogram tile stands in for a screenshot */
+.client-card__mark {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  transition:
+    background-color 0.3s var(--ease-soft),
+    border-color 0.3s var(--ease-soft),
+    color 0.3s var(--ease-soft);
+}
+.client-card:hover .client-card__mark,
+.client-card:focus-visible .client-card__mark {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.client-card__year {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.client-card__title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text);
+}
+.client-card--feature .client-card__title {
+  font-size: 1.4rem;
+}
+.client-card__desc {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* Live hostname + arrow, pinned to the bottom of every card */
+.client-card__cta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.25s var(--ease-soft);
+}
+/* Long preview-deploy hostnames must never wrap into the index numeral */
+.client-card__host {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.client-card:hover .client-card__cta,
+.client-card:focus-visible .client-card__cta {
+  color: var(--accent-text);
+}
+.client-card__cta svg {
+  transition: transform 0.35s var(--ease-spring);
+}
+.client-card:hover .client-card__cta svg,
+.client-card:focus-visible .client-card__cta svg {
+  transform: translate(2px, -2px);
+}
+
+/* ===========================================================================
+   Contact - the page needs somewhere to land. Every other section sends the
+   visitor outward, so this one closes with a single obvious action.
+   =========================================================================== */
+.contact-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background-color: var(--bg-elevated);
+}
+@media (min-width: 768px) {
+  .contact-panel {
+    padding: 2.75rem 2.5rem;
+  }
+}
+/* Same teal wash as the project frames, anchored to the corner */
+.contact-panel::before {
+  content: "";
+  position: absolute;
+  width: 22rem;
+  height: 22rem;
+  right: -8rem;
+  top: -10rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 16%, transparent) 0%,
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.contact-panel__lead {
+  position: relative;
+  max-width: 34rem;
+  margin-bottom: 1.75rem;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+@media (min-width: 768px) {
+  .contact-panel__lead {
+    font-size: 1.1rem;
+  }
+}
+
+.contact-panel__actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.contact-panel__primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.35rem;
+  border: 2px solid var(--accent-solid);
+  border-radius: 0.75rem;
+  background-color: var(--accent-solid);
+  color: var(--on-accent-solid);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.contact-panel__secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.35rem;
+  border: 2px solid var(--border);
+  border-radius: 0.75rem;
+  color: var(--text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.contact-panel__secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+/* ===========================================================================
+   Writing - editorial post rows: quiet date column, headline does the talking
+   =========================================================================== */
+.post-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.4rem 1.75rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+}
+@media (min-width: 768px) {
+  .post-row {
+    grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+    padding: 1.9rem 0;
+  }
+}
+.post-row:last-of-type {
   border-bottom: 1px solid var(--border);
 }
-.rule-row:hover,
-.rule-row:focus-visible {
-  background-color: var(--accent-muted);
+/* The rule above each row recolours to accent on hover, drawn left to right */
+.post-row::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: -1px;
+  height: 1px;
+  width: 0;
+  background: var(--accent);
+  transition: width 0.5s var(--ease-spring);
+}
+.post-row:hover::before,
+.post-row:focus-visible::before {
+  width: 100%;
+}
+
+.post-row__date {
+  grid-column: 1 / -1;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  transition: color 0.25s var(--ease-soft);
+}
+@media (min-width: 768px) {
+  .post-row__date {
+    grid-column: auto;
+    padding-top: 0.4rem;
+  }
+}
+.post-row:hover .post-row__date,
+.post-row:focus-visible .post-row__date {
+  color: var(--accent-text);
+}
+
+.post-row__body {
+  min-width: 0;
+}
+.post-row__title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+  transition: transform 0.4s var(--ease-spring);
+}
+@media (min-width: 768px) {
+  .post-row__title {
+    font-size: 1.45rem;
+  }
+}
+.post-row:hover .post-row__title,
+.post-row:focus-visible .post-row__title {
+  transform: translateX(4px);
+}
+.post-row__excerpt {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+.post-row__arrow {
+  align-self: center;
+  color: var(--text-muted);
+  transition:
+    transform 0.4s var(--ease-spring),
+    color 0.25s var(--ease-soft);
+}
+.post-row:hover .post-row__arrow,
+.post-row:focus-visible .post-row__arrow {
+  color: var(--accent-text);
+  transform: translateX(4px);
 }
 
 /* ===========================================================================
@@ -494,6 +850,12 @@ html[data-theme-transition]::view-transition-new(root) {
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

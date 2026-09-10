@@ -8,30 +8,28 @@
  * design-system colours (--text-muted, shifting to --accent on hover).
  *
  * The import is resolved during the build (Astro frontmatter runs server-side),
- * so none of the package reaches the client bundle - only the ~20 path strings
+ * so none of the package reaches the client bundle - only the path strings
  * embedded in the HTML.
+ *
+ * Every mark carries a visible label. Names used to live only in a `title`
+ * attribute, which meant that on a phone - where there is no hover - the whole
+ * section was a grid of unidentifiable grey glyphs. The list is also kept to
+ * the things worth being asked about in an interview; tooling like Git and
+ * Vercel only diluted the signal.
  */
 import {
   siReact,
   siNextdotjs,
   siTypescript,
-  siTailwindcss,
   siNodedotjs,
   siExpress,
-  siAstro,
   siPostgresql,
   siMongodb,
-  siRedis,
+  siPrisma,
+  siTailwindcss,
   siGo,
   siPython,
-  siGit,
   siDocker,
-  siJest,
-  siPrisma,
-  siSupabase,
-  siVercel,
-  siLinux,
-  siArchlinux,
 } from "simple-icons";
 
 export interface Props {
@@ -42,26 +40,18 @@ const { class: className = "" } = Astro.props;
 type Icon = { title: string; path: string };
 
 const tech: { name: string; icon: Icon }[] = [
+  { name: "TypeScript", icon: siTypescript },
   { name: "React", icon: siReact },
   { name: "Next.js", icon: siNextdotjs },
-  { name: "TypeScript", icon: siTypescript },
-  { name: "Tailwind CSS", icon: siTailwindcss },
   { name: "Node.js", icon: siNodedotjs },
   { name: "Express", icon: siExpress },
-  { name: "Astro", icon: siAstro },
   { name: "PostgreSQL", icon: siPostgresql },
   { name: "MongoDB", icon: siMongodb },
-  { name: "Redis", icon: siRedis },
+  { name: "Prisma", icon: siPrisma },
+  { name: "Tailwind", icon: siTailwindcss },
   { name: "Go", icon: siGo },
   { name: "Python", icon: siPython },
-  { name: "Git", icon: siGit },
   { name: "Docker", icon: siDocker },
-  { name: "Jest", icon: siJest },
-  { name: "Prisma", icon: siPrisma },
-  { name: "Supabase", icon: siSupabase },
-  { name: "Vercel", icon: siVercel },
-  { name: "Linux", icon: siLinux },
-  { name: "Arch Linux", icon: siArchlinux },
 ];
 ---
 
@@ -70,7 +60,7 @@ const tech: { name: string; icon: Icon }[] = [
     {
       tech.map((t) => (
         <li class="tech-cell">
-          <span class="tech-icon" title={t.name}>
+          <span class="tech-icon">
             <svg
               class="tech-icon__svg"
               role="img"
@@ -81,8 +71,8 @@ const tech: { name: string; icon: Icon }[] = [
             >
               <path d={t.icon.path} />
             </svg>
-            <span class="sr-only">{t.name}</span>
           </span>
+          <span class="tech-name">{t.name}</span>
         </li>
       ))
     }
@@ -98,37 +88,27 @@ const tech: { name: string; icon: Icon }[] = [
 
   .tech-grid {
     display: grid;
-    /* Baseline that works even without container-query support */
-    grid-template-columns: repeat(auto-fit, minmax(3.25rem, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(5.25rem, 1fr));
+    gap: 1.25rem 0.75rem;
     padding: 0.5rem 0;
     margin: 0;
     list-style: none;
   }
 
-  @container tech (min-width: 22rem) {
+  @container tech (min-width: 30rem) {
     .tech-grid {
       grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 1.25rem;
-    }
-  }
-  @container tech (min-width: 34rem) {
-    .tech-grid {
-      grid-template-columns: repeat(8, minmax(0, 1fr));
-      gap: 1.5rem;
-    }
-  }
-  @container tech (min-width: 46rem) {
-    .tech-grid {
-      grid-template-columns: repeat(10, minmax(0, 1fr));
+      gap: 1.6rem 1rem;
     }
   }
 
   .tech-cell {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
+    gap: 0.55rem;
+    padding: 0.25rem;
+    text-align: center;
   }
 
   .tech-icon {
@@ -141,39 +121,43 @@ const tech: { name: string; icon: Icon }[] = [
   }
 
   .tech-icon__svg {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2rem;
+    height: 2rem;
     display: block;
   }
 
-  @container tech (min-width: 22rem) {
+  @container tech (min-width: 30rem) {
     .tech-icon__svg {
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 2.25rem;
+      height: 2.25rem;
     }
+  }
+
+  .tech-name {
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    color: var(--text-muted);
+    transition:
+      color 0.25s var(--ease-soft),
+      opacity 0.25s var(--ease-soft);
   }
 
   /* :has() - the grid recedes around whichever mark is being pointed at */
-  .tech-grid:has(.tech-icon:hover) .tech-cell:not(:hover) .tech-icon {
-    opacity: 0.45;
+  .tech-grid:has(.tech-cell:hover) .tech-cell:not(:hover) .tech-icon,
+  .tech-grid:has(.tech-cell:hover) .tech-cell:not(:hover) .tech-name {
+    opacity: 0.4;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .tech-icon:hover {
+    .tech-cell:hover .tech-icon {
       color: var(--accent);
       transform: translateY(-3px) scale(1.08);
     }
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
+    .tech-cell:hover .tech-name {
+      color: var(--accent-text);
+    }
   }
 </style>

@@ -2,7 +2,8 @@
 title: "The EEU is Killing the GERD: How One Incompetent Utility Company is Sabotaging Ethiopia’s Future"
 description: "Is the Ethiopian Electric Utility actually a service provider, or is it a systemic chokehold masquerading as one? An essay on Ethiopia's energy crisis."
 pubDate: 2026-04-21
-heroImage: "/images/blog/the-eeu-is-killing-the-gerd/hero.jpg"
+heroImage: "../../assets/blog/the-eeu-is-killing-the-gerd/hero.webp"
+heroAlt: "The Grand Ethiopian Renaissance Dam"
 tags: ["Opinion", "Ethiopia", "Energy", "Infrastructure"]
 ---
 

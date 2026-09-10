@@ -2,7 +2,8 @@
 title: "Welcome to My Blog"
 description: "My first blog post where I introduce myself and share how I got into computers, programming, and software engineering."
 pubDate: 2024-01-15
-heroImage: "/welcome.png"
+heroImage: "../../assets/blog/welcome.webp"
+heroAlt: "Welcome"
 tags: ["introduction", "blog", "welcome"]
 ---
 

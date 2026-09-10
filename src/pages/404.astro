@@ -1,0 +1,39 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Page not found"
+  description="That page does not exist. Head back to the homepage or browse the writing."
+>
+  <div class="py-20 md:py-32 max-w-2xl">
+    <p class="section-label mb-4">404</p>
+    <h1
+      class="font-display text-4xl md:text-6xl font-bold tracking-tight mb-5"
+      style="color: var(--text);"
+    >
+      This page doesn't exist.
+    </h1>
+    <div class="hero-rule mb-6" aria-hidden="true"></div>
+    <p class="text-base md:text-lg leading-relaxed mb-8" style="color: var(--text-muted);">
+      The link may be out of date, or the page may have moved. Everything else is
+      still where you left it.
+    </p>
+    <div class="flex flex-wrap gap-4">
+      <a
+        href="/"
+        class="btn-spring inline-flex items-center gap-2 rounded-xl border-2 px-6 py-2.5 text-sm font-semibold"
+        style="border-color: var(--accent); color: var(--accent-text); background-color: transparent;"
+      >
+        Back to home
+      </a>
+      <a
+        href="/blog"
+        class="btn-spring inline-flex items-center gap-2 rounded-xl border-2 px-6 py-2.5 text-sm font-semibold"
+        style="border-color: var(--border); color: var(--text); background-color: var(--bg-elevated);"
+      >
+        Read the writing
+      </a>
+    </div>
+  </div>
+</Layout>

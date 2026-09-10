@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
+import { EMAIL, RESUME_URL } from "../consts";
 
 const experiences = await getCollection("experience");
 experiences.sort(
@@ -18,14 +19,14 @@ function formatDate(dateStr: string) {
 
 <Layout
   title="Experience"
-  description="Professional experience and career journey in software engineering."
+  description="Amir Aman's career so far: full-stack engineering at Efuye-Gela, a Smart City API internship in Adama, robotics mentoring, and freelance client work."
   wideLayout={true}
 >
   <div class="exp-page py-8 md:py-12">
     <!-- Hero Header -->
-    <header class="exp-hero section-reveal mb-14 md:mb-20">
+    <header class="exp-hero section-reveal mb-12 md:mb-16">
       <div class="exp-hero__label-row">
-        <p class="section-label mb-0">06 — Experience</p>
+        <p class="section-label mb-0">Experience</p>
         <span class="exp-hero__line"></span>
       </div>
       <h1 class="exp-hero__title">
@@ -159,6 +160,36 @@ function formatDate(dateStr: string) {
         </a>
       </div>
     )}
+
+    <!-- The page used to end straight into the footer with nothing to do next. -->
+    <section class="section-reveal mt-4 md:mt-8" aria-labelledby="exp-cta-heading">
+      <div class="contact-panel">
+        <h2 id="exp-cta-heading" class="exp-cta__title">Want the longer version?</h2>
+        <p class="contact-panel__lead">
+          Happy to walk through any of this in detail, or talk about what you're
+          building.
+        </p>
+        <div class="contact-panel__actions">
+          <a href={`mailto:${EMAIL}`} class="btn-spring contact-panel__primary">
+            Get in touch
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </a>
+          {RESUME_URL && (
+            <a href={RESUME_URL} class="btn-spring contact-panel__secondary">
+              Download CV
+            </a>
+          )}
+          <a href="/#work" class="btn-spring contact-panel__secondary">See the work</a>
+        </div>
+      </div>
+    </section>
   </div>
 </Layout>
 
@@ -270,10 +301,19 @@ function formatDate(dateStr: string) {
     max-width: 36rem;
   }
 
+  .exp-cta__title {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+
   /* ===== Timeline Container ===== */
   .exp-timeline {
     position: relative;
-    padding: 1rem 0 4rem;
+    padding: 1rem 0 2.5rem;
   }
 
   /* ===== Vertical Track (scroll-tracking) ===== */
@@ -309,7 +349,9 @@ function formatDate(dateStr: string) {
     grid-template-columns: 1fr auto 1fr;
     gap: 2rem;
     align-items: start;
-    margin-bottom: 3.5rem;
+    /* Four roles used to be spread over ~2300px, leaving a screen of dead space
+       between each card. Tighter rhythm, same alternating layout. */
+    margin-bottom: 2rem;
   }
 
   .exp-timeline__item:last-child {

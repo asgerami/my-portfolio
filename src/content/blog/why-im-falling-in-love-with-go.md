@@ -2,7 +2,8 @@
 title: "Why I'm Falling in Love with Go: A Recovering JavaScript Developer's Perspective"
 description: "After years in the JavaScript ecosystem, a shift to Go solved real problems: tiny binaries, instant startup, and concurrency that actually makes sense. Here's why a Node.js dev is smitten."
 pubDate: 2026-02-17
-heroImage: "/images/blog/GO.png"
+heroImage: "../../assets/blog/go.webp"
+heroAlt: "The Go gopher mascot"
 tags: ["Go", "Golang", "JavaScript", "Backend", "Opinion"]
 ---
 

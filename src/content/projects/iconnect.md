@@ -1,6 +1,6 @@
 ---
-title: "Iconnect"
-description: "A platform I developed to help people connect and communicate. Built with modern web technologies for seamless user experiences."
+title: "iConnect"
+description: "A scalable event management platform built at Efuye-Gela: Next.js frontend, Node.js backend, and Chapa payment gateway integration for secure transactions."
 techStack:
   [
     "Next.js",
@@ -8,8 +8,10 @@ techStack:
     "Tailwind CSS",
   ]
 demoUrl: "https://www.iconnect.plus/"
+role: "Full-stack, at Efuye-Gela"
+year: "2025"
 featured: true
-image: "/images/projects/iconnect.png"
+image: "../../assets/projects/iconnect.webp"
 ---
 
-Iconnect is a platform I developed to help people connect and communicate seamlessly. Built with modern web technologies for optimal performance and user experience.
+iConnect is an event management platform built at Efuye-Gela: a Next.js frontend over a Node.js backend, with Chapa payment gateway integration handling secure transactions.

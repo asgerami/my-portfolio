@@ -5,7 +5,9 @@ techStack: ["React", "TypeScript", "Vite", "Tailwind CSS", "Chart.js"]
 githubUrl: "https://github.com/asgerami/BreezeBudget"
 demoUrl: "https://breeze-budget.vercel.app/"
 featured: true
-image: "/images/projects/breezebudget.png"
+image: "../../assets/projects/breeze-budget.webp"
+role: "Solo build"
+year: "2024"
 ---
 
 A comprehensive AC energy cost calculator that helps homeowners make informed decisions about their air conditioning systems by providing accurate cost estimates based on real-world data.

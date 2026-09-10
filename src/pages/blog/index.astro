@@ -2,25 +2,38 @@
 import Layout from "../../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 
-const posts = await getCollection("blog");
+const posts = await getCollection("blog", ({ data }) => !data.draft);
 posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
 ---
 
 <Layout
-  title="Blog"
-  description="Thoughts on software engineering, technology, and building software."
+  title="Writing"
+  description="Essays and notes from Amir Aman on software engineering, Go, the AI industry, and Ethiopia's infrastructure."
   wideLayout={true}
 >
   <div class="py-8 md:py-12">
     <div class="section-head">
-      <span class="section-label">07</span>
       <h1 class="font-display text-3xl md:text-4xl font-bold" style="color: var(--text);">
         Writing
       </h1>
     </div>
-    <p class="text-base mb-12 max-w-xl" style="color: var(--text-muted);">
-      Thoughts, recommendations, and what I’m learning.
-    </p>
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-12">
+      <p class="text-base max-w-xl" style="color: var(--text-muted);">
+        Thoughts, recommendations, and what I’m learning.
+      </p>
+      <a
+        href="/rss.xml"
+        class="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-90"
+        style="color: var(--accent-text);"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M6.503 20.752A3.25 3.25 0 1 1 3.252 17.5a3.25 3.25 0 0 1 3.251 3.252ZM3.252 10.5v3.5a6.75 6.75 0 0 1 6.75 6.752h3.5A10.25 10.25 0 0 0 3.252 10.5Zm0-6.75v3.5c7.318 0 13.25 5.932 13.25 13.25h3.5C20.002 12.06 12.442 4.5 3.252 4.5Z"
+          ></path>
+        </svg>
+        RSS
+      </a>
+    </div>
 
     {posts.length > 0 ? (
       <div class="space-y-4">

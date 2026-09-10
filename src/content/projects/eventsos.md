@@ -4,7 +4,7 @@ description: "A unified event management platform with registration, ticketing, 
 techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Clerk", "Prisma"]
 demoUrl: "https://event-os-mauve.vercel.app/"
 featured: true
-image: "/images/projects/events.png"
+image: "../../assets/projects/eventsos.webp"
 ---
 
 The operating system for unforgettable events. EventOS is a modern event management platform that unifies registration, ticketing, QR check-in, and real-time analytics into a single streamlined experience.

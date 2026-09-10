@@ -1,9 +1,10 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { Image, getImage } from "astro:assets";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
   return posts.map((post) => ({
     params: { slug: post.slug },
     props: { post },
@@ -12,9 +13,27 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await post.render();
+
+// Was hardcoded to "~3 min read" on every post regardless of length.
+const words = post.body.trim().split(/\s+/).length;
+const readingTime = Math.max(1, Math.round(words / 220));
+
+// Share each post under its own hero rather than the generic site card.
+const ogImage = post.data.heroImage
+  ? (await getImage({ src: post.data.heroImage, width: 1200, format: "png" })).src
+  : undefined;
 ---
 
-<Layout title={`${post.data.title}`} description={post.data.description}>
+<Layout
+  title={post.data.title}
+  description={post.data.description}
+  ogImage={ogImage}
+  article={{
+    publishedTime: post.data.pubDate,
+    modifiedTime: post.data.updatedDate,
+    tags: post.data.tags,
+  }}
+>
   <article class="py-8 md:py-12">
     <div class="max-w-2xl">
       <a
@@ -63,12 +82,14 @@ const { Content } = await post.render();
 
       {post.data.heroImage && (
         <div class="mb-12 rounded-2xl overflow-hidden border border-[var(--border)]">
-          <img
+          <Image
             src={post.data.heroImage}
-            alt={post.data.title}
+            alt={post.data.heroAlt ?? post.data.title}
+            widths={[640, 1024, 1400]}
+            sizes="(min-width: 768px) 672px, 92vw"
             class="w-full max-h-[24rem] md:max-h-[28rem] object-cover"
-            loading="lazy"
-            decoding="async"
+            loading="eager"
+            fetchpriority="high"
           />
         </div>
       )}
@@ -88,7 +109,9 @@ const { Content } = await post.render();
           </svg>
           All posts
         </a>
-        <span class="text-xs" style="color: var(--text-muted);">~3 min read</span>
+        <span class="text-xs" style="color: var(--text-muted);">
+          {readingTime} min read
+        </span>
       </footer>
     </div>
   </article>

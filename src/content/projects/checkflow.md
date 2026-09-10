@@ -5,7 +5,7 @@ techStack: ["Next.js", "TypeScript", "MongoDB", "Mongoose", "BetterAuth", "Tailw
 githubUrl: "https://github.com/asgerami/checkflow"
 demoUrl: "https://checkflow-alpha.vercel.app/"
 featured: true
-image: "/images/projects/checkflow.png"
+image: "../../assets/projects/checkflow.webp"
 ---
 
 CheckFlow manages facility access end-to-end: guest records, reservations, redeemable access cards, and check-in logs, backed by an admin dashboard for staff.

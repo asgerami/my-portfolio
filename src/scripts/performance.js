@@ -137,12 +137,37 @@
     reduceMotionQuery.addEventListener("change", initReveal);
   }
 
-  // Service Worker registration for caching
+  // ---------------------------------------------------------------------
+  // Service worker teardown.
+  //
+  // The old /sw.js was cache-first with no revalidation and a hardcoded cache
+  // name, so anyone who had visited the site before was pinned to that build
+  // forever: no content update could ever reach them. The file is gone, and
+  // this actively unregisters any lingering worker and drops its caches, so
+  // returning visitors get unstuck on their next visit instead of staying
+  // frozen on an old copy.
+  //
+  // Safe to delete once enough time has passed that no stale registration
+  // remains in the wild.
+  // ---------------------------------------------------------------------
   if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-      navigator.serviceWorker.register("/sw.js").catch(function () {
-        /* offline caching is a nice-to-have; never surface a failure */
-      });
-    });
+    navigator.serviceWorker
+      .getRegistrations()
+      .then(function (registrations) {
+        registrations.forEach(function (registration) {
+          registration.unregister();
+        });
+      })
+      .catch(function () {});
+  }
+  if (typeof caches !== "undefined" && typeof caches.keys === "function") {
+    caches
+      .keys()
+      .then(function (keys) {
+        keys.forEach(function (key) {
+          if (key.indexOf("portfolio-") === 0) caches.delete(key);
+        });
+      })
+      .catch(function () {});
   }
 })();
