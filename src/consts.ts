@@ -13,8 +13,8 @@ export const NAME = "Amir Aman";
 export const SHORT_NAME = "Amir";
 export const ROLE = "Software Engineer";
 
-/** Used as the <title> suffix and the og:site_name. */
-export const SITE_TITLE = `${NAME} — ${ROLE}`;
+/** Used as the homepage <title> and the og:site_name. */
+export const SITE_TITLE = `${NAME} | ${ROLE}`;
 
 /**
  * Default meta description. Every page should pass its own; this is the
