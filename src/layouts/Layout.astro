@@ -37,6 +37,8 @@ export interface Props {
   article?: { publishedTime: Date; modifiedTime?: Date; tags?: string[] };
   wideLayout?: boolean;
   railItems?: { num: string; label: string; id: string }[];
+  /** Standalone pages (app privacy policies): no site nav or footer. */
+  bare?: boolean;
 }
 
 const {
@@ -47,6 +49,7 @@ const {
   article,
   wideLayout = false,
   railItems = [],
+  bare = false,
 } = Astro.props;
 
 // One title shape for the whole site. Previously every page appended a second
@@ -147,11 +150,13 @@ const navLinks = [
     <link rel="prefetch" href="/experience" />
     <link rel="prefetch" href="/blog" />
 
-    <script
-      type="application/ld+json"
-      is:inline
-      set:html={JSON.stringify(structuredData)}
-    />
+    {!bare && (
+      <script
+        type="application/ld+json"
+        is:inline
+        set:html={JSON.stringify(structuredData)}
+      />
+    )}
 
     <ClientRouter />
 
@@ -258,6 +263,7 @@ const navLinks = [
     )}
     <div class={`${wideLayout ? "max-w-5xl" : "max-w-2xl"} mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1`}>
       <!-- Nav -->
+      {!bare && (
       <header class="sticky top-0 z-50 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 pt-4 pb-2 md:pt-6">
         <nav
           class="site-nav flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-elevated)]/80 backdrop-blur-xl px-4 py-3"
@@ -299,12 +305,13 @@ const navLinks = [
           </div>
         </nav>
       </header>
+      )}
 
       <main class="pt-2">
         <slot />
       </main>
 
-      <!-- Footer -->
+      {!bare && (
       <footer
         class="mt-16 md:mt-24 py-8 border-t border-[var(--border)] animate-fade-in"
       >
@@ -338,6 +345,7 @@ const navLinks = [
           </div>
         </div>
       </footer>
+      )}
 
       <PerformanceMonitor />
     </div>

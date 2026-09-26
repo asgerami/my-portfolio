@@ -1,16 +1,20 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { EMAIL, NAME } from "../../consts";
 
 // Privacy policy for the Examen CDL Android app. Linked from the AdMob consent
 // message and the Google Play listing, so the URL must stay stable.
 const updated = "September 26, 2026";
 const updatedEs = "26 de septiembre de 2026";
+// The Play Store developer identity, not the portfolio contact in consts.ts
+const DEVELOPER = "Asgerami";
+const EMAIL = "asgeramii@gmail.com";
 ---
 
 <Layout
   title="Examen CDL Privacy Policy"
   description="Privacy policy for Examen CDL, the Spanish and English CDL written-test practice app for Android."
+  fullTitle
+  bare
 >
   <article class="py-8 md:py-12">
     <header class="mb-10 pb-8 border-b border-[var(--border)]">
@@ -31,7 +35,7 @@ const updatedEs = "26 de septiembre de 2026";
 
         <p>
           Examen CDL es una app para Android que ayuda a practicar el examen escrito de la licencia de
-          conducir comercial (CDL) de EE. UU., en español y en inglés. La desarrolla {NAME}. Esta política explica
+          conducir comercial (CDL) de EE. UU., en español y en inglés. La desarrolla {DEVELOPER}. Esta política explica
           qué datos se usan y por qué.
         </p>
 
@@ -97,7 +101,7 @@ const updatedEs = "26 de septiembre de 2026";
 
         <p>
           Examen CDL is an Android app for practicing the US commercial driver's license (CDL) written test, in
-          Spanish and English. It is developed by {NAME}. This policy explains what data is used and why.
+          Spanish and English. It is developed by {DEVELOPER}. This policy explains what data is used and why.
         </p>
 
         <h3>What the app does not collect</h3>
