@@ -1,0 +1,154 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { EMAIL, NAME } from "../../consts";
+
+// Privacy policy for the Examen CDL Android app. Linked from the AdMob consent
+// message and the Google Play listing, so the URL must stay stable.
+const updated = "September 26, 2026";
+const updatedEs = "26 de septiembre de 2026";
+---
+
+<Layout
+  title="Examen CDL Privacy Policy"
+  description="Privacy policy for Examen CDL, the Spanish and English CDL written-test practice app for Android."
+>
+  <article class="py-8 md:py-12">
+    <header class="mb-10 pb-8 border-b border-[var(--border)]">
+      <p class="section-label mb-3">Examen CDL</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold mb-5 leading-tight">
+        Política de privacidad
+        <span class="block text-2xl md:text-3xl mt-2" style="color: var(--text-muted);">Privacy policy</span>
+      </h1>
+      <p class="text-sm" style="color: var(--text-muted);">
+        <a href="#es">Español</a> · <a href="#en">English</a>
+      </p>
+    </header>
+
+    <div class="blog-content">
+      <section id="es" lang="es">
+        <h2>Español</h2>
+        <p><em>Última actualización: {updatedEs}</em></p>
+
+        <p>
+          Examen CDL es una app para Android que ayuda a practicar el examen escrito de la licencia de
+          conducir comercial (CDL) de EE. UU., en español y en inglés. La desarrolla {NAME}. Esta política explica
+          qué datos se usan y por qué.
+        </p>
+
+        <h3>Lo que la app no recopila</h3>
+        <ul>
+          <li>No hay cuentas ni inicio de sesión. No le pedimos su nombre, correo ni teléfono.</li>
+          <li>La app no tiene servidor propio. No enviamos ni guardamos sus datos en ningún servidor nuestro.</li>
+        </ul>
+
+        <h3>Datos que se quedan en su teléfono</h3>
+        <p>
+          Su progreso de estudio (respuestas, errores, preguntas guardadas, racha y meta diaria) y sus ajustes
+          (idioma, velocidad de voz, hora del recordatorio) se guardan solo en su teléfono. Puede borrarlos con
+          «Borrar progreso» en Ajustes o al desinstalar la app.
+        </p>
+        <p>
+          El recordatorio diario lo programa su propio teléfono y la lectura en voz alta usa el motor de voz del
+          teléfono. Ninguno de los dos envía datos.
+        </p>
+
+        <h3>Anuncios (Google AdMob)</h3>
+        <p>
+          La app es gratis y muestra anuncios de Google AdMob. Para mostrar y medir anuncios, y para evitar fraude,
+          el SDK de Google Mobile Ads puede recopilar datos del dispositivo como el identificador de publicidad,
+          la dirección IP, la ubicación aproximada y datos sobre cómo se usan los anuncios. Google trata estos datos
+          según su propia política. Más información:
+          <a href="https://policies.google.com/technologies/partner-sites?hl=es" rel="noopener">cómo usa Google la información de las apps que usan sus servicios</a>.
+        </p>
+        <ul>
+          <li>
+            <strong>Consentimiento:</strong> en el Espacio Económico Europeo, el Reino Unido y Suiza, la app le pide
+            su consentimiento con el formulario de Google antes de mostrar anuncios personalizados. Puede cambiar su
+            decisión cuando quiera en Ajustes, «Opciones de privacidad».
+          </li>
+          <li>
+            <strong>Estados de EE. UU.:</strong> donde la ley estatal lo exige, puede excluirse de la venta o el uso
+            compartido de sus datos para publicidad mediante el mensaje de privacidad de Google.
+          </li>
+          <li>
+            También puede restablecer o eliminar su identificador de publicidad en los ajustes de Android, en
+            Google, «Anuncios».
+          </li>
+        </ul>
+
+        <h3>Niños</h3>
+        <p>
+          La app está pensada para adultos que se preparan para la CDL. No está dirigida a menores de 13 años y no
+          recopilamos a sabiendas datos de niños.
+        </p>
+
+        <h3>Cambios y contacto</h3>
+        <p>
+          Si cambiamos esta política, publicaremos la nueva versión en esta página con su fecha. Si tiene
+          preguntas, escriba a <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+        </p>
+      </section>
+
+      <hr />
+
+      <section id="en" lang="en">
+        <h2>English</h2>
+        <p><em>Last updated: {updated}</em></p>
+
+        <p>
+          Examen CDL is an Android app for practicing the US commercial driver's license (CDL) written test, in
+          Spanish and English. It is developed by {NAME}. This policy explains what data is used and why.
+        </p>
+
+        <h3>What the app does not collect</h3>
+        <ul>
+          <li>There are no accounts and no sign-in. We never ask for your name, email or phone number.</li>
+          <li>The app has no server of its own. We do not send or store your data on any server of ours.</li>
+        </ul>
+
+        <h3>Data that stays on your phone</h3>
+        <p>
+          Your study progress (answers, mistakes, saved questions, streak and daily goal) and your settings
+          (language, voice speed, reminder time) are stored only on your phone. You can delete them with "Reset
+          progress" in Settings, or by uninstalling the app.
+        </p>
+        <p>
+          The daily reminder is scheduled by your phone itself, and read-aloud uses your phone's text-to-speech
+          engine. Neither sends any data.
+        </p>
+
+        <h3>Ads (Google AdMob)</h3>
+        <p>
+          The app is free and shows ads from Google AdMob. To show and measure ads and to prevent fraud, the Google
+          Mobile Ads SDK may collect device data such as the advertising ID, IP address, approximate location and
+          ad interaction data. Google handles this data under its own policy. Learn more:
+          <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">how Google uses information from apps that use its services</a>.
+        </p>
+        <ul>
+          <li>
+            <strong>Consent:</strong> in the European Economic Area, the UK and Switzerland, the app asks for your
+            consent through Google's consent form before showing personalized ads. You can change your choice at any
+            time in Settings, "Privacy options".
+          </li>
+          <li>
+            <strong>US states:</strong> where state law requires it, you can opt out of the sale or sharing of your
+            data for advertising through Google's privacy message.
+          </li>
+          <li>You can also reset or delete your advertising ID in Android settings, under Google, "Ads".</li>
+        </ul>
+
+        <h3>Children</h3>
+        <p>
+          The app is meant for adults preparing for a CDL. It is not directed at children under 13, and we do not
+          knowingly collect data from children.
+        </p>
+
+        <h3>Changes and contact</h3>
+        <p>
+          If this policy changes, the new version will be posted on this page with its date. Questions:
+          <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+        </p>
+      </section>
+    </div>
+  </article>
+</Layout>
