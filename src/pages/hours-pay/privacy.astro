@@ -1,0 +1,185 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+// Privacy policy for the Hours & Pay Android app. Linked from the app and the
+// Google Play listing, so the URL must stay https://asgerami.com/hours-pay/privacy
+const updated = "October 1, 2026";
+const updatedEs = "1 de octubre de 2026";
+const EMAIL = "asgeramii@gmail.com";
+---
+
+<Layout
+  title="Hours & Pay Privacy Policy"
+  description="Privacy policy for the Hours & Pay Android app (Hours Tracker: Time Card & Pay)."
+  fullTitle
+  bare
+>
+  <article class="py-8 md:py-12">
+    <header class="mb-10 pb-8 border-b border-[var(--border)]">
+      <p class="section-label mb-3">Hours & Pay</p>
+      <h1 class="font-display text-3xl md:text-5xl font-bold mb-5 leading-tight">
+        Privacy Policy
+        <span class="block text-2xl md:text-3xl mt-2" style="color: var(--text-muted);">Política de privacidad</span>
+      </h1>
+      <p class="text-sm" style="color: var(--text-muted);">
+        <a href="#en">English</a> · <a href="#es">Español</a>
+      </p>
+    </header>
+
+    <div class="blog-content">
+      <section id="en" lang="en">
+        <h2>English</h2>
+        <p><em>Effective {updated}</em></p>
+        <p>
+          Your hours, pay and notes stay on your phone. We have no servers and no accounts. The app shows ads from
+          Google AdMob, and Google collects some device data to show them.
+        </p>
+
+        <h3>Who we are</h3>
+        <p>
+          Hours & Pay (listed on Google Play as "Hours Tracker: Time Card & Pay") is made by Amir Aman, an
+          independent developer. Contact: <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+        </p>
+
+        <h3>What the app stores, and where</h3>
+        <p>
+          Everything you enter stays in the app's private storage on your device: jobs, hourly rates, overtime
+          settings, shifts, breaks, tips, notes, pay period, payday, reminder settings and language. We do not
+          receive, see or store any of it. There is no sign-in and no cloud sync.
+        </p>
+
+        <h3>Files you create</h3>
+        <p>
+          When you export a time card (PDF), a spreadsheet (CSV) or a backup file, the app creates the file and
+          hands it to Android's share sheet. You decide where it goes, such as Google Drive, email or another app.
+          When you restore a backup, the app reads only the file you pick.
+        </p>
+
+        <h3>Android backup</h3>
+        <p>
+          If Google backup is turned on for your phone, Android may include the app's data in your device backup to
+          your Google account, so it can come back when you set up a new phone. Google handles this under its own
+          privacy policy, and you control it in your phone's settings.
+        </p>
+
+        <h3>Notifications</h3>
+        <p>
+          Reminders, the clocked-in notification and the weekly summary are created on your phone. Nothing is sent
+          to us. You can turn each one off in the app or in Android settings.
+        </p>
+
+        <h3>Ads</h3>
+        <p>The app is free and shows ads through Google AdMob (Google Mobile Ads SDK). To serve and measure ads and to prevent fraud, Google collects and processes:</p>
+        <ul>
+          <li>Device and advertising identifiers, such as the Android advertising ID and app set ID</li>
+          <li>IP address, which may be used to estimate your general location</li>
+          <li>Interactions with ads and the app, such as app launches, taps and video views</li>
+          <li>Diagnostic information, such as app launch time and performance</li>
+        </ul>
+        <p>
+          This data is encrypted in transit. Your hours, pay and notes are never shared with Google or any
+          advertiser. Learn how Google uses this data at
+          <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">policies.google.com/technologies/partner-sites</a>.
+          You can reset or delete your advertising ID in Android settings (Settings &gt; Privacy &gt; Ads, or
+          Settings &gt; Google &gt; Ads).
+        </p>
+        <p>
+          If you are in the European Economic Area, the UK or Switzerland, the app asks for your consent before
+          personalized ads are shown, and you can change your choice any time in Settings &gt; Ad privacy choices.
+        </p>
+
+        <h3>Children</h3>
+        <p>The app is meant for working adults and is not directed at children under 13. We do not knowingly collect information from children.</p>
+
+        <h3>Deleting your data</h3>
+        <p>
+          Use Settings &gt; Delete all data in the app, or uninstall the app. Either removes everything the app
+          stored on your phone. Backup files you exported stay wherever you saved them until you delete them.
+        </p>
+
+        <h3>Changes</h3>
+        <p>If this policy changes, we will update this page and the date at the top.</p>
+      </section>
+
+      <section id="es" lang="es">
+        <h2>Español</h2>
+        <p><em>Vigente desde el {updatedEs}</em></p>
+        <p>
+          Tus horas, tu pago y tus notas se quedan en tu teléfono. No tenemos servidores ni cuentas. La app muestra
+          anuncios de Google AdMob, y Google recopila algunos datos del dispositivo para mostrarlos.
+        </p>
+
+        <h3>Quiénes somos</h3>
+        <p>
+          Horas y Pago (en Google Play como "Calculadora de Horas y Sueldo") es una app de Amir Aman, desarrollador
+          independiente. Contacto: <a href={`mailto:${EMAIL}`}>{EMAIL}</a>.
+        </p>
+
+        <h3>Qué guarda la app y dónde</h3>
+        <p>
+          Todo lo que escribes se queda en el almacenamiento privado de la app en tu dispositivo: trabajos, tarifas
+          por hora, reglas de horas extra, turnos, descansos, propinas, notas, periodo de pago, día de pago,
+          recordatorios e idioma. Nosotros no recibimos, vemos ni guardamos nada de eso. No hay inicio de sesión ni
+          sincronización en la nube.
+        </p>
+
+        <h3>Archivos que creas</h3>
+        <p>
+          Cuando exportas una tarjeta de horas (PDF), una hoja de cálculo (CSV) o una copia de seguridad, la app
+          crea el archivo y lo pasa al menú de compartir de Android. Tú decides a dónde va, por ejemplo Google
+          Drive, correo u otra app. Al restaurar una copia, la app solo lee el archivo que eliges.
+        </p>
+
+        <h3>Copia de seguridad de Android</h3>
+        <p>
+          Si tienes activada la copia de seguridad de Google en tu teléfono, Android puede incluir los datos de la
+          app en la copia de tu cuenta de Google, para recuperarlos en un teléfono nuevo. Google la maneja según su
+          propia política de privacidad, y tú la controlas en los ajustes del teléfono.
+        </p>
+
+        <h3>Notificaciones</h3>
+        <p>
+          Los recordatorios, la notificación de turno y el resumen semanal se crean en tu teléfono. No se nos envía
+          nada. Puedes apagar cada uno en la app o en los ajustes de Android.
+        </p>
+
+        <h3>Anuncios</h3>
+        <p>La app es gratis y muestra anuncios de Google AdMob (Google Mobile Ads SDK). Para mostrar y medir anuncios y prevenir fraude, Google recopila y procesa:</p>
+        <ul>
+          <li>Identificadores del dispositivo y de publicidad, como el ID de publicidad de Android y el ID del conjunto de apps</li>
+          <li>La dirección IP, que puede usarse para estimar tu ubicación general</li>
+          <li>Interacciones con los anuncios y la app, como aperturas, toques y reproducciones de video</li>
+          <li>Información de diagnóstico, como el tiempo de inicio y el rendimiento de la app</li>
+        </ul>
+        <p>
+          Estos datos se cifran en tránsito. Tus horas, tu pago y tus notas nunca se comparten con Google ni con
+          anunciantes. Puedes ver cómo usa Google estos datos en
+          <a href="https://policies.google.com/technologies/partner-sites?hl=es" rel="noopener">policies.google.com/technologies/partner-sites</a>.
+          Puedes restablecer o borrar tu ID de publicidad en los ajustes de Android (Ajustes &gt; Privacidad &gt;
+          Anuncios, o Ajustes &gt; Google &gt; Anuncios).
+        </p>
+        <p>
+          Si estás en el Espacio Económico Europeo, el Reino Unido o Suiza, la app te pide tu consentimiento antes
+          de mostrar anuncios personalizados, y puedes cambiar tu elección cuando quieras en Ajustes &gt; Opciones
+          de privacidad de anuncios.
+        </p>
+
+        <h3>Niños</h3>
+        <p>
+          La app está pensada para adultos que trabajan y no está dirigida a menores de 13 años. No recopilamos a
+          sabiendas información de niños.
+        </p>
+
+        <h3>Borrar tus datos</h3>
+        <p>
+          Usa Ajustes &gt; Borrar todos los datos en la app, o desinstala la app. Cualquiera de las dos opciones
+          borra todo lo que la app guardó en tu teléfono. Las copias que exportaste se quedan donde las guardaste
+          hasta que las borres.
+        </p>
+
+        <h3>Cambios</h3>
+        <p>Si esta política cambia, actualizaremos esta página y la fecha de arriba.</p>
+      </section>
+    </div>
+  </article>
+</Layout>
