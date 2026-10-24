@@ -25,16 +25,10 @@ export const SITE_DESCRIPTION =
 
 export const EMAIL = "amiraman467@gmail.com";
 
-/** Shown in the hero, the bento and the footer clock. */
+/** Shown in the bento clock card and the footer clock. */
 export const LOCATION = "Ethiopia";
 export const TIMEZONE = "Africa/Addis_Ababa";
 export const TIMEZONE_LABEL = "GMT+3";
-
-/**
- * Drives the "Available for work" badge in the hero. Flip to false when
- * booked up and the badge reads "Booked" instead of advertising a slot.
- */
-export const AVAILABLE_FOR_WORK = true;
 
 /**
  * Point this at a hosted PDF (e.g. "/amir-aman-cv.pdf" placed in `public/`)

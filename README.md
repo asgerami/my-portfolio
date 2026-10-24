@@ -39,8 +39,7 @@ public/                only what must ship byte-for-byte: favicon, logo, og.png,
   archive. The homepage previews its newest five; `/projects` lists every
   project, filterable: `clientWork: true` files one under Client, `mobile: true`
   under Apps.
-- **Availability and location live in `consts.ts`.** Flip
-  `AVAILABLE_FOR_WORK` to change the hero badge; the clocks read `TIMEZONE`.
+- **Location lives in `consts.ts`.** The local-time clocks read `TIMEZONE`.
 - **Press `⌘K` / `Ctrl K` (or `/`)** for the command palette. Its entries are
   generated from the content collections at build time.
 - **No service worker.** The previous one was cache-first with no revalidation

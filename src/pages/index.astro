@@ -5,7 +5,6 @@ import ProjectCard from "../components/ProjectCard.astro";
 import ProjectArchive from "../components/ProjectArchive.astro";
 import { getCollection } from "astro:content";
 import {
-  AVAILABLE_FOR_WORK,
   EMAIL,
   LOCATION,
   NAME,
@@ -36,7 +35,6 @@ const archive = toArchive(allProjects.filter((p) => !featured.includes(p)));
 const ARCHIVE_PREVIEW = 5;
 
 const clientCount = allProjects.filter((p) => p.data.clientWork).length;
-const appCount = allProjects.filter((p) => p.data.mobile).length;
 
 const experiences = (await getCollection("experience")).sort(
   (a, b) => new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime(),
@@ -71,17 +69,7 @@ const now = [
     <div class="hero__glow" aria-hidden="true"></div>
     <div class="hero__grid grid-bg" aria-hidden="true"></div>
 
-    <div class="hero__chips" data-enter style="--d: 0">
-      <span class="chip">
-        <span class={`live-dot${AVAILABLE_FOR_WORK ? "" : " live-dot--off"}`}></span>
-        {AVAILABLE_FOR_WORK ? "Available for new projects" : "Currently booked"}
-      </span>
-      <span class="chip font-mono">
-        {LOCATION} · <time data-clock>{TIMEZONE_LABEL}</time>
-      </span>
-    </div>
-
-    <h1 id="hero-title" class="hero__title" data-enter style="--d: 1">
+    <h1 id="hero-title" class="hero__title" data-enter style="--d: 0">
       <span class="sr-only">{NAME}, </span>
       Software engineer
       <br />
@@ -91,13 +79,13 @@ const now = [
     </h1>
 
     <div class="hero__foot">
-      <p class="hero__lead text-pretty" data-enter style="--d: 2">
+      <p class="hero__lead text-pretty" data-enter style="--d: 1">
         I'm <strong>Amir Aman</strong>, a software engineer in Ethiopia. I build production web apps
         with TypeScript and Next.js, Android apps with React Native, and backends in Node, Python and
         Go. Lately: MCP tooling for AI agents, a chess engine trained from scratch, and creatures that
         evolve to walk in your browser.
       </p>
-      <div class="hero__actions" data-enter style="--d: 3">
+      <div class="hero__actions" data-enter style="--d: 2">
         <button type="button" class="btn btn--primary" data-copy={EMAIL}>
           Copy email
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -122,7 +110,7 @@ const now = [
     </div>
   </section>
 
-  <div class="hero__marquee" data-enter style="--d: 4">
+  <div class="hero__marquee" data-enter style="--d: 3">
     <TechStack variant="marquee" />
   </div>
 
@@ -200,10 +188,6 @@ const now = [
           <div>
             <dt>Client builds</dt>
             <dd>{clientCount}</dd>
-          </div>
-          <div>
-            <dt>Android apps</dt>
-            <dd>{appCount}</dd>
           </div>
           <div>
             <dt>Essays</dt>
@@ -392,30 +376,7 @@ const now = [
     pointer-events: none;
   }
 
-  .hero__chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    height: 2rem;
-    padding: 0 0.85rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--bg-elevated) 70%, transparent);
-    backdrop-filter: blur(8px);
-    font-size: 0.78rem;
-    color: var(--text-muted);
-  }
-  .chip.font-mono {
-    font-size: 0.72rem;
-  }
-
   .hero__title {
-    margin-top: 1.75rem;
     font-size: clamp(2.6rem, 8.6vw, 6.75rem);
     font-weight: 600;
     line-height: 0.96;
@@ -652,6 +613,13 @@ const now = [
     letter-spacing: -0.04em;
     color: var(--text);
     font-variant-numeric: tabular-nums;
+  }
+  /* The headline number gets the full top row */
+  .bento__numbers div:first-child {
+    grid-column: span 2;
+  }
+  .bento__numbers div:first-child dd {
+    font-size: 3.25rem;
   }
   .bento__numbers dt {
     margin-top: 0.35rem;

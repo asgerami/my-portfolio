@@ -2,7 +2,7 @@
 company: "iConnect"
 position: "Full-Stack Developer"
 startDate: "2025-06-01"
-endDate: "2025-11-30"
+endDate: "2025-12-31"
 current: false
 description: "Designed and developed iConnect, a scalable event management platform with Next.js frontend and Node.js backend. Integrated Chapa payment gateway for secure transactions and collaborated on UX/UI design for seamless user experience."
 technologies:
