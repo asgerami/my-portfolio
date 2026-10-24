@@ -7,6 +7,7 @@ featured: true
 order: -1
 year: "2026"
 role: "Founder"
+image: "../../assets/projects/driftwatch.webp"
 ---
 
 Every OpenAPI diff tool is built for API owners: point it at your own spec, in your own CI,
