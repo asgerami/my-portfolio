@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { RESUME_URL } from "../consts";
+import { breadcrumbs, personRef } from "../utils/schema";
 
 const experiences = (await getCollection("experience")).sort(
   (a, b) => new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime(),
@@ -28,6 +29,9 @@ function duration(start: string, end?: string) {
   title="Experience"
   description="Amir Aman's career so far: freelance software engineering, full-stack work at iConnect, a Smart City API internship in Adama, and mentoring Ethiopia's FIRST Global robotics team."
   wideLayout={true}
+  pageType="ProfilePage"
+  mainEntity={personRef}
+  schema={[breadcrumbs([["Experience", "/experience"]])]}
 >
   <header class="page-hero">
     <p class="section-label section-head__eyebrow" data-enter style="--d: 0">Experience</p>

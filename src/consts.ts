@@ -37,6 +37,15 @@ export const TIMEZONE_LABEL = "GMT+3";
  */
 export const RESUME_URL: string | null = null;
 
+/** Feeds schema.org (alumniOf, worksFor) and /llms.txt. */
+export const ALMA_MATER = "Adama Science and Technology University";
+export const COMPANY = {
+  name: "Driftwatch",
+  url: "https://driftwatch.et/",
+  description:
+    "A consumer-side breaking-change radar for third-party APIs: it watches the OpenAPI specs a team depends on and reports what a vendor broke.",
+};
+
 export const SOCIALS = {
   github: "https://github.com/asgerami",
   linkedin: "https://www.linkedin.com/in/amiramaan/",

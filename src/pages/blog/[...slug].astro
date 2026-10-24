@@ -4,6 +4,7 @@ import { Image, getImage } from "astro:assets";
 import { getCollection } from "astro:content";
 import { NAME } from "../../consts";
 import { readingMinutes } from "../../utils/reading";
+import { breadcrumbs } from "../../utils/schema";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
@@ -36,7 +37,15 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
     publishedTime: post.data.pubDate,
     modifiedTime: post.data.updatedDate,
     tags: post.data.tags,
+    wordCount: post.body.trim().split(/\s+/).length,
   }}
+  ogImageAlt={post.data.heroAlt ?? post.data.title}
+  schema={[
+    breadcrumbs([
+      ["Writing", "/blog"],
+      [post.data.title, `/blog/${post.slug}/`],
+    ]),
+  ]}
 >
   <div class="progress" aria-hidden="true"></div>
 

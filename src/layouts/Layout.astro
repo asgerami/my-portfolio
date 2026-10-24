@@ -10,17 +10,8 @@ import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import CommandPalette from "../components/CommandPalette.astro";
 import SiteFooter from "../components/SiteFooter.astro";
-import {
-  NAME,
-  ROLE,
-  SITE_TITLE,
-  SITE_DESCRIPTION,
-  SITE_URL,
-  EMAIL,
-  SOCIALS,
-  X_HANDLE,
-  KNOWS_ABOUT,
-} from "../consts";
+import { NAME, SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SOCIALS, X_HANDLE } from "../consts";
+import { baseGraph, personRef, WEBSITE_ID, type SchemaNode } from "../utils/schema";
 
 export interface Props {
   title: string;
@@ -29,8 +20,16 @@ export interface Props {
   fullTitle?: boolean;
   /** Absolute or root-relative social preview image. Defaults to /og.png. */
   ogImage?: string;
+  /** Alt text for the social preview image. */
+  ogImageAlt?: string;
   /** Renders article: OG tags and BlogPosting structured data. */
-  article?: { publishedTime: Date; modifiedTime?: Date; tags?: string[] };
+  article?: { publishedTime: Date; modifiedTime?: Date; tags?: string[]; wordCount?: number };
+  /** schema.org type of the page itself: ProfilePage, CollectionPage, ... */
+  pageType?: string;
+  /** What the page is mainly about, e.g. { "@id": ... } of a node in `schema`. */
+  mainEntity?: SchemaNode;
+  /** Page-specific schema.org nodes, added to the shared WebSite/Person graph. */
+  schema?: SchemaNode[];
   wideLayout?: boolean;
   /** Standalone pages (app privacy policies): no site nav or footer. */
   bare?: boolean;
@@ -41,7 +40,11 @@ const {
   description = SITE_DESCRIPTION,
   fullTitle = false,
   ogImage = "/og.png",
+  ogImageAlt = `${NAME}, software engineer`,
   article,
+  schema = [],
+  pageType = "WebPage",
+  mainEntity,
   wideLayout = false,
   bare = false,
 } = Astro.props;
@@ -51,33 +54,49 @@ const pageTitle = fullTitle ? title : `${title} | ${NAME}`;
 const canonical = new URL(Astro.url.pathname, SITE_URL).href;
 const ogImageUrl = new URL(ogImage, SITE_URL).href;
 
-const structuredData = article
-  ? {
-      "@context": "https://schema.org",
-      "@type": "BlogPosting",
-      headline: title,
+// One linked graph per page: the shared WebSite, Person and company nodes,
+// this page (as `pageType`), and whatever the page itself describes.
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    ...baseGraph,
+    {
+      "@type": pageType,
+      "@id": `${canonical}#webpage`,
+      url: canonical,
+      name: pageTitle,
       description,
-      image: ogImageUrl,
-      datePublished: article.publishedTime.toISOString(),
-      ...(article.modifiedTime && {
-        dateModified: article.modifiedTime.toISOString(),
-      }),
-      ...(article.tags?.length && { keywords: article.tags.join(", ") }),
-      author: { "@type": "Person", name: NAME, url: SITE_URL },
-      publisher: { "@type": "Person", name: NAME, url: SITE_URL },
-      mainEntityOfPage: { "@type": "WebPage", "@id": canonical },
-    }
-  : {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      name: NAME,
-      url: SITE_URL,
-      image: new URL("/logo.png", SITE_URL).href,
-      jobTitle: ROLE,
-      email: `mailto:${EMAIL}`,
-      knowsAbout: KNOWS_ABOUT,
-      sameAs: Object.values(SOCIALS),
-    };
+      isPartOf: { "@id": WEBSITE_ID },
+      about: personRef,
+      inLanguage: "en",
+      primaryImageOfPage: { "@type": "ImageObject", url: ogImageUrl },
+      ...(mainEntity
+        ? { mainEntity }
+        : article && { mainEntity: { "@id": `${canonical}#article` } }),
+    },
+    ...(article
+      ? [
+          {
+            "@type": "BlogPosting",
+            "@id": `${canonical}#article`,
+            headline: title,
+            description,
+            image: ogImageUrl,
+            url: canonical,
+            datePublished: article.publishedTime.toISOString(),
+            dateModified: (article.modifiedTime ?? article.publishedTime).toISOString(),
+            ...(article.tags?.length && { keywords: article.tags.join(", ") }),
+            ...(article.wordCount && { wordCount: article.wordCount }),
+            inLanguage: "en",
+            author: personRef,
+            publisher: personRef,
+            mainEntityOfPage: { "@id": `${canonical}#webpage` },
+          },
+        ]
+      : []),
+    ...schema,
+  ],
+};
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const navLinks = [
@@ -110,8 +129,13 @@ const navLinks = [
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
+    {ogImage === "/og.png" && (
+      <>
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+      </>
+    )}
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:site_name" content={SITE_TITLE} />
     <meta property="og:locale" content="en_US" />
     {article && (
@@ -128,7 +152,14 @@ const navLinks = [
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    <meta name="twitter:site" content={X_HANDLE} />
     <meta name="twitter:creator" content={X_HANDLE} />
+
+    <!-- Identity: ties this site to the same person's profiles elsewhere -->
+    {Object.values(SOCIALS).map((href) => <link rel="me" href={href} />)}
+    <!-- Plain-text summary for AI assistants and LLM crawlers (llmstxt.org) -->
+    <link rel="alternate" type="text/plain" title="LLM-readable summary" href="/llms.txt" />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link

@@ -3,6 +3,8 @@ import Layout from "../../layouts/Layout.astro";
 import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import { readingMinutes } from "../../utils/reading";
+import { SITE_URL } from "../../consts";
+import { breadcrumbs, personRef } from "../../utils/schema";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
@@ -14,12 +16,32 @@ const byYear = posts.reduce<Map<number, typeof posts>>((acc, post) => {
   acc.set(year, [...(acc.get(year) ?? []), post]);
   return acc;
 }, new Map());
+
+const blogNode = {
+  "@type": "Blog",
+  "@id": `${SITE_URL}/blog/#blog`,
+  name: "Writing by Amir Aman",
+  url: `${SITE_URL}/blog/`,
+  author: personRef,
+  inLanguage: "en",
+  blogPost: posts.map((post) => ({
+    "@type": "BlogPosting",
+    headline: post.data.title,
+    description: post.data.description,
+    url: `${SITE_URL}/blog/${post.slug}/`,
+    datePublished: post.data.pubDate.toISOString(),
+    author: personRef,
+  })),
+};
 ---
 
 <Layout
   title="Writing"
   description="Essays and notes from Amir Aman on software engineering, Go, the AI industry, and Ethiopia's infrastructure."
   wideLayout={true}
+  pageType="CollectionPage"
+  mainEntity={{ "@id": `${SITE_URL}/blog/#blog` }}
+  schema={[blogNode, breadcrumbs([["Writing", "/blog"]])]}
 >
   <header class="page-hero">
     <p class="section-label section-head__eyebrow" data-enter style="--d: 0">Writing</p>

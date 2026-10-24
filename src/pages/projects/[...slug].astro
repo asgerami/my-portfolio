@@ -1,8 +1,10 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { Image } from "astro:assets";
+import { Image, getImage } from "astro:assets";
 import { getCollection } from "astro:content";
+import { SITE_URL } from "../../consts";
 import { hasCaseStudy } from "../../utils/projects";
+import { breadcrumbs, personRef } from "../../utils/schema";
 
 /**
  * Case-study pages for projects that carry a real write-up.
@@ -37,9 +39,53 @@ const facts = [
   data.mobile && { label: "Platform", value: "Android" },
   { label: "Status", value: data.demoUrl ? "Live" : data.githubUrl ? "Open source" : "Shipped" },
 ].filter(Boolean) as { label: string; value: string }[];
+
+// Share each project under its own screenshot rather than the site card.
+const ogImage = data.image
+  ? (await getImage({ src: data.image, width: 1200, format: "png" })).src
+  : undefined;
+
+const pageUrl = new URL(`/projects/${project.slug}/`, SITE_URL).href;
+
+/** The project as a schema.org software entry, authored by the site's person. */
+const projectNode = {
+  "@type": data.mobile ? "MobileApplication" : data.demoUrl ? "WebApplication" : "SoftwareSourceCode",
+  "@id": `${pageUrl}#project`,
+  name: data.title,
+  description: data.description,
+  url: data.demoUrl ?? pageUrl,
+  mainEntityOfPage: { "@id": `${pageUrl}#webpage` },
+  author: personRef,
+  creator: personRef,
+  ...(data.year && { dateCreated: data.year }),
+  ...(ogImage && { image: new URL(ogImage, SITE_URL).href }),
+  ...(data.techStack && { keywords: data.techStack.join(", ") }),
+  ...(data.mobile
+    ? { operatingSystem: "Android", applicationCategory: "UtilitiesApplication" }
+    : data.demoUrl
+      ? { operatingSystem: "Web", applicationCategory: "DeveloperApplication" }
+      : {
+          ...(data.githubUrl && { codeRepository: data.githubUrl }),
+          ...(data.techStack && { programmingLanguage: data.techStack }),
+        }),
+  ...(data.githubUrl && { sameAs: data.githubUrl }),
+};
 ---
 
-<Layout title={data.title} description={data.description}>
+<Layout
+  title={data.title}
+  description={data.description}
+  ogImage={ogImage}
+  ogImageAlt={`${data.title} screenshot`}
+  mainEntity={{ "@id": `${pageUrl}#project` }}
+  schema={[
+    projectNode,
+    breadcrumbs([
+      ["Projects", "/projects"],
+      [data.title, `/projects/${project.slug}/`],
+    ]),
+  ]}
+>
   <article class="case">
     <a href="/projects" class="case__back font-mono">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
