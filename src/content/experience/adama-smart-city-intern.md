@@ -1,6 +1,6 @@
 ---
 company: "Adama Smart City Project, Adama Technology Office"
-position: "Intern"
+position: "Software Engineering Intern"
 startDate: "2024-07-01"
 endDate: "2024-09-30"
 current: false
