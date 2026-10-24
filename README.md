@@ -36,7 +36,9 @@ public/                only what must ship byte-for-byte: favicon, logo, og.png,
   with its card linking inward instead of straight out to the demo.
 - **`featured: true` puts a project in the "Selected work" stack** on the
   homepage, ordered by `order`. Everything else lands in the filterable
-  archive: `clientWork: true` files it under Client, `mobile: true` under Apps.
+  archive. The homepage previews its newest five; `/projects` lists every
+  project, filterable: `clientWork: true` files one under Client, `mobile: true`
+  under Apps.
 - **Availability and location live in `consts.ts`.** Flip
   `AVAILABLE_FOR_WORK` to change the hero badge; the clocks read `TIMEZONE`.
 - **Press `⌘K` / `Ctrl K` (or `/`)** for the command palette. Its entries are

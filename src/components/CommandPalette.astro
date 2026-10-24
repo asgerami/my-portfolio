@@ -30,7 +30,7 @@ const groups: { title: string; items: Item[] }[] = [
     items: [
       { kind: "link", label: "Home", href: "/", keywords: "index start" },
       { kind: "link", label: "Selected work", href: "/#work", keywords: "projects portfolio" },
-      { kind: "link", label: "Archive", href: "/#archive", keywords: "client freelance all projects" },
+      { kind: "link", label: "All projects", href: "/projects", keywords: "archive client freelance apps work" },
       { kind: "link", label: "Experience", href: "/experience", keywords: "career cv resume jobs" },
       { kind: "link", label: "Writing", href: "/blog", keywords: "blog posts essays articles" },
     ],
@@ -47,7 +47,7 @@ const groups: { title: string; items: Item[] }[] = [
     title: "Projects",
     items: projects.map((p) => {
       const caseStudy = hasCaseStudy(p.body) ? `/projects/${p.slug}/` : null;
-      const href = caseStudy ?? p.data.demoUrl ?? p.data.githubUrl ?? "/#archive";
+      const href = caseStudy ?? p.data.demoUrl ?? p.data.githubUrl ?? "/projects";
       return {
         kind: "link" as const,
         label: p.data.title,

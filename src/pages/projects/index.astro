@@ -1,0 +1,32 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import ProjectArchive from "../../components/ProjectArchive.astro";
+import { getCollection } from "astro:content";
+import { toArchive } from "../../utils/projects";
+
+const entries = toArchive(await getCollection("projects"));
+const years = entries.map((e) => Number(e.project.data.year)).filter(Boolean);
+const since = Math.min(...years);
+---
+
+<Layout
+  title="Projects"
+  description="Every project Amir Aman has shipped: Driftwatch, AI and developer tools, client sites for brands in Ethiopia, Android apps and side projects, filterable by kind."
+  wideLayout={true}
+>
+  <header class="page-hero">
+    <p class="section-label section-head__eyebrow" data-enter style="--d: 0">Projects</p>
+    <h1 class="page-hero__title" data-enter style="--d: 1">
+      Everything I've <span class="serif-accent">shipped.</span>
+    </h1>
+    <p class="page-hero__lead text-pretty" data-enter style="--d: 2">
+      {entries.length} projects since {since}: products of my own, client sites, Android apps and
+      experiments. The ones with a write-up open a case study; the rest link straight to the live
+      thing.
+    </p>
+  </header>
+
+  <section class="section-reveal" aria-label="All projects">
+    <ProjectArchive entries={entries} filters />
+  </section>
+</Layout>

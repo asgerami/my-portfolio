@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import TechStack from "../components/TechStack.astro";
 import ProjectCard from "../components/ProjectCard.astro";
+import ProjectArchive from "../components/ProjectArchive.astro";
 import { getCollection } from "astro:content";
 import {
   AVAILABLE_FOR_WORK,
@@ -12,7 +13,7 @@ import {
   SITE_TITLE,
   TIMEZONE_LABEL,
 } from "../consts";
-import { hasCaseStudy } from "../utils/projects";
+import { toArchive } from "../utils/projects";
 import { readingMinutes } from "../utils/reading";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
@@ -30,26 +31,9 @@ const featured = allProjects
       a.data.title.localeCompare(b.data.title),
   );
 
-/** Everything not in the featured stack, newest first. */
-const archive = allProjects
-  .filter((p) => !featured.includes(p))
-  .sort(
-    (a, b) =>
-      Number(b.data.year ?? 0) - Number(a.data.year ?? 0) ||
-      a.data.title.localeCompare(b.data.title),
-  )
-  .map((p) => {
-    const kind = p.data.clientWork ? "client" : p.data.mobile ? "app" : "personal";
-    const caseStudy = hasCaseStudy(p.body) ? `/projects/${p.slug}/` : null;
-    const href = caseStudy ?? p.data.demoUrl ?? p.data.githubUrl ?? null;
-    return {
-      project: p,
-      kind,
-      href,
-      external: !caseStudy && !!href,
-      label: { client: "Client", app: "App", personal: "Personal" }[kind],
-    };
-  });
+/** Everything not in the featured stack; the homepage shows the newest few. */
+const archive = toArchive(allProjects.filter((p) => !featured.includes(p)));
+const ARCHIVE_PREVIEW = 5;
 
 const clientCount = allProjects.filter((p) => p.data.clientWork).length;
 const appCount = allProjects.filter((p) => p.data.mobile).length;
@@ -64,13 +48,6 @@ function monthYear(date: string) {
 function shortDate(date: Date) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
-
-const filters = [
-  { id: "all", label: "All", count: archive.length },
-  { id: "client", label: "Client", count: archive.filter((a) => a.kind === "client").length },
-  { id: "personal", label: "Personal", count: archive.filter((a) => a.kind === "personal").length },
-  { id: "app", label: "Apps", count: archive.filter((a) => a.kind === "app").length },
-];
 
 const now = [
   {
@@ -290,71 +267,21 @@ const now = [
         </h2>
       </div>
       <p class="section-head__aside">
-        Client sites, side projects and Android apps. Smaller, but all real and all shipped.
+        The latest client sites, side projects and Android apps. Smaller, but all real and
+        all shipped.
       </p>
     </div>
 
-    <!-- Pure-CSS filter: the radios drive :has() selectors below, no JS. -->
-    <div class="archive">
-      <fieldset class="archive__filters">
-        <legend class="sr-only">Filter projects</legend>
-        {
-          filters.map((f, i) => (
-            <label class="archive__filter">
-              <input type="radio" name="archive-filter" value={f.id} checked={i === 0} class="sr-only" />
-              {f.label}
-              <span class="archive__count font-mono">{f.count}</span>
-            </label>
-          ))
-        }
-      </fieldset>
+    <ProjectArchive entries={archive} limit={ARCHIVE_PREVIEW} />
 
-      <ul class="archive__list">
-        {
-          archive.map(({ project, kind, href, external, label }) => {
-            const inner = (
-              <>
-                <span class="archive__year font-mono">{project.data.year ?? "—"}</span>
-                <span class="archive__main">
-                  <span class="archive__title">{project.data.title}</span>
-                  <span class="archive__desc line-clamp-2">{project.data.description}</span>
-                </span>
-                <span class="archive__kind font-mono">{label}</span>
-                <span class="archive__stack font-mono">
-                  {(project.data.techStack ?? []).slice(0, 3).join(" · ")}
-                </span>
-                <span class="archive__go" aria-hidden="true">
-                  {href && (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      {external ? (
-                        <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round" />
-                      ) : (
-                        <path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                      )}
-                    </svg>
-                  )}
-                </span>
-              </>
-            );
-            return (
-              <li class="archive__item" data-kind={kind}>
-                {href ? (
-                  <a
-                    class="archive__row"
-                    href={href}
-                    target={external ? "_blank" : undefined}
-                    rel={external ? "noopener noreferrer" : undefined}
-                  >
-                    {inner}
-                  </a>
-                ) : (
-                  <div class="archive__row">{inner}</div>
-                )}
-              </li>
-            );
-          })
-        }
-      </ul>
+    <div class="archive-more">
+      <a class="btn btn--primary" href="/projects">
+        View all {allProjects.length} projects
+        <svg class="icon-arrow-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </a>
+      <p class="archive-more__note font-mono">Filter by client work, side projects and apps</p>
     </div>
   </section>
 
@@ -784,147 +711,16 @@ const now = [
     transform: rotate(45deg);
   }
 
-  /* ------------------------------------------------------------ Archive */
-  .archive__filters {
+  .archive-more {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-bottom: 1.25rem;
-  }
-  .archive__filter {
-    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    height: 2.25rem;
-    padding: 0 0.95rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    cursor: pointer;
-    user-select: none;
-    transition:
-      color 0.2s var(--ease-soft),
-      background-color 0.2s var(--ease-soft),
-      border-color 0.2s var(--ease-soft);
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.75rem;
   }
-  .archive__filter:hover {
-    color: var(--text);
-    border-color: var(--border-strong);
-  }
-  .archive__filter:has(input:checked) {
-    border-color: var(--text);
-    background: var(--text);
-    color: var(--bg);
-  }
-  .archive__filter:has(input:focus-visible) {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-  }
-  .archive__count {
-    font-size: 0.68rem;
-    opacity: 0.6;
-  }
-
-  .archive:has(input[value="client"]:checked) .archive__item:not([data-kind="client"]),
-  .archive:has(input[value="personal"]:checked) .archive__item:not([data-kind="personal"]),
-  .archive:has(input[value="app"]:checked) .archive__item:not([data-kind="app"]) {
-    display: none;
-  }
-
-  .archive__list {
-    border-top: 1px solid var(--border);
-  }
-  .archive__row {
-    position: relative;
-    display: grid;
-    grid-template-columns: 3.25rem minmax(0, 1fr) 1.25rem;
-    align-items: start;
-    gap: 0.25rem 1rem;
-    padding: 1.15rem 0.25rem;
-    border-bottom: 1px solid var(--border);
-    color: inherit;
-    text-decoration: none;
-  }
-  @media (min-width: 860px) {
-    .archive__row {
-      grid-template-columns: 4rem minmax(0, 1fr) 6rem 14rem 1.25rem;
-      align-items: center;
-      gap: 1.5rem;
-      padding: 1.2rem 0.75rem;
-    }
-  }
-  a.archive__row::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: 0.75rem;
-    background: var(--bg-subtle);
-    opacity: 0;
-    transform: scaleY(0.85);
-    transition: opacity 0.2s var(--ease-soft), transform 0.35s var(--ease-spring);
-  }
-  a.archive__row:hover::before {
-    opacity: 1;
-    transform: none;
-  }
-  .archive__list {
-    isolation: isolate;
-  }
-  .archive__year {
-    padding-top: 0.15rem;
-    font-size: 0.75rem;
+  .archive-more__note {
+    font-size: 0.72rem;
     color: var(--text-faint);
-  }
-  .archive__main {
-    display: grid;
-    gap: 0.25rem;
-    min-width: 0;
-  }
-  .archive__title {
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--text);
-  }
-  .archive__desc {
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: var(--text-muted);
-  }
-  .archive__kind,
-  .archive__stack {
-    display: none;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-  }
-  @media (min-width: 860px) {
-    .archive__kind,
-    .archive__stack {
-      display: block;
-    }
-    .archive__stack {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-  }
-  .archive__kind {
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .archive__go {
-    color: var(--text-faint);
-    transition: color 0.2s var(--ease-soft), transform 0.35s var(--ease-spring);
-  }
-  .archive__go svg {
-    width: 1.1rem;
-    height: 1.1rem;
-  }
-  a.archive__row:hover .archive__go {
-    color: var(--text);
-    transform: translateX(3px);
   }
 
   /* --------------------------------------------------------- Experience */

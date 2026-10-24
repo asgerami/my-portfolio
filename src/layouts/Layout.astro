@@ -81,7 +81,7 @@ const structuredData = article
 
 const path = Astro.url.pathname.replace(/\/$/, "") || "/";
 const navLinks = [
-  { href: "/#work", label: "Work", active: false },
+  { href: "/projects", label: "Work", active: path.startsWith("/projects") },
   { href: "/experience", label: "Experience", active: path.startsWith("/experience") },
   { href: "/blog", label: "Writing", active: path.startsWith("/blog") },
 ];
