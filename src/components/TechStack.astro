@@ -7,6 +7,9 @@
  *   duplicate is aria-hidden; with reduced motion it simply wraps statically.
  * - "grid": labelled icons for the bento card. Every mark carries a visible
  *   name - on a phone there is no hover to reveal a tooltip.
+ *
+ * Both switch to each brand's own colour on hover (`--brand`, or `--brand-dark`
+ * on the dark theme, where near-black marks fall back to a light tone).
  */
 import { STACK } from "../utils/stack";
 
@@ -23,7 +26,7 @@ const { variant = "grid" } = Astro.props;
         {[0, 1].map((copy) => (
           <ul class="marquee__list" aria-hidden={copy === 1 ? "true" : undefined}>
             {STACK.map((t) => (
-              <li class="marquee__item">
+              <li class="marquee__item" style={`--brand:${t.hex};--brand-dark:${t.onDark}`}>
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <path d={t.path} />
                 </svg>
@@ -36,8 +39,8 @@ const { variant = "grid" } = Astro.props;
     </div>
   ) : (
     <ul class="stack-grid" aria-label="Tech stack">
-      {STACK.slice(0, 12).map((t) => (
-        <li class="stack-grid__cell" title={t.name}>
+      {STACK.map((t) => (
+        <li class="stack-grid__cell" title={t.name} style={`--brand:${t.hex};--brand-dark:${t.onDark}`}>
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d={t.path} />
           </svg>
@@ -86,6 +89,18 @@ const { variant = "grid" } = Astro.props;
   .marquee__item:hover {
     color: var(--text);
   }
+  .marquee__item:hover svg {
+    color: var(--brand);
+  }
+  :global(.dark) .marquee__item:hover svg {
+    color: var(--brand-dark);
+  }
+  .marquee__item svg {
+    transition: color 0.25s var(--ease-soft), transform 0.45s var(--ease-spring);
+  }
+  .marquee__item:hover svg {
+    transform: scale(1.15) rotate(-6deg);
+  }
   .marquee__item svg {
     width: 1.15rem;
     height: 1.15rem;
@@ -106,9 +121,10 @@ const { variant = "grid" } = Astro.props;
     }
   }
 
+  /* 18 marks: 3 columns on phones, 6 above, so every row is full */
   .stack-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.5rem;
   }
   @media (min-width: 640px) {
@@ -146,11 +162,25 @@ const { variant = "grid" } = Astro.props;
     font-size: 0.6rem;
     letter-spacing: 0.02em;
   }
+  .stack-grid__cell svg {
+    transition: transform 0.5s var(--ease-spring), filter 0.3s var(--ease-soft);
+  }
+  /* Hover: the mark takes its brand colour, the tile picks up a wash of it */
   @media (hover: hover) and (pointer: fine) {
     .stack-grid__cell:hover {
+      --tone: var(--brand);
       color: var(--text);
-      border-color: var(--border-strong);
-      transform: translateY(-3px);
+      border-color: color-mix(in srgb, var(--tone) 45%, var(--border));
+      background: color-mix(in srgb, var(--tone) 9%, var(--bg));
+      transform: translateY(-4px);
+    }
+    :global(.dark) .stack-grid__cell:hover {
+      --tone: var(--brand-dark);
+    }
+    .stack-grid__cell:hover svg {
+      color: var(--tone);
+      transform: scale(1.18);
+      filter: drop-shadow(0 6px 14px color-mix(in srgb, var(--tone) 45%, transparent));
     }
   }
 </style>

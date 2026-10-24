@@ -1,0 +1,377 @@
+---
+/**
+ * A live Earth, drawn on a canvas from NASA's Blue Marble (day) and Black
+ * Marble (city lights) maps.
+ *
+ * The day/night terminator is real: it comes from the sun's position at the
+ * moment the page is open, so the dark side is where it is night right now and
+ * its cities glow. The globe turns slowly, can be dragged, and pins a marker
+ * on `lat`/`lon`.
+ *
+ * Rendering is a per-pixel orthographic projection. Everything that depends
+ * only on the pixel (latitude, base longitude, limb shading) is computed once;
+ * each frame only shifts longitude and looks up two texels, so it costs a few
+ * milliseconds and needs no WebGL. It pauses off-screen, and with reduced
+ * motion it draws one still frame.
+ */
+import day from "../assets/globe/earth-day.webp";
+import night from "../assets/globe/earth-night.webp";
+
+export interface Props {
+  lat: number;
+  lon: number;
+  label: string;
+}
+const { lat, lon, label } = Astro.props;
+---
+
+<div
+  class="globe"
+  data-globe
+  data-day={day.src}
+  data-night={night.src}
+  data-lat={lat}
+  data-lon={lon}
+  role="img"
+  aria-label={`A globe turning, with ${label} marked and the current day and night shown`}
+>
+  <canvas class="globe__canvas"></canvas>
+  <span class="globe__pin" aria-hidden="true"><i></i></span>
+</div>
+
+<style>
+  .globe {
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    border-radius: 50%;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .globe:active {
+    cursor: grabbing;
+  }
+  /* Atmosphere: a soft blue halo outside, a rim of light inside the limb */
+  .globe::before {
+    content: "";
+    position: absolute;
+    inset: -6%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      transparent 60%,
+      rgba(110, 170, 255, 0.28) 66.5%,
+      rgba(110, 170, 255, 0.08) 71%,
+      transparent 74%
+    );
+    pointer-events: none;
+  }
+  .globe::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    box-shadow:
+      inset 0 0 18px rgba(150, 200, 255, 0.35),
+      inset 0 0 2px rgba(190, 220, 255, 0.5);
+    pointer-events: none;
+  }
+  .globe__canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.8s var(--ease-soft);
+  }
+  .globe.is-ready .globe__canvas {
+    opacity: 1;
+  }
+
+  .globe__pin {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-soft);
+    pointer-events: none;
+  }
+  .globe__pin i,
+  .globe__pin::before {
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .globe__pin i {
+    background: var(--accent-solid);
+    box-shadow:
+      0 0 0 2px rgba(0, 0, 0, 0.55),
+      0 0 14px var(--accent-solid);
+  }
+  .globe__pin::before {
+    content: "";
+    border: 1.5px solid var(--accent-solid);
+    animation: globe-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+  @keyframes globe-ping {
+    from {
+      transform: scale(1);
+      opacity: 0.9;
+    }
+    to {
+      transform: scale(3.4);
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  type Texture = { data: Uint8ClampedArray; w: number; h: number };
+
+  const textureCache = new Map<string, Promise<Texture>>();
+
+  function loadTexture(src: string): Promise<Texture> {
+    let pending = textureCache.get(src);
+    if (!pending) {
+      pending = new Promise((resolve, reject) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.onload = () => {
+          const c = document.createElement("canvas");
+          c.width = img.naturalWidth;
+          c.height = img.naturalHeight;
+          const ctx = c.getContext("2d", { willReadFrequently: true })!;
+          ctx.drawImage(img, 0, 0);
+          resolve({ data: ctx.getImageData(0, 0, c.width, c.height).data, w: c.width, h: c.height });
+        };
+        img.onerror = reject;
+        img.src = src;
+      });
+      textureCache.set(src, pending);
+    }
+    return pending;
+  }
+
+  const RAD = Math.PI / 180;
+  /** View tilt: we look from slightly north of the equator. */
+  const TILT = 18 * RAD;
+
+  /** Sub-solar point for `date`: where the sun is overhead right now. */
+  function sunPosition(date: Date) {
+    const start = Date.UTC(date.getUTCFullYear(), 0, 0);
+    const dayOfYear = (date.getTime() - start) / 86_400_000;
+    const declination = -23.44 * Math.cos(((2 * Math.PI) / 365) * (dayOfYear + 10));
+    const hours = date.getUTCHours() + date.getUTCMinutes() / 60;
+    return { lat: declination * RAD, lon: -15 * (hours - 12) * RAD };
+  }
+
+  function setup(el: HTMLElement) {
+    const canvas = el.querySelector("canvas")!;
+    const pin = el.querySelector<HTMLElement>(".globe__pin")!;
+    const ctx = canvas.getContext("2d")!;
+    const pinLat = Number(el.dataset.lat) * RAD;
+    const pinLon = Number(el.dataset.lon) * RAD;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let day: Texture, night: Texture;
+    let size = 0;
+    let image: ImageData;
+    // Per-pixel tables, built once per size
+    let idx: Int32Array, row: Int32Array, lon0: Float32Array, sinLat: Float32Array, cosLat: Float32Array, shade: Float32Array;
+    let count = 0;
+    let cosCol: Float32Array;
+
+    // Start with the pin facing us; longitude of the view centre, radians
+    let centre = pinLon;
+    let velocity = 0;
+    let dragging = false;
+    let lastX = 0;
+    let visible = false;
+    let frame = 0;
+    let last = 0;
+
+    function build() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const next = Math.max(64, Math.min(640, Math.round(el.clientWidth * dpr)));
+      if (next === size) return;
+      size = next;
+      canvas.width = canvas.height = size;
+      image = ctx.createImageData(size, size);
+      const r = size / 2;
+      const cap = size * size;
+      idx = new Int32Array(cap);
+      row = new Int32Array(cap);
+      lon0 = new Float32Array(cap);
+      sinLat = new Float32Array(cap);
+      cosLat = new Float32Array(cap);
+      shade = new Float32Array(cap);
+      count = 0;
+      const sinT = Math.sin(TILT);
+      const cosT = Math.cos(TILT);
+      for (let py = 0; py < size; py++) {
+        for (let px = 0; px < size; px++) {
+          const x = (px + 0.5 - r) / r;
+          const y = (r - py - 0.5) / r;
+          const d2 = x * x + y * y;
+          if (d2 > 1) continue;
+          const z = Math.sqrt(1 - d2);
+          // Undo the view tilt to get world coordinates
+          const wy = y * cosT + z * sinT;
+          const wz = -y * sinT + z * cosT;
+          const latitude = Math.asin(Math.max(-1, Math.min(1, wy)));
+          idx[count] = (py * size + px) * 4;
+          row[count] = Math.min(day.h - 1, Math.floor(((Math.PI / 2 - latitude) / Math.PI) * day.h));
+          lon0[count] = Math.atan2(x, wz);
+          sinLat[count] = wy;
+          cosLat[count] = Math.cos(latitude);
+          // Limb darkening plus a soft anti-aliased edge
+          const edge = Math.min(1, (1 - Math.sqrt(d2)) * r * 0.9);
+          shade[count] = (0.45 + 0.55 * Math.pow(z, 0.6)) * edge;
+          count++;
+        }
+      }
+      cosCol = new Float32Array(day.w);
+    }
+
+    function draw() {
+      const W = day.w;
+      const sun = sunPosition(new Date());
+      const sinD = Math.sin(sun.lat);
+      const cosD = Math.cos(sun.lat);
+      for (let c = 0; c < W; c++) {
+        const lonC = (c / W) * 2 * Math.PI - Math.PI;
+        cosCol[c] = Math.cos(lonC - sun.lon);
+      }
+      const out = image.data;
+      const dd = day.data;
+      const nd = night.data;
+      const offset = ((centre + Math.PI) / (2 * Math.PI)) * W;
+      const scale = W / (2 * Math.PI);
+      for (let i = 0; i < count; i++) {
+        let col = Math.floor(lon0[i] * scale + offset) % W;
+        if (col < 0) col += W;
+        const t = (row[i] * W + col) * 4;
+        const light = sinLat[i] * sinD + cosLat[i] * cosD * cosCol[col];
+        // Smooth twilight band across the terminator
+        let k = (light + 0.1) / 0.2;
+        k = k < 0 ? 0 : k > 1 ? 1 : k * k * (3 - 2 * k);
+        const sunlit = 0.55 + 0.45 * (light > 0 ? light : 0);
+        const s = shade[i];
+        const o = idx[i];
+        const nightBoost = 1.35;
+        out[o] = (dd[t] * sunlit * k + nd[t] * nightBoost * (1 - k)) * s;
+        out[o + 1] = (dd[t + 1] * sunlit * k + nd[t + 1] * nightBoost * (1 - k)) * s;
+        out[o + 2] = (dd[t + 2] * sunlit * k + nd[t + 2] * nightBoost * (1 - k)) * s;
+        out[o + 3] = 255;
+      }
+      ctx.putImageData(image, 0, 0);
+
+      // Pin: rotate into view space and hide it on the far side
+      const dl = pinLon - centre;
+      const px = Math.cos(pinLat) * Math.sin(dl);
+      const wy = Math.sin(pinLat);
+      const wz = Math.cos(pinLat) * Math.cos(dl);
+      const vy = wy * Math.cos(TILT) - wz * Math.sin(TILT);
+      const vz = wy * Math.sin(TILT) + wz * Math.cos(TILT);
+      const half = el.clientWidth / 2;
+      pin.style.transform = `translate(${half + px * half}px, ${half - vy * half}px)`;
+      pin.style.opacity = vz > 0.12 ? "1" : "0";
+    }
+
+    function tick(now: number) {
+      frame = 0;
+      const dt = Math.min(64, now - (last || now));
+      last = now;
+      if (!dragging) {
+        // Ease any fling back to the slow idle spin (one turn a minute)
+        const idle = reduceMotion ? 0 : (2 * Math.PI) / 60_000;
+        velocity += (idle - velocity) * 0.04;
+        centre -= velocity * dt;
+      }
+      draw();
+      if (visible && (!reduceMotion || dragging || Math.abs(velocity) > 1e-6)) {
+        frame = requestAnimationFrame(tick);
+      }
+    }
+
+    function start() {
+      if (!frame) {
+        last = 0;
+        frame = requestAnimationFrame(tick);
+      }
+    }
+
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) start();
+    });
+
+    const ro = new ResizeObserver(() => {
+      if (!day) return;
+      build();
+      draw();
+    });
+
+    el.addEventListener("pointerdown", (e) => {
+      dragging = true;
+      lastX = e.clientX;
+      velocity = 0;
+      el.setPointerCapture(e.pointerId);
+      start();
+    });
+    el.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - lastX;
+      lastX = e.clientX;
+      const radiansPerPx = Math.PI / el.clientWidth;
+      centre -= dx * radiansPerPx;
+      velocity = (dx * radiansPerPx) / 16;
+    });
+    const release = () => {
+      dragging = false;
+    };
+    el.addEventListener("pointerup", release);
+    el.addEventListener("pointercancel", release);
+
+    Promise.all([loadTexture(el.dataset.day!), loadTexture(el.dataset.night!)])
+      .then(([d, n]) => {
+        day = d;
+        night = n;
+        build();
+        draw();
+        el.classList.add("is-ready");
+        io.observe(el);
+        ro.observe(el);
+      })
+      .catch(() => {
+        // Leave the empty halo rather than a broken image.
+      });
+
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }
+
+  const cleanups: (() => void)[] = [];
+
+  function init() {
+    document.querySelectorAll<HTMLElement>("[data-globe]:not([data-globe-ready])").forEach((el) => {
+      el.dataset.globeReady = "";
+      cleanups.push(setup(el));
+    });
+  }
+
+  document.addEventListener("astro:before-swap", () => {
+    cleanups.splice(0).forEach((stop) => stop());
+  });
+  document.addEventListener("astro:page-load", init);
+  init();
+</script>

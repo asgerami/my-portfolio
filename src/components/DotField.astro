@@ -1,0 +1,157 @@
+---
+/**
+ * Interactive dot matrix behind the hero.
+ *
+ * A quiet grid of dots breathes in a slow diagonal wave; near the cursor the
+ * dots swell, brighten and are pushed outward, like a lens passing over them.
+ * Monochrome on purpose: it reads as texture, not decoration. Canvas 2D, a
+ * couple of thousand dots, paused off-screen. Reduced motion gets the still
+ * grid and no cursor response.
+ */
+---
+
+<canvas class="dot-field" data-dot-field aria-hidden="true"></canvas>
+
+<style>
+  .dot-field {
+    position: absolute;
+    inset: -4rem calc(50% - 50vw) 0;
+    z-index: -1;
+    width: 100vw;
+    height: calc(100% + 4rem);
+    pointer-events: none;
+    mask-image: radial-gradient(75% 85% at 50% 35%, #000 25%, transparent 78%);
+    -webkit-mask-image: radial-gradient(75% 85% at 50% 35%, #000 25%, transparent 78%);
+  }
+</style>
+
+<script>
+  const SPACING = 26;
+  const RADIUS = 190;
+
+  function setup(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext("2d")!;
+    const host = canvas.parentElement!;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+    let mx = -9999;
+    let my = -9999;
+    // Lens strength eases in and out so the effect never pops
+    let lens = 0;
+    let lensTarget = 0;
+    let frame = 0;
+    let visible = false;
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function draw(t: number) {
+      const dark = document.documentElement.classList.contains("dark");
+      const tone = dark ? "244, 244, 245" : "12, 12, 13";
+      const base = dark ? 0.2 : 0.17;
+      ctx.clearRect(0, 0, w, h);
+      lens += (lensTarget - lens) * 0.12;
+      const cols = Math.ceil(w / SPACING) + 1;
+      const rows = Math.ceil(h / SPACING) + 1;
+      const ox = (w % SPACING) / 2;
+      for (let j = 0; j < rows; j++) {
+        for (let i = 0; i < cols; i++) {
+          let x = ox + i * SPACING;
+          let y = j * SPACING;
+          // Slow diagonal breathing
+          const wave = reduceMotion ? 0 : Math.sin(i * 0.35 + j * 0.25 - t * 0.0009);
+          let alpha = base + wave * 0.07;
+          let r = 1;
+          if (lens > 0.01) {
+            const dx = x - mx;
+            const dy = y - my;
+            const d = Math.sqrt(dx * dx + dy * dy);
+            if (d < RADIUS) {
+              const f = (1 - d / RADIUS) ** 2 * lens;
+              const push = f * 22;
+              x += (dx / (d || 1)) * push;
+              y += (dy / (d || 1)) * push;
+              alpha += f * 0.8;
+              r += f * 2.2;
+            }
+          }
+          ctx.fillStyle = `rgba(${tone}, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function tick(t: number) {
+      frame = 0;
+      draw(t);
+      if (visible && !reduceMotion) frame = requestAnimationFrame(tick);
+    }
+
+    function start() {
+      if (!frame && !reduceMotion) frame = requestAnimationFrame(tick);
+    }
+
+    const onMove = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mx = e.clientX - rect.left;
+      my = e.clientY - rect.top;
+      lensTarget = 1;
+    };
+    const onLeave = () => {
+      lensTarget = 0;
+    };
+    if (finePointer && !reduceMotion) {
+      host.addEventListener("pointermove", onMove);
+      host.addEventListener("pointerleave", onLeave);
+    }
+
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) start();
+    });
+    const ro = new ResizeObserver(() => {
+      resize();
+      draw(performance.now());
+    });
+    // A theme switch changes the dot colour; redraw even when not animating
+    const mo = new MutationObserver(() => draw(performance.now()));
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    resize();
+    draw(0);
+    io.observe(canvas);
+    ro.observe(canvas);
+
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+      mo.disconnect();
+      host.removeEventListener("pointermove", onMove);
+      host.removeEventListener("pointerleave", onLeave);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }
+
+  const cleanups: (() => void)[] = [];
+  function init() {
+    document.querySelectorAll<HTMLCanvasElement>("[data-dot-field]:not([data-ready])").forEach((c) => {
+      c.dataset.ready = "";
+      cleanups.push(setup(c));
+    });
+  }
+  document.addEventListener("astro:before-swap", () => cleanups.splice(0).forEach((stop) => stop()));
+  document.addEventListener("astro:page-load", init);
+  init();
+</script>

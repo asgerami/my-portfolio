@@ -23,25 +23,41 @@ import {
   siTailwindcss,
   siDocker,
   siRedis,
+  siPrisma,
+  siCloudflare,
 } from "simple-icons";
 
-export type StackItem = { name: string; path: string };
+/**
+ * `hex` is the brand colour icons switch to on hover. Near-black marks (Next.js,
+ * Rust, Three.js, Expo) would vanish on the dark theme, so `onDark` swaps in a
+ * light fallback there.
+ */
+export type StackItem = { name: string; path: string; hex: string; onDark: string };
+
+function item(name: string, icon: { path: string; hex: string }): StackItem {
+  const hex = `#${icon.hex}`;
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(icon.hex.slice(i, i + 2), 16) / 255);
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return { name, path: icon.path, hex, onDark: luminance < 0.18 ? "#f4f4f5" : hex };
+}
 
 export const STACK: StackItem[] = [
-  { name: "TypeScript", path: siTypescript.path },
-  { name: "React", path: siReact.path },
-  { name: "Next.js", path: siNextdotjs.path },
-  { name: "Node.js", path: siNodedotjs.path },
-  { name: "React Native", path: siExpo.path },
-  { name: "Python", path: siPython.path },
-  { name: "FastAPI", path: siFastapi.path },
-  { name: "Go", path: siGo.path },
-  { name: "Rust", path: siRust.path },
-  { name: "PostgreSQL", path: siPostgresql.path },
-  { name: "MongoDB", path: siMongodb.path },
-  { name: "PyTorch", path: siPytorch.path },
-  { name: "Three.js", path: siThreedotjs.path },
-  { name: "Tailwind", path: siTailwindcss.path },
-  { name: "Docker", path: siDocker.path },
-  { name: "Redis", path: siRedis.path },
+  item("TypeScript", siTypescript),
+  item("React", siReact),
+  item("Next.js", siNextdotjs),
+  item("Node.js", siNodedotjs),
+  item("React Native", siExpo),
+  item("Python", siPython),
+  item("FastAPI", siFastapi),
+  item("Go", siGo),
+  item("Rust", siRust),
+  item("PostgreSQL", siPostgresql),
+  item("Prisma", siPrisma),
+  item("MongoDB", siMongodb),
+  item("PyTorch", siPytorch),
+  item("Three.js", siThreedotjs),
+  item("Tailwind", siTailwindcss),
+  item("Docker", siDocker),
+  item("Redis", siRedis),
+  item("Cloudflare", siCloudflare),
 ];

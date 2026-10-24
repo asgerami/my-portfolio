@@ -1,6 +1,6 @@
 /**
  * Site-wide behaviour: command palette, copy-to-clipboard, the live clock and
- * the cursor spotlight.
+ * the cursor-tracked card light and tilt.
  *
  * Module scripts run once per full page load, but the ClientRouter swaps the
  * DOM underneath them. So everything is bound with event delegation on
@@ -196,10 +196,23 @@ function tick() {
 }
 
 /* ------------------------------------------------------------------------ */
-/* Cursor spotlight                                                         */
+/* Card light and tilt                                                      */
 /* ------------------------------------------------------------------------ */
+// `.spotlight` cards get --mx/--my (the cursor, for the glare and the border
+// light); `.tilt` cards also get --rx/--ry, a few degrees of 3D lean toward
+// the cursor. The card under the pointer is tracked so the one it just left
+// can settle back flat.
+const TILT_DEG = 5;
 let pending: PointerEvent | null = null;
 let frame = 0;
+let active: HTMLElement | null = null;
+
+function settle(el: HTMLElement | null) {
+  if (!el) return;
+  el.style.setProperty("--rx", "0deg");
+  el.style.setProperty("--ry", "0deg");
+}
+
 document.addEventListener(
   "pointermove",
   (event) => {
@@ -211,20 +224,62 @@ document.addEventListener(
       const e = pending;
       pending = null;
       const el = (e?.target as Element | null)?.closest?.(".spotlight") as HTMLElement | null;
+      if (el !== active) {
+        settle(active);
+        active = el;
+      }
       if (!e || !el) return;
       const rect = el.getBoundingClientRect();
-      el.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-      el.style.setProperty("--my", `${e.clientY - rect.top}px`);
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      el.style.setProperty("--mx", `${x}px`);
+      el.style.setProperty("--my", `${y}px`);
+      if (el.classList.contains("tilt")) {
+        el.style.setProperty("--ry", `${((x / rect.width) * 2 - 1) * TILT_DEG}deg`);
+        el.style.setProperty("--rx", `${-((y / rect.height) * 2 - 1) * TILT_DEG}deg`);
+      }
     });
   },
   { passive: true },
 );
+document.addEventListener("pointerleave", () => {
+  settle(active);
+  active = null;
+});
+
+/* ------------------------------------------------------------------------ */
+/* Button text roll                                                         */
+/* ------------------------------------------------------------------------ */
+// Wraps the first text in each .btn as <span.roll><span>Label</span>
+// <span aria-hidden>Label</span></span>; CSS slides the pair up on hover.
+function rollButtons() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.querySelectorAll<HTMLElement>(".btn:not([data-roll])").forEach((btn) => {
+    btn.dataset.roll = "";
+    const text = Array.from(btn.childNodes).find(
+      (n) => n.nodeType === Node.TEXT_NODE && n.textContent?.trim(),
+    );
+    const span = text ? null : btn.querySelector<HTMLElement>(":scope > span:not([class])");
+    const label = (text?.textContent ?? span?.textContent ?? "").trim();
+    if (!label) return;
+    const roll = document.createElement("span");
+    roll.className = "roll";
+    const a = document.createElement("span");
+    a.textContent = label;
+    const b = document.createElement("span");
+    b.textContent = label;
+    b.setAttribute("aria-hidden", "true");
+    roll.append(a, b);
+    (text ?? span)!.replaceWith(roll);
+  });
+}
 
 /* ------------------------------------------------------------------------ */
 /* Per-page setup                                                           */
 /* ------------------------------------------------------------------------ */
 function onPage() {
   tick();
+  rollButtons();
   // Show the right modifier key on the search button.
   const mac = /Mac|iPhone|iPad/.test(navigator.userAgent);
   document.querySelectorAll<HTMLElement>("[data-mod-key]").forEach((el) => {

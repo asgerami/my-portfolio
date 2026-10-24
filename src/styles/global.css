@@ -275,11 +275,9 @@
   border-color: var(--accent-solid);
   background: var(--accent-solid);
   color: var(--on-accent-solid);
-  box-shadow: 0 0 0 0 transparent;
 }
 .btn--primary:hover {
   border-color: var(--accent-solid);
-  box-shadow: 0 10px 30px -10px color-mix(in srgb, var(--accent-solid) 70%, transparent);
 }
 .btn--ghost {
   border-color: transparent;
@@ -294,6 +292,26 @@
 }
 .btn:hover .icon-arrow-r {
   transform: translateX(3px);
+}
+
+/* Text roll: on hover the label slides up and an identical copy rises from
+   below. site.ts wraps each button's label in .roll on page load; without JS
+   the button is simply static. */
+.roll {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  height: 1.25em;
+  overflow: hidden;
+  line-height: 1.25;
+}
+.roll > span {
+  transition: transform 0.5s var(--ease-soft);
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover .roll > span {
+    transform: translateY(-100%);
+  }
 }
 
 /* Legacy alias kept for any markup still using it */
@@ -359,29 +377,77 @@
   box-shadow: var(--shadow-card);
 }
 
-/* Cursor-tracked spotlight. A delegated pointermove listener in Layout writes
-   --mx/--my; visibility is pure :hover so it never sticks. */
+/* ---------------------------------------------------------------------------
+   Card hover: light, not colour.
+
+   site.ts writes the cursor position (--mx/--my) on `.spotlight` cards. Two
+   layers read it: a soft glare across the surface (::before) and a highlight
+   that runs along the border nearest the cursor (::after, masked to a 1px
+   ring). `.tilt` cards also lean a few degrees toward the cursor in 3D.
+   Visibility is pure :hover, so nothing can stay lit after the pointer leaves.
+   --------------------------------------------------------------------------- */
 .spotlight {
   isolation: isolate;
   overflow: hidden;
+  --glare: rgba(255, 255, 255, 0.55);
+  --rim: rgba(12, 12, 13, 0.4);
 }
-.spotlight::before {
+.dark .spotlight {
+  --glare: rgba(255, 255, 255, 0.075);
+  --rim: rgba(255, 255, 255, 0.55);
+}
+.spotlight::before,
+.spotlight::after {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: -1;
+  border-radius: inherit;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 0.45s var(--ease-soft);
+}
+.spotlight::before {
+  z-index: -1;
   background: radial-gradient(
-    22rem circle at var(--mx, 50%) var(--my, 50%),
-    color-mix(in srgb, var(--accent) 13%, transparent),
-    transparent 65%
+    30rem circle at var(--mx, 50%) var(--my, 50%),
+    var(--glare),
+    transparent 60%
   );
-  transition: opacity 0.4s var(--ease-soft);
+}
+.spotlight::after {
+  z-index: 3;
+  padding: 1px;
+  background: radial-gradient(
+    16rem circle at var(--mx, 50%) var(--my, 50%),
+    var(--rim),
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
 }
 @media (hover: hover) and (pointer: fine) {
-  .spotlight:hover::before {
+  .spotlight:hover::before,
+  .spotlight:hover::after {
     opacity: 1;
+  }
+  .tilt {
+    transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform 0.6s var(--ease-soft);
+    will-change: transform;
+  }
+  .tilt:hover {
+    transition-duration: 0.15s;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tilt {
+    transform: none !important;
   }
 }
 

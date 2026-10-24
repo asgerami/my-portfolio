@@ -40,6 +40,10 @@ public/                only what must ship byte-for-byte: favicon, logo, og.png,
   project, filterable: `clientWork: true` files one under Client, `mobile: true`
   under Apps.
 - **Location lives in `consts.ts`.** The local-time clocks read `TIMEZONE`.
+- **The globe (`components/Globe.astro`) is drawn from NASA imagery**: Blue
+  Marble for day, Black Marble city lights for night, both public domain, in
+  `src/assets/globe/`. Its day/night line is computed from the sun's position
+  at view time.
 - **Press `⌘K` / `Ctrl K` (or `/`)** for the command palette. Its entries are
   generated from the content collections at build time.
 - **No service worker.** The previous one was cache-first with no revalidation
