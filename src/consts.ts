@@ -41,7 +41,7 @@ export const SOCIALS = {
   github: "https://github.com/asgerami",
   linkedin: "https://www.linkedin.com/in/amiramaan/",
   x: "https://x.com/asgerami",
-  telegram: "https://t.me/abbatti",
+  telegram: "https://t.me/asgerami",
 } as const;
 
 /** Handle without the @, for twitter:creator. */

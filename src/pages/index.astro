@@ -311,12 +311,11 @@ const now = [
 
     <div class="archive-more">
       <a class="btn btn--primary" href="/projects">
-        View all {allProjects.length} projects
+        View all
         <svg class="icon-arrow-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
       </a>
-      <p class="archive-more__note font-mono">Filter by client work, side projects and apps</p>
     </div>
   </section>
 
@@ -886,6 +885,12 @@ const now = [
   }
   .bento__post:hover .bento__post-arrow {
     transform: rotate(45deg);
+  }
+
+  /* -------------------------------------------------------- Archive link */
+  .archive-more {
+    display: flex;
+    margin-top: 2.5rem;
   }
 
   /* --------------------------------------------------------- Experience */
