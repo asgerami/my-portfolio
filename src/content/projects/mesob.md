@@ -7,6 +7,7 @@ featured: true
 order: 3
 year: "2026"
 role: "Solo build"
+image: "../../assets/projects/mesob.webp"
 ---
 
 A large share of Ethiopian retail runs through Telegram DMs. That works until it doesn't:
@@ -18,6 +19,8 @@ Mesob puts a real inbox behind that phone without asking the merchant to change 
 work, or the customer to install anything. It is a working backend slice, not a mockup:
 ingest, queue, triage, outbox and delivery all run, and 47 tests cover the concurrency
 behaviour that matters.
+
+![Mesob's backend: Telegram webhook to idempotent ingest, Postgres as the single source of truth and the queue, three-tier triage, then a paced outbox sender](../../assets/projects/mesob-architecture.webp)
 
 ## Telegram Business, not a bot
 
