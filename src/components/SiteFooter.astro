@@ -1,0 +1,239 @@
+---
+/**
+ * Every page ends on the same question, so the contact call-to-action lives
+ * in the footer instead of being re-built at the bottom of each page.
+ */
+import { EMAIL, NAME, SOCIALS, LOCATION, TIMEZONE_LABEL } from "../consts";
+import { siGithub, siX, siTelegram } from "simple-icons";
+
+const LINKEDIN_PATH =
+  "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z";
+
+const socials = [
+  { label: "GitHub", href: SOCIALS.github, path: siGithub.path },
+  { label: "X", href: SOCIALS.x, path: siX.path },
+  { label: "LinkedIn", href: SOCIALS.linkedin, path: LINKEDIN_PATH },
+  { label: "Telegram", href: SOCIALS.telegram, path: siTelegram.path },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer" id="contact">
+  <div class="site-footer__inner">
+    <div class="site-footer__cta section-reveal">
+      <p class="section-label section-head__eyebrow">Contact</p>
+      <h2 class="site-footer__title">
+        Have an idea?<br />
+        <span class="serif-accent">Let's build it.</span>
+      </h2>
+      <p class="site-footer__lead">
+        Freelance projects, full-time roles, or a question about something on this site.
+        I read everything and reply within a day or two.
+      </p>
+      <div class="site-footer__actions">
+        <button type="button" class="btn btn--primary site-footer__email" data-copy={EMAIL} aria-label={`Copy email address ${EMAIL}`}>
+          <span>{EMAIL}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="9" y="9" width="11" height="11" rx="2"></rect>
+            <path d="M5 15V6a2 2 0 0 1 2-2h8"></path>
+          </svg>
+        </button>
+        <a class="btn" href={`mailto:${EMAIL}`}>
+          Write an email
+          <svg class="icon-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="site-footer__bar">
+      <ul class="site-footer__socials" aria-label="Social profiles">
+        {
+          socials.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d={s.path} />
+                </svg>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="site-footer__meta font-mono">
+        <span>{LOCATION} · <time data-clock>{TIMEZONE_LABEL}</time></span>
+        <span>© {year} {NAME}</span>
+      </p>
+      <a href="#top" class="site-footer__top font-mono">
+        Back to top
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M12 19V5m-6 6 6-6 6 6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <p class="site-footer__wordmark" aria-hidden="true">amir aman</p>
+</footer>
+
+<style>
+  .site-footer {
+    position: relative;
+    margin-top: clamp(6rem, 14vw, 10rem);
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+  }
+  /* Lime glow rising from behind the wordmark */
+  .site-footer::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -18rem;
+    width: min(70rem, 140vw);
+    height: 28rem;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 22%, transparent), transparent);
+    filter: blur(20px);
+    pointer-events: none;
+  }
+
+  .site-footer__inner {
+    position: relative;
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: clamp(4rem, 9vw, 7rem) 1.25rem 0;
+  }
+  @media (min-width: 640px) {
+    .site-footer__inner {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  .site-footer__title {
+    font-size: clamp(2.75rem, 8.5vw, 6.5rem);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: var(--text);
+  }
+  .site-footer__title .serif-accent {
+    color: var(--accent-text);
+    letter-spacing: -0.02em;
+  }
+  .site-footer__lead {
+    max-width: 30rem;
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+  .site-footer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .site-footer__email span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .site-footer__email {
+    max-width: 100%;
+  }
+
+  .site-footer__bar {
+    display: grid;
+    gap: 1.25rem;
+    align-items: center;
+    margin-top: clamp(4rem, 8vw, 6rem);
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border);
+  }
+  @media (min-width: 768px) {
+    .site-footer__bar {
+      grid-template-columns: auto 1fr auto;
+      gap: 2rem;
+    }
+  }
+  .site-footer__socials {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .site-footer__socials a {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-muted);
+    transition:
+      color 0.25s var(--ease-soft),
+      border-color 0.25s var(--ease-soft),
+      transform 0.45s var(--ease-spring);
+  }
+  .site-footer__socials a:hover {
+    color: var(--text);
+    border-color: var(--text-faint);
+    transform: translateY(-2px);
+  }
+  .site-footer__socials svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  @media (min-width: 768px) {
+    .site-footer__meta {
+      justify-content: center;
+    }
+  }
+  .site-footer__top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s var(--ease-soft);
+  }
+  .site-footer__top:hover {
+    color: var(--text);
+  }
+  .site-footer__top svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 0.35s var(--ease-spring);
+  }
+  .site-footer__top:hover svg {
+    transform: translateY(-2px);
+  }
+
+  /* Oversized wordmark bleeding off the bottom edge - texture, not content */
+  .site-footer__wordmark {
+    position: relative;
+    margin: 0 0 -0.2em;
+    padding: 0 0.5rem;
+    font-size: clamp(4rem, 19.5vw, 20rem);
+    font-weight: 700;
+    line-height: 0.8;
+    letter-spacing: -0.065em;
+    text-align: center;
+    white-space: nowrap;
+    color: transparent;
+    background: linear-gradient(to bottom, color-mix(in srgb, var(--text) 16%, transparent), transparent 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    user-select: none;
+    pointer-events: none;
+  }
+</style>

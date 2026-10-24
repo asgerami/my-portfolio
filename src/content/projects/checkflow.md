@@ -4,7 +4,7 @@ description: "A facility access and check-in system: QR-coded guest cards, reser
 techStack: ["Next.js", "TypeScript", "MongoDB", "Mongoose", "BetterAuth", "Tailwind CSS"]
 githubUrl: "https://github.com/asgerami/checkflow"
 demoUrl: "https://checkflow-alpha.vercel.app/"
-featured: true
+year: "2026"
 image: "../../assets/projects/checkflow.webp"
 ---
 

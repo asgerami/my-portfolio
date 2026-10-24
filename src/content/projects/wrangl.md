@@ -5,6 +5,7 @@ techStack: ["TypeScript", "Node.js", "MCP", "Docker", "PostgreSQL"]
 githubUrl: "https://github.com/asgerami/wrangl"
 featured: true
 order: 1
+year: "2026"
 image: "../../assets/projects/wrangl.webp"
 ---
 

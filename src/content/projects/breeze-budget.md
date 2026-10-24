@@ -4,7 +4,6 @@ description: "A tool that estimates daily, monthly, and yearly AC energy costs b
 techStack: ["React", "TypeScript", "Vite", "Tailwind CSS", "Chart.js"]
 githubUrl: "https://github.com/asgerami/BreezeBudget"
 demoUrl: "https://breeze-budget.vercel.app/"
-featured: true
 image: "../../assets/projects/breeze-budget.webp"
 role: "Solo build"
 year: "2024"

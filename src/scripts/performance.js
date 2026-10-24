@@ -19,7 +19,6 @@
     CSS.supports("animation-timeline: view()");
 
   var revealObserver = null;
-  var railObserver = null;
 
   // ---------------------------------------------------------------------
   // Scroll reveal (fallback path only)
@@ -59,37 +58,6 @@
   }
 
   // ---------------------------------------------------------------------
-  // Index rail: highlight whichever section is currently in view
-  // ---------------------------------------------------------------------
-  function initRail() {
-    if (railObserver) {
-      railObserver.disconnect();
-      railObserver = null;
-    }
-
-    var railLinks = document.querySelectorAll(".index-rail__item");
-    if (!railLinks.length) return;
-
-    railObserver = new IntersectionObserver(
-      function (entries) {
-        entries.forEach(function (entry) {
-          var link = document.querySelector(
-            '.index-rail__item[data-rail-target="' + entry.target.id + '"]'
-          );
-          if (!link) return;
-          link.classList.toggle("is-active", entry.isIntersecting);
-        });
-      },
-      { root: null, rootMargin: "-40% 0px -50% 0px", threshold: 0 }
-    );
-
-    railLinks.forEach(function (link) {
-      var target = document.getElementById(link.dataset.railTarget || "");
-      if (target) railObserver.observe(target);
-    });
-  }
-
-  // ---------------------------------------------------------------------
   // Misc
   // ---------------------------------------------------------------------
   function optimizeImages() {
@@ -118,7 +86,6 @@
 
   function init() {
     initReveal();
-    initRail();
     optimizeImages();
     preloadOnHover('a[href="/experience"]', "/experience");
     preloadOnHover('a[href="/blog"]', "/blog");

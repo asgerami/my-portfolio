@@ -21,9 +21,20 @@ export const SITE_TITLE = `${NAME} | ${ROLE}`;
  * homepage's and the last-resort fallback.
  */
 export const SITE_DESCRIPTION =
-  "Amir Aman is a full-stack software engineer in Ethiopia building production web apps with TypeScript, Next.js, Node.js and Go. Selected work, client builds and writing.";
+  "Amir Aman is a software engineer in Ethiopia building web platforms, Android apps, AI tooling and backends with TypeScript, React Native, Python, Go and Rust. Selected work, client builds and writing.";
 
 export const EMAIL = "amiraman467@gmail.com";
+
+/** Shown in the hero, the bento and the footer clock. */
+export const LOCATION = "Ethiopia";
+export const TIMEZONE = "Africa/Addis_Ababa";
+export const TIMEZONE_LABEL = "GMT+3";
+
+/**
+ * Drives the "Available for work" badge in the hero. Flip to false when
+ * booked up and the badge reads "Booked" instead of advertising a slot.
+ */
+export const AVAILABLE_FOR_WORK = true;
 
 /**
  * Point this at a hosted PDF (e.g. "/amir-aman-cv.pdf" placed in `public/`)
@@ -47,8 +58,13 @@ export const KNOWS_ABOUT = [
   "TypeScript",
   "React",
   "Next.js",
+  "React Native",
   "Node.js",
+  "Python",
   "Go",
+  "Rust",
   "PostgreSQL",
+  "Model Context Protocol",
+  "Machine Learning",
   "Software Engineering",
 ];

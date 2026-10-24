@@ -13,8 +13,10 @@ src/
     projects/          projects; a body with a "## " heading gets a case-study page
     experience/        timeline entries
   assets/              images that go through astro:assets (resized, WebP, hashed)
-  components/          ProjectCard, TechStack, PerformanceMonitor
-  layouts/Layout.astro <head>, nav, footer, structured data
+  components/          ProjectCard, TechStack, CommandPalette, SiteFooter
+  layouts/Layout.astro <head>, nav, structured data
+  scripts/site.ts      command palette, copy-email toast, live clock, spotlight
+  utils/stack.ts       the tech list shared by the hero marquee and bento grid
   pages/               routes, plus rss.xml.js and 404.astro
 public/                only what must ship byte-for-byte: favicon, logo, og.png, robots.txt
 ```
@@ -32,9 +34,17 @@ public/                only what must ship byte-for-byte: favicon, logo, og.png,
 - **Projects with a real write-up get a page.** Add `## ` sections to a
   project's markdown body and `/projects/<slug>/` is generated automatically,
   with its card linking inward instead of straight out to the demo.
+- **`featured: true` puts a project in the "Selected work" stack** on the
+  homepage, ordered by `order`. Everything else lands in the filterable
+  archive: `clientWork: true` files it under Client, `mobile: true` under Apps.
+- **Availability and location live in `consts.ts`.** Flip
+  `AVAILABLE_FOR_WORK` to change the hero badge; the clocks read `TIMEZONE`.
+- **Press `⌘K` / `Ctrl K` (or `/`)** for the command palette. Its entries are
+  generated from the content collections at build time.
 - **No service worker.** The previous one was cache-first with no revalidation
   and a fixed cache name, which pinned returning visitors to a stale build.
-  `performance.js` now unregisters any lingering copy; that teardown can be
+  `public/sw.js` is now a kill switch that clears those caches and unregisters
+  itself, and `performance.js` also unregisters any lingering copy. Both can be
   deleted once no stale registration remains in the wild.
 
 ## Development

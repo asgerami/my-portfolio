@@ -1,37 +1,22 @@
-// Service Worker for performance optimization
-const CACHE_NAME = "portfolio-v1";
-const urlsToCache = ["/", "/experience", "/blog", "/logo.png", "/favicon.ico"];
-
-// Install event
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(urlsToCache);
-    })
-  );
+// Kill switch for the old service worker.
+//
+// An earlier build registered a cache-first worker at this URL that never
+// revalidated, so returning visitors could be pinned to a stale copy of the
+// site. Browsers re-fetch this file when checking for worker updates; this
+// version installs immediately, deletes the old caches, unregisters itself and
+// reloads any open tabs onto the live site. Nothing registers it any more.
+self.addEventListener("install", () => {
+  self.skipWaiting();
 });
 
-// Fetch event
-self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached version or fetch from network
-      return response || fetch(event.request);
-    })
-  );
-});
-
-// Activate event
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => caches.delete(key)));
+      await self.registration.unregister();
+      const clients = await self.clients.matchAll({ type: "window" });
+      clients.forEach((client) => client.navigate(client.url));
+    })()
   );
 });

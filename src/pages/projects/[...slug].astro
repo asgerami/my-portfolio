@@ -7,128 +7,263 @@ import { hasCaseStudy } from "../../utils/projects";
 /**
  * Case-study pages for projects that carry a real write-up.
  *
- * The bodies already existed in src/content/projects/*.md but nothing rendered
- * them, so every project link went straight off-site. A section heading is the
- * threshold: a project with only a one-line body gets no page (a near-empty
- * page is worse than none) and keeps linking out to its demo instead.
+ * A section heading is the threshold: a project with only a one-line body gets
+ * no page (a near-empty page is worse than none) and keeps linking out to its
+ * demo instead.
  */
 export async function getStaticPaths() {
-  const projects = await getCollection("projects");
-  return projects
+  const projects = (await getCollection("projects"))
     .filter((project) => hasCaseStudy(project.body))
-    .map((project) => ({
-      params: { slug: project.slug },
-      props: { project },
-    }));
+    .sort(
+      (a, b) =>
+        Number(!!b.data.featured) - Number(!!a.data.featured) ||
+        (a.data.order ?? Infinity) - (b.data.order ?? Infinity) ||
+        a.data.title.localeCompare(b.data.title),
+    );
+  return projects.map((project, i) => ({
+    params: { slug: project.slug },
+    props: { project, next: projects[(i + 1) % projects.length] },
+  }));
 }
 
-const { project } = Astro.props;
+const { project, next } = Astro.props;
 const { data } = project;
 const { Content } = await project.render();
 
-const meta = [data.role, data.year].filter(Boolean).join(" · ");
+const facts = [
+  data.year && { label: "Year", value: data.year },
+  data.role && { label: "Role", value: data.role },
+  data.clientWork && { label: "Type", value: "Client work" },
+  data.mobile && { label: "Platform", value: "Android" },
+  { label: "Status", value: data.demoUrl ? "Live" : data.githubUrl ? "Open source" : "Shipped" },
+].filter(Boolean) as { label: string; value: string }[];
 ---
 
 <Layout title={data.title} description={data.description}>
-  <article class="py-8 md:py-12">
-    <div class="max-w-2xl">
-      <a
-        href="/#work"
-        class="inline-flex items-center gap-2 text-sm font-medium mb-8 transition-colors hover:opacity-90"
-        style="color: var(--accent-text);"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-        All work
-      </a>
+  <article class="case">
+    <a href="/#work" class="case__back font-mono">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <path d="M19 12H5m6 6-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      All work
+    </a>
 
-      <header class="mb-10 pb-8 border-b border-[var(--border)]">
-        {meta && <p class="section-label mb-3">{meta}</p>}
-        <h1
-          class="font-display text-3xl md:text-5xl font-bold mb-5 leading-tight"
-          style="color: var(--text);"
-        >
-          {data.title}
-        </h1>
-        <p class="text-lg leading-relaxed mb-6" style="color: var(--text-muted);">
-          {data.description}
-        </p>
+    <header class="case__header">
+      <p class="section-label section-head__eyebrow" data-enter style="--d: 0">Case study</p>
+      <h1 class="case__title" data-enter style="--d: 1">{data.title}</h1>
+      <p class="case__lead text-pretty" data-enter style="--d: 2">{data.description}</p>
 
-        {data.techStack && data.techStack.length > 0 && (
-          <ul class="flex flex-wrap gap-2 mb-6" aria-label="Tech stack">
+      <dl class="case__facts" data-enter style="--d: 3">
+        {
+          facts.map((f) => (
+            <div>
+              <dt class="section-label">{f.label}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      {
+        data.techStack && data.techStack.length > 0 && (
+          <ul class="tag-list case__tags" aria-label="Tech stack">
             {data.techStack.map((tech) => (
-              <li
-                class="rounded-md px-2 py-0.5 text-xs font-medium"
-                style="background: var(--accent-muted); color: var(--accent-text);"
-              >
-                {tech}
-              </li>
+              <li class="tag">{tech}</li>
             ))}
           </ul>
-        )}
+        )
+      }
 
-        <div class="flex flex-wrap gap-4">
-          {data.demoUrl && (
-            <a
-              href={data.demoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-spring inline-flex items-center gap-2 rounded-xl border-2 px-5 py-2 text-sm font-semibold"
-              style="border-color: var(--accent); color: var(--accent-text); background-color: transparent;"
-            >
-              Live site
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17L17 7M17 7H7m10 0v10" />
+      <div class="case__actions">
+        {
+          data.demoUrl && (
+            <a href={data.demoUrl} target="_blank" rel="noopener noreferrer" class="btn btn--primary">
+              Visit live
+              <svg class="icon-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
-          )}
-          {data.githubUrl && (
+          )
+        }
+        {
+          data.githubUrl && (
             <a
               href={data.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              class="btn-spring inline-flex items-center gap-2 rounded-xl border-2 px-5 py-2 text-sm font-semibold"
-              style="border-color: var(--border); color: var(--text); background-color: var(--bg-elevated);"
+              class={`btn${data.demoUrl ? "" : " btn--primary"}`}
             >
-              Source
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              View source
+              <svg class="icon-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
-          )}
-        </div>
-      </header>
+          )
+        }
+      </div>
+    </header>
 
-      {data.image && (
-        <div class="mb-12 rounded-2xl overflow-hidden border border-[var(--border)]">
+    {
+      data.image && (
+        <figure class="case__hero">
           <Image
             src={data.image}
             alt={`${data.title} screenshot`}
-            widths={[640, 1024, 1400]}
-            sizes="(min-width: 768px) 672px, 92vw"
+            widths={[640, 1024, 1400, 1800]}
+            sizes="(min-width: 1024px) 960px, 94vw"
             loading="eager"
             fetchpriority="high"
           />
-        </div>
-      )}
+        </figure>
+      )
+    }
 
-      <div class="blog-content">
-        <Content />
-      </div>
-
-      <footer class="mt-12 pt-8 border-t border-[var(--border)]">
-        <a
-          href="/#work"
-          class="inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:opacity-90"
-          style="color: var(--accent-text);"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          All work
-        </a>
-      </footer>
+    <div class="blog-content">
+      <Content />
     </div>
+
+    {
+      next && next.slug !== project.slug && (
+        <a class="case__next" href={`/projects/${next.slug}/`}>
+          <span class="section-label">Next project</span>
+          <span class="case__next-title">
+            {next.data.title}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </span>
+          <span class="case__next-desc line-clamp-2">{next.data.description}</span>
+        </a>
+      )
+    }
   </article>
 </Layout>
+
+<style>
+  .case {
+    padding-top: clamp(2.5rem, 6vw, 4rem);
+  }
+  .case__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s var(--ease-soft);
+  }
+  .case__back svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 0.35s var(--ease-spring);
+  }
+  .case__back:hover {
+    color: var(--text);
+  }
+  .case__back:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .case__header {
+    margin: 2.5rem 0 3rem;
+  }
+  .case__title {
+    font-size: clamp(3rem, 10vw, 5.5rem);
+    font-weight: 600;
+    line-height: 0.95;
+    letter-spacing: -0.055em;
+    color: var(--text);
+  }
+  .case__lead {
+    margin-top: 1.5rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 2.4vw, 1.55rem);
+    font-style: italic;
+    line-height: 1.4;
+    color: var(--text-muted);
+  }
+  .case__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.25rem 0;
+    border-block: 1px solid var(--border);
+  }
+  .case__facts dd {
+    margin-top: 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .case__tags {
+    margin-top: 1.5rem;
+  }
+  .case__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-top: 1.75rem;
+  }
+
+  .case__hero {
+    width: min(60rem, calc(100vw - 2.5rem));
+    margin: 0 0 3.5rem calc(50% - min(30rem, 50vw - 1.25rem));
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    background: var(--bg-elevated);
+    box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.5);
+  }
+  .case__hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .case__next {
+    display: grid;
+    gap: 0.6rem;
+    margin-top: 5rem;
+    padding: 1.75rem;
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    background: var(--bg-elevated);
+    color: inherit;
+    text-decoration: none;
+    transition: border-color 0.25s var(--ease-soft);
+  }
+  .case__next:hover {
+    border-color: var(--border-strong);
+  }
+  .case__next-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    color: var(--text);
+  }
+  .case__next-title svg {
+    width: 2rem;
+    height: 2rem;
+    flex-shrink: 0;
+    padding: 0.4rem;
+    border-radius: 999px;
+    background: var(--accent-solid);
+    color: var(--on-accent-solid);
+    transition: transform 0.45s var(--ease-spring);
+  }
+  .case__next:hover .case__next-title svg {
+    transform: translateX(4px);
+  }
+  .case__next-desc {
+    max-width: 32rem;
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+</style>

@@ -33,6 +33,8 @@ const projects = defineCollection({
       role: z.string().optional(),
       year: z.string().optional(),
       clientWork: z.boolean().optional(),
+      /** A phone app rather than a website; groups it under "Apps" in the archive. */
+      mobile: z.boolean().optional(),
       order: z.number().optional(),
     }),
 });

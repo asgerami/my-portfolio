@@ -3,7 +3,7 @@ title: "EventOS"
 description: "A unified event management platform with registration, ticketing, QR check-in, attendance tracking, and real-time analytics - all in one place."
 techStack: ["Next.js", "TypeScript", "Tailwind CSS", "Clerk", "Prisma"]
 demoUrl: "https://event-os-mauve.vercel.app/"
-featured: true
+year: "2026"
 image: "../../assets/projects/eventsos.webp"
 ---
 

@@ -1,163 +1,156 @@
 ---
 /**
- * Tech stack grid.
+ * Two renderings of the same stack list (src/utils/stack.ts):
  *
- * Icons come from the `simple-icons` package and are inlined as SVG at build
- * time - no runtime network requests, no CDN. Simple Icons ships single-colour
- * brand marks, so every glyph is filled with `currentColor` and inherits the
- * design-system colours (--text-muted, shifting to --accent on hover).
- *
- * The import is resolved during the build (Astro frontmatter runs server-side),
- * so none of the package reaches the client bundle - only the path strings
- * embedded in the HTML.
- *
- * Every mark carries a visible label. Names used to live only in a `title`
- * attribute, which meant that on a phone - where there is no hover - the whole
- * section was a grid of unidentifiable grey glyphs. The list is also kept to
- * the things worth being asked about in an interview; tooling like Git and
- * Vercel only diluted the signal.
+ * - "marquee": an endless, edge-faded ticker. The list is rendered twice and
+ *   the track slides by exactly half its width, so the loop is seamless. The
+ *   duplicate is aria-hidden; with reduced motion it simply wraps statically.
+ * - "grid": labelled icons for the bento card. Every mark carries a visible
+ *   name - on a phone there is no hover to reveal a tooltip.
  */
-import {
-  siReact,
-  siNextdotjs,
-  siTypescript,
-  siNodedotjs,
-  siExpress,
-  siPostgresql,
-  siMongodb,
-  siPrisma,
-  siTailwindcss,
-  siGo,
-  siPython,
-  siDocker,
-} from "simple-icons";
+import { STACK } from "../utils/stack";
 
 export interface Props {
-  class?: string;
+  variant?: "marquee" | "grid";
 }
-const { class: className = "" } = Astro.props;
-
-type Icon = { title: string; path: string };
-
-const tech: { name: string; icon: Icon }[] = [
-  { name: "TypeScript", icon: siTypescript },
-  { name: "React", icon: siReact },
-  { name: "Next.js", icon: siNextdotjs },
-  { name: "Node.js", icon: siNodedotjs },
-  { name: "Express", icon: siExpress },
-  { name: "PostgreSQL", icon: siPostgresql },
-  { name: "MongoDB", icon: siMongodb },
-  { name: "Prisma", icon: siPrisma },
-  { name: "Tailwind", icon: siTailwindcss },
-  { name: "Go", icon: siGo },
-  { name: "Python", icon: siPython },
-  { name: "Docker", icon: siDocker },
-];
+const { variant = "grid" } = Astro.props;
 ---
 
-<div class={`tech-shell ${className}`}>
-  <ul class="tech-grid" aria-label="Tech stack">
-    {
-      tech.map((t) => (
-        <li class="tech-cell">
-          <span class="tech-icon">
-            <svg
-              class="tech-icon__svg"
-              role="img"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path d={t.icon.path} />
-            </svg>
-          </span>
-          <span class="tech-name">{t.name}</span>
+{
+  variant === "marquee" ? (
+    <div class="marquee" role="region" aria-label="Tech I work with">
+      <div class="marquee__track">
+        {[0, 1].map((copy) => (
+          <ul class="marquee__list" aria-hidden={copy === 1 ? "true" : undefined}>
+            {STACK.map((t) => (
+              <li class="marquee__item">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d={t.path} />
+                </svg>
+                {t.name}
+              </li>
+            ))}
+          </ul>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <ul class="stack-grid" aria-label="Tech stack">
+      {STACK.slice(0, 12).map((t) => (
+        <li class="stack-grid__cell" title={t.name}>
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d={t.path} />
+          </svg>
+          <span>{t.name}</span>
         </li>
-      ))
-    }
-  </ul>
-</div>
+      ))}
+    </ul>
+  )
+}
 
 <style>
-  /* The grid sizes itself against its own container, not the viewport. */
-  .tech-shell {
-    container-type: inline-size;
-    container-name: tech;
+  .marquee {
+    position: relative;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
   }
-
-  .tech-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(5.25rem, 1fr));
-    gap: 1.25rem 0.75rem;
-    padding: 0.5rem 0;
-    margin: 0;
-    list-style: none;
+  .marquee__track {
+    display: flex;
+    width: max-content;
   }
-
-  @container tech (min-width: 30rem) {
-    .tech-grid {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 1.6rem 1rem;
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee__track {
+      animation: marquee 48s linear infinite;
+    }
+    .marquee:hover .marquee__track {
+      animation-play-state: paused;
+    }
+  }
+  .marquee__list {
+    display: flex;
+    flex-shrink: 0;
+    gap: 2.75rem;
+    padding-right: 2.75rem;
+  }
+  .marquee__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--text-muted);
+    transition: color 0.2s var(--ease-soft);
+  }
+  .marquee__item:hover {
+    color: var(--text);
+  }
+  .marquee__item svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+    .marquee__track,
+    .marquee__list {
+      flex-wrap: wrap;
+      width: auto;
+      row-gap: 1rem;
+    }
+    .marquee__list[aria-hidden] {
+      display: none;
     }
   }
 
-  .tech-cell {
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    .stack-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+  .stack-grid__cell {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.55rem;
-    padding: 0.25rem;
-    text-align: center;
-  }
-
-  .tech-icon {
-    display: inline-flex;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 0;
+    padding: 0.85rem 0.25rem 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    background: var(--bg);
     color: var(--text-muted);
     transition:
-      color 0.25s var(--ease-soft),
-      opacity 0.25s var(--ease-soft),
+      color 0.2s var(--ease-soft),
+      border-color 0.2s var(--ease-soft),
       transform 0.45s var(--ease-spring);
   }
-
-  .tech-icon__svg {
-    width: 2rem;
-    height: 2rem;
-    display: block;
+  .stack-grid__cell svg {
+    width: 1.35rem;
+    height: 1.35rem;
   }
-
-  @container tech (min-width: 30rem) {
-    .tech-icon__svg {
-      width: 2.25rem;
-      height: 2.25rem;
-    }
-  }
-
-  .tech-name {
-    font-family: var(--font-display);
-    font-size: 0.7rem;
-    font-weight: 500;
+  .stack-grid__cell span {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
     letter-spacing: 0.02em;
-    line-height: 1.2;
-    color: var(--text-muted);
-    transition:
-      color 0.25s var(--ease-soft),
-      opacity 0.25s var(--ease-soft);
   }
-
-  /* :has() - the grid recedes around whichever mark is being pointed at */
-  .tech-grid:has(.tech-cell:hover) .tech-cell:not(:hover) .tech-icon,
-  .tech-grid:has(.tech-cell:hover) .tech-cell:not(:hover) .tech-name {
-    opacity: 0.4;
-  }
-
   @media (hover: hover) and (pointer: fine) {
-    .tech-cell:hover .tech-icon {
-      color: var(--accent);
-      transform: translateY(-3px) scale(1.08);
-    }
-    .tech-cell:hover .tech-name {
-      color: var(--accent-text);
+    .stack-grid__cell:hover {
+      color: var(--text);
+      border-color: var(--border-strong);
+      transform: translateY(-3px);
     }
   }
 </style>

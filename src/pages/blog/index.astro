@@ -1,9 +1,19 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
+import { readingMinutes } from "../../utils/reading";
 
-const posts = await getCollection("blog", ({ data }) => !data.draft);
-posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
+);
+
+/** Newest year first, posts inside each year newest first. */
+const byYear = posts.reduce<Map<number, typeof posts>>((acc, post) => {
+  const year = post.data.pubDate.getFullYear();
+  acc.set(year, [...(acc.get(year) ?? []), post]);
+  return acc;
+}, new Map());
 ---
 
 <Layout
@@ -11,73 +21,163 @@ posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDat
   description="Essays and notes from Amir Aman on software engineering, Go, the AI industry, and Ethiopia's infrastructure."
   wideLayout={true}
 >
-  <div class="py-8 md:py-12">
-    <div class="section-head">
-      <h1 class="font-display text-3xl md:text-4xl font-bold" style="color: var(--text);">
-        Writing
-      </h1>
-    </div>
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-12">
-      <p class="text-base max-w-xl" style="color: var(--text-muted);">
-        Thoughts, recommendations, and what I’m learning.
-      </p>
-      <a
-        href="/rss.xml"
-        class="inline-flex items-center gap-1.5 text-sm font-semibold transition-colors hover:opacity-90"
-        style="color: var(--accent-text);"
-      >
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M6.503 20.752A3.25 3.25 0 1 1 3.252 17.5a3.25 3.25 0 0 1 3.251 3.252ZM3.252 10.5v3.5a6.75 6.75 0 0 1 6.75 6.752h3.5A10.25 10.25 0 0 0 3.252 10.5Zm0-6.75v3.5c7.318 0 13.25 5.932 13.25 13.25h3.5C20.002 12.06 12.442 4.5 3.252 4.5Z"
-          ></path>
-        </svg>
-        RSS
-      </a>
-    </div>
+  <header class="page-hero">
+    <p class="section-label section-head__eyebrow" data-enter style="--d: 0">Writing</p>
+    <h1 class="page-hero__title" data-enter style="--d: 1">
+      Notes &amp; <span class="serif-accent">opinions.</span>
+    </h1>
+    <p class="page-hero__lead text-pretty" data-enter style="--d: 2">
+      Long-form takes on software engineering, the AI industry, and the infrastructure Ethiopia
+      runs on. Written slowly, argued honestly.
+    </p>
+    <a class="btn" href="/rss.xml" data-enter style="--d: 3">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M6.503 20.752A3.25 3.25 0 1 1 3.252 17.5a3.25 3.25 0 0 1 3.251 3.252ZM3.252 10.5v3.5a6.75 6.75 0 0 1 6.75 6.752h3.5A10.25 10.25 0 0 0 3.252 10.5Zm0-6.75v3.5c7.318 0 13.25 5.932 13.25 13.25h3.5C20.002 12.06 12.442 4.5 3.252 4.5Z"></path>
+      </svg>
+      Subscribe via RSS
+    </a>
+  </header>
 
-    {posts.length > 0 ? (
-      <div class="space-y-4">
-        {posts.map((post) => (
-          <article class="card card-hover">
-            <a href={`/blog/${post.slug}`} class="block p-5 md:p-6 group">
-              <h2 class="font-display font-semibold text-lg mb-2 group-hover:opacity-90 transition-opacity" style="color: var(--text);">
-                {post.data.title}
-              </h2>
-              <p class="text-sm mb-4 line-clamp-2" style="color: var(--text-muted);">
-                {post.data.description}
-              </p>
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <time class="text-xs font-medium" style="color: var(--accent-text);" datetime={post.data.pubDate.toISOString()}>
-                  {post.data.pubDate.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-                </time>
-                {post.data.tags && post.data.tags.length > 0 && (
-                  <ul class="flex flex-wrap gap-2">
-                    {post.data.tags.map((tag) => (
-                      <li>
-                        <span
-                          class="rounded-md px-2 py-0.5 text-xs font-medium"
-                          style="background: var(--accent-muted); color: var(--accent-text);"
-                        >
-                          #{tag}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </a>
-          </article>
-        ))}
-      </div>
+  {
+    posts.length > 0 ? (
+      [...byYear.entries()].map(([year, yearPosts]) => (
+        <section class="year section-reveal" aria-label={String(year)}>
+          <h2 class="year__label font-mono">{year}</h2>
+          <ul class="year__list">
+            {yearPosts.map((post) => (
+              <li>
+                <a class="entry" href={`/blog/${post.slug}`}>
+                  <div class="entry__text">
+                    <p class="entry__meta font-mono">
+                      <time datetime={post.data.pubDate.toISOString()}>
+                        {post.data.pubDate.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </time>
+                      <span>{readingMinutes(post.body)} min read</span>
+                      {post.data.tags?.[0] && <span>{post.data.tags[0]}</span>}
+                    </p>
+                    <h3 class="entry__title text-balance">{post.data.title}</h3>
+                    <p class="entry__desc line-clamp-2">{post.data.description}</p>
+                  </div>
+                  {post.data.heroImage && (
+                    <div class="entry__thumb">
+                      <Image
+                        src={post.data.heroImage}
+                        alt=""
+                        widths={[240, 480]}
+                        sizes="240px"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </div>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
     ) : (
-      <div class="card p-12 text-center">
-        <h2 class="font-display text-xl font-semibold mb-2" style="color: var(--text);">
-          Posts coming soon
-        </h2>
-        <p class="text-sm" style="color: var(--text-muted);">
-          I’m working on posts about software engineering and my learning journey. Check back soon.
-        </p>
-      </div>
-    )}
-  </div>
+      <p class="page-hero__lead">Posts are on the way. Check back soon.</p>
+    )
+  }
 </Layout>
+
+<style>
+  .year {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .year + .year {
+    margin-top: 3rem;
+  }
+  @media (min-width: 860px) {
+    .year {
+      grid-template-columns: 10rem minmax(0, 1fr);
+      gap: 2rem;
+    }
+  }
+  .year__label {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+  }
+  @media (min-width: 860px) {
+    .year__label {
+      position: sticky;
+      top: calc(var(--nav-h) + 1.5rem);
+      align-self: start;
+      padding-top: 0.25rem;
+    }
+  }
+
+  .year__list li + li .entry {
+    border-top: 1px solid var(--border);
+  }
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.25rem 0 2rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  .year__list li + li .entry {
+    padding-top: 2rem;
+  }
+  @media (min-width: 640px) {
+    .entry {
+      grid-template-columns: minmax(0, 1fr) 12rem;
+      align-items: start;
+      gap: 2.5rem;
+    }
+  }
+  .entry__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-faint);
+  }
+  .entry__title {
+    margin-top: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+    line-height: 1.08;
+    color: var(--text);
+    transition: color 0.2s var(--ease-soft);
+  }
+  .entry:hover .entry__title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+    text-decoration-color: var(--accent);
+  }
+  .entry__desc {
+    max-width: 40rem;
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+  .entry__thumb {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    aspect-ratio: 4 / 3;
+    background: var(--bg-subtle);
+  }
+  .entry__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.35);
+    transition: transform 0.7s var(--ease-soft), filter 0.4s var(--ease-soft);
+  }
+  .entry:hover .entry__thumb img {
+    transform: scale(1.05);
+    filter: none;
+  }
+</style>

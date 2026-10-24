@@ -11,6 +11,7 @@ demoUrl: "https://www.iconnect.plus/"
 role: "Full-stack, at Efuye-Gela"
 year: "2025"
 featured: true
+order: 5
 image: "../../assets/projects/iconnect.webp"
 ---
 

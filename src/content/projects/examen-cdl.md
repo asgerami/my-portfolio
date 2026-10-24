@@ -4,6 +4,9 @@ description: "A Spanish-first, offline Android app for the US commercial driver'
 techStack: ["React Native", "Expo", "TypeScript", "Reanimated", "AdMob"]
 role: "Solo build"
 year: "2026"
+mobile: true
+featured: true
+order: 4
 ---
 
 Examen CDL helps Spanish-speaking drivers in the US prepare for the CDL written test. Every CDL practice app on Google Play is English first; this one opens in Spanish, with English one tap away.

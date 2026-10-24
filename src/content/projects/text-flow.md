@@ -4,7 +4,7 @@ description: "A real-time collaborative text editor that enables teams and indiv
 techStack: ["React", "TypeScript", "Tiptap", "Liveblocks", "Clerk", "Convex"]
 githubUrl: "https://github.com/asgerami/text-flow"
 demoUrl: "https://textflow-theta.vercel.app/"
-featured: true
+year: "2025"
 image: "../../assets/projects/text-flow.webp"
 ---
 

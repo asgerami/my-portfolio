@@ -1,6 +1,6 @@
 ---
 company: "Efuye-Gela"
-position: "FullStack Developer"
+position: "Full-Stack Developer"
 startDate: "2025-06-01"
 endDate: "2025-11-30"
 current: false

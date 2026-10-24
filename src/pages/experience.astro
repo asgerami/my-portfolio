@@ -1,628 +1,206 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { getCollection } from "astro:content";
-import { EMAIL, RESUME_URL } from "../consts";
+import { RESUME_URL } from "../consts";
 
-const experiences = await getCollection("experience");
-experiences.sort(
-  (a, b) =>
-    new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime(),
+const experiences = (await getCollection("experience")).sort(
+  (a, b) => new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime(),
 );
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("en-US", {
-    month: "short",
-    year: "numeric",
-  });
+function monthYear(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+/** "1 yr 3 mos", counted inclusively in whole months. */
+function duration(start: string, end?: string) {
+  const a = new Date(start);
+  const b = end ? new Date(end) : new Date();
+  const months = Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + b.getMonth() - a.getMonth() + 1);
+  const years = Math.floor(months / 12);
+  const rest = months % 12;
+  return [years && `${years} yr${years > 1 ? "s" : ""}`, rest && `${rest} mo${rest > 1 ? "s" : ""}`]
+    .filter(Boolean)
+    .join(" ");
 }
 ---
 
 <Layout
   title="Experience"
-  description="Amir Aman's career so far: full-stack engineering at Efuye-Gela, a Smart City API internship in Adama, robotics mentoring, and freelance client work."
+  description="Amir Aman's career so far: freelance software engineering, full-stack work at Efuye-Gela, a Smart City API internship in Adama, and mentoring Ethiopia's FIRST Global robotics team."
   wideLayout={true}
 >
-  <div class="exp-page py-8 md:py-12">
-    <!-- Hero Header -->
-    <header class="exp-hero section-reveal mb-12 md:mb-16">
-      <div class="exp-hero__label-row">
-        <p class="section-label mb-0">Experience</p>
-        <span class="exp-hero__line"></span>
-      </div>
-      <h1 class="exp-hero__title">
-        Career <span class="exp-hero__title-accent">Journey</span>
-      </h1>
-      <p class="exp-hero__subtitle">
-        Each role shaped my skills and perspective - from robotics mentoring to
-        building production-grade web systems.
-      </p>
-    </header>
-
-    {experiences.length > 0 ? (
-      <div class="exp-timeline" id="exp-timeline">
-        <!-- Vertical line with scroll-tracking fill -->
-        <div class="exp-timeline__track" aria-hidden="true">
-          <div class="exp-timeline__fill" id="timeline-fill"></div>
-        </div>
-
-        {experiences.map((experience, index) => (
-          <div
-            class={`exp-timeline__item section-reveal ${index % 2 === 0 ? "exp-timeline__item--left" : "exp-timeline__item--right"}`}
-          >
-            <!-- Timeline Node -->
-            <div class="exp-timeline__node" aria-hidden="true">
-              <div class={`exp-timeline__dot ${experience.data.current ? "exp-timeline__dot--active" : ""}`}>
-                {experience.data.current && (
-                  <span class="exp-timeline__dot-ping"></span>
-                )}
-              </div>
-            </div>
-
-            <!-- Date Badge (desktop: opposite side of card) -->
-            <div class="exp-timeline__date-badge">
-              <time>
-                {formatDate(experience.data.startDate)} –{" "}
-                {experience.data.endDate
-                  ? formatDate(experience.data.endDate)
-                  : "Present"}
-              </time>
-            </div>
-
-            <!-- Card -->
-            <article class="exp-card">
-              <div class="exp-card__inner">
-                {/* Header: current badge only */}
-                {experience.data.current && (
-                  <div class="exp-card__header">
-                    <span class="exp-card__current-badge">
-                      <span class="exp-card__current-dot"></span>
-                      Currently Active
-                    </span>
-                  </div>
-                )}
-
-                {/* Position & company */}
-                <h2 class="exp-card__position">{experience.data.position}</h2>
-                <div class="exp-card__company">
-                  <svg
-                    class="exp-card__company-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  {experience.data.company}
-                </div>
-
-                {/* Mobile date */}
-                <div class="exp-card__date-mobile">
-                  <svg
-                    class="exp-card__date-icon"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="1.5"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <time>
-                    {formatDate(experience.data.startDate)} –{" "}
-                    {experience.data.endDate
-                      ? formatDate(experience.data.endDate)
-                      : "Present"}
-                  </time>
-                </div>
-
-                {/* Description */}
-                <p class="exp-card__description">{experience.data.description}</p>
-
-                {/* Technologies */}
-                {experience.data.technologies &&
-                  experience.data.technologies.length > 0 && (
-                    <div class="exp-card__tech-section">
-                      <ul class="exp-card__tech-list">
-                        {experience.data.technologies.map((tech) => (
-                          <li class="exp-card__tech-tag">
-                            {tech}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-              </div>
-            </article>
-          </div>
-        ))}
-      </div>
-    ) : (
-      <div class="card p-12 text-center">
-        <h2
-          class="font-display text-xl font-semibold mb-2"
-          style="color: var(--text);"
-        >
-          Experience coming soon
-        </h2>
-        <p class="text-sm mb-6" style="color: var(--text-muted);">
-          I'm updating this section. Check back soon.
-        </p>
-        <a href="/" class="text-sm font-semibold" style="color: var(--accent-text);">
-          Back to home
+  <header class="page-hero">
+    <p class="section-label section-head__eyebrow" data-enter style="--d: 0">Experience</p>
+    <h1 class="page-hero__title" data-enter style="--d: 1">
+      Career, <span class="serif-accent">so far.</span>
+    </h1>
+    <p class="page-hero__lead text-pretty" data-enter style="--d: 2">
+      From mentoring a national robotics team to building payment-backed platforms and shipping my
+      own apps. Every role pushed me closer to the thing I like most: software that real people rely on.
+    </p>
+    {
+      RESUME_URL && (
+        <a class="btn btn--primary" href={RESUME_URL} data-enter style="--d: 3">
+          Download CV
         </a>
-      </div>
-    )}
+      )
+    }
+  </header>
 
-    <!-- The page used to end straight into the footer with nothing to do next. -->
-    <section class="section-reveal mt-4 md:mt-8" aria-labelledby="exp-cta-heading">
-      <div class="contact-panel">
-        <h2 id="exp-cta-heading" class="exp-cta__title">Want the longer version?</h2>
-        <p class="contact-panel__lead">
-          Happy to walk through any of this in detail, or talk about what you're
-          building.
-        </p>
-        <div class="contact-panel__actions">
-          <a href={`mailto:${EMAIL}`} class="btn-spring contact-panel__primary">
-            Get in touch
-            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
-              />
-            </svg>
-          </a>
-          {RESUME_URL && (
-            <a href={RESUME_URL} class="btn-spring contact-panel__secondary">
-              Download CV
-            </a>
-          )}
-          <a href="/#work" class="btn-spring contact-panel__secondary">See the work</a>
-        </div>
-      </div>
-    </section>
-  </div>
+  <ol class="timeline">
+    {
+      experiences.map((e) => (
+        <li class={`timeline__item section-reveal${e.data.current ? " is-current" : ""}`}>
+          <div class="timeline__when">
+            <p class="timeline__dates font-mono">
+              {monthYear(e.data.startDate)} — {e.data.endDate ? monthYear(e.data.endDate) : "Present"}
+            </p>
+            <p class="timeline__duration font-mono">{duration(e.data.startDate, e.data.endDate)}</p>
+          </div>
+
+          <span class="timeline__node" aria-hidden="true">
+            {e.data.current && <span class="live-dot" />}
+          </span>
+
+          <article class="timeline__body">
+            {e.data.current && (
+              <p class="timeline__now">
+                <span class="live-dot" /> Current role
+              </p>
+            )}
+            <h2 class="timeline__role">{e.data.position}</h2>
+            <p class="timeline__company">{e.data.company}</p>
+            <p class="timeline__desc text-pretty">{e.data.description}</p>
+            {e.data.technologies && e.data.technologies.length > 0 && (
+              <ul class="tag-list" aria-label="Technologies">
+                {e.data.technologies.map((t) => (
+                  <li class="tag">{t}</li>
+                ))}
+              </ul>
+            )}
+          </article>
+        </li>
+      ))
+    }
+  </ol>
 </Layout>
 
-<script>
-  function initTimeline() {
-    const timeline = document.getElementById("exp-timeline");
-    const fill = document.getElementById("timeline-fill");
-    if (!timeline || !fill) return;
-
-    const dots = timeline.querySelectorAll(".exp-timeline__dot");
-    const track = timeline.querySelector(".exp-timeline__track");
-
-    function update() {
-      if (!timeline || !fill) return;
-      const trackRect = track ? track.getBoundingClientRect() : timeline.getBoundingClientRect();
-      const viewportH = window.innerHeight;
-
-      // Reference point: fill tracks a line ~55% down the viewport
-      const fillEdgeY = viewportH * 0.55;
-
-      // Scroll-based progress
-      const scrolledPx = fillEdgeY - trackRect.top;
-      const trackH = trackRect.height;
-      let progress = Math.max(0, Math.min(1, scrolledPx / trackH));
-
-      // When user is at or near the bottom of the page, force fill to 100%
-      const maxScroll = document.documentElement.scrollHeight - viewportH;
-      const currentScroll = window.scrollY || document.documentElement.scrollTop;
-      if (maxScroll > 0 && currentScroll >= maxScroll - 5) {
-        progress = 1;
-      }
-
-      if (fill) fill.style.height = `${progress * 100}%`;
-
-      // Illuminate dots when the fill reaches them
-      const fillAbsoluteY = fillEdgeY;
-      dots.forEach((dot) => {
-        const dotRect = dot.getBoundingClientRect();
-        const dotCenterY = dotRect.top + dotRect.height / 2;
-
-        if (dotCenterY <= fillAbsoluteY || progress === 1) {
-          dot.classList.add("exp-timeline__dot--lit");
-        } else {
-          dot.classList.remove("exp-timeline__dot--lit");
-        }
-      });
-    }
-
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update, { passive: true });
-    update();
-  }
-
-  document.addEventListener("DOMContentLoaded", initTimeline);
-  document.addEventListener("astro:page-load", initTimeline);
-</script>
-
 <style>
-  /* ===== Hero ===== */
-  .exp-hero__label-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+  .timeline {
+    position: relative;
+    border-top: 1px solid var(--border);
   }
-
-  .exp-hero__line {
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
-    opacity: 0.4;
+  .timeline__item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: 0.5rem 1rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
   }
-
-  .exp-hero__title {
-    font-family: var(--font-display);
-    font-size: clamp(2.25rem, 5.5vw, 4rem);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    color: var(--text);
-    margin-bottom: 0.75rem;
-  }
-
-  /* Gradient angle is an @property-registered <angle> (declared in global.css)
-     so it can actually be interpolated by @keyframes - a plain unregistered
-     custom property would jump discretely instead of sweeping. */
-  .exp-hero__title-accent {
-    background: linear-gradient(
-      var(--accent-angle),
-      var(--accent) 0%,
-      var(--accent-hover) 50%,
-      var(--accent) 100%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .exp-hero__title-accent {
-      animation: accent-angle-drift 14s linear infinite;
+  @media (min-width: 860px) {
+    .timeline__item {
+      grid-template-columns: 15rem 2rem minmax(0, 1fr);
+      gap: 2rem;
+      padding: 3.5rem 0;
     }
   }
 
-  .exp-hero__subtitle {
+  .timeline__when {
+    grid-column: 2;
+  }
+  @media (min-width: 860px) {
+    .timeline__when {
+      grid-column: 1;
+      grid-row: 1;
+    }
+  }
+  .timeline__dates {
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+  .timeline__duration {
+    margin-top: 0.3rem;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+
+  .timeline__node {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.35rem;
+  }
+  @media (min-width: 860px) {
+    .timeline__node {
+      grid-column: 2;
+      grid-row: 1;
+    }
+  }
+  .timeline__node::before {
+    content: "";
+    width: 0.65rem;
+    height: 0.65rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    background: var(--bg);
+  }
+  .timeline__node .live-dot {
+    position: absolute;
+    top: 0.35rem;
+    width: 0.65rem;
+    height: 0.65rem;
+  }
+  .is-current .timeline__node::before {
+    border-color: var(--accent);
+  }
+
+  .timeline__body {
+    grid-column: 2;
+    min-width: 0;
+  }
+  @media (min-width: 860px) {
+    .timeline__body {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+  .timeline__now {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.9rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+    border-radius: 999px;
+    background: var(--accent-muted);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .timeline__role {
+    font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+    color: var(--text);
+  }
+  .timeline__company {
+    margin-top: 0.4rem;
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-style: italic;
+    color: var(--text-muted);
+  }
+  .timeline__desc {
+    max-width: 40rem;
+    margin: 1.25rem 0 1.5rem;
     font-size: 1rem;
     line-height: 1.7;
     color: var(--text-muted);
-    max-width: 36rem;
-  }
-
-  .exp-cta__title {
-    position: relative;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 0.6rem;
-  }
-
-  /* ===== Timeline Container ===== */
-  .exp-timeline {
-    position: relative;
-    padding: 1rem 0 2.5rem;
-  }
-
-  /* ===== Vertical Track (scroll-tracking) ===== */
-  .exp-timeline__track {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    transform: translateX(-50%);
-    background: var(--border);
-    z-index: 0;
-    border-radius: 0;
-    overflow: hidden;
-  }
-
-  .exp-timeline__fill {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 0%;
-    background: linear-gradient(180deg, var(--accent), var(--accent-hover));
-    border-radius: 0;
-    transition: height 0.15s ease-out;
-    box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 35%, transparent);
-  }
-
-  /* ===== Timeline Item ===== */
-  .exp-timeline__item {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 2rem;
-    align-items: start;
-    /* Four roles used to be spread over ~2300px, leaving a screen of dead space
-       between each card. Tighter rhythm, same alternating layout. */
-    margin-bottom: 2rem;
-  }
-
-  .exp-timeline__item:last-child {
-    margin-bottom: 0;
-  }
-
-  /* ===== Node (center dot) ===== */
-  .exp-timeline__node {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    grid-column: 2;
-    grid-row: 1;
-    z-index: 2;
-  }
-
-  .exp-timeline__dot {
-    position: relative;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--bg-elevated);
-    border: 3px solid var(--border);
-    transition: all 0.4s ease;
-  }
-
-  .exp-timeline__dot--active {
-    width: 16px;
-    height: 16px;
-    border-color: var(--accent);
-    background: var(--accent);
-    box-shadow: 0 0 16px color-mix(in srgb, var(--accent) 50%, transparent);
-  }
-
-  /* Dots illuminate when the scroll fill reaches them */
-  .exp-timeline__dot--lit:not(.exp-timeline__dot--active) {
-    border-color: var(--accent);
-    background: var(--accent);
-    box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
-    transform: scale(1.15);
-  }
-
-  .exp-timeline__dot-ping {
-    position: absolute;
-    inset: -6px;
-    border-radius: 50%;
-    border: 2px solid var(--accent);
-    opacity: 0;
-    animation: ping-ring 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-
-  /* ===== Date Badge ===== */
-  .exp-timeline__date-badge {
-    display: none;
-  }
-
-  @media (min-width: 768px) {
-    .exp-timeline__date-badge {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      padding-top: 1.75rem;
-    }
-
-    .exp-timeline__date-badge time {
-      font-family: var(--font-display);
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Left items: card left, date right */
-    .exp-timeline__item--left .exp-timeline__date-badge {
-      grid-column: 3;
-      grid-row: 1;
-      text-align: left;
-    }
-    .exp-timeline__item--left article {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    /* Right items: card right, date left */
-    .exp-timeline__item--right .exp-timeline__date-badge {
-      grid-column: 1;
-      grid-row: 1;
-      text-align: right;
-    }
-    .exp-timeline__item--right article {
-      grid-column: 3;
-      grid-row: 1;
-    }
-  }
-
-  /* ===== Card ===== */
-  .exp-card {
-    position: relative;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    overflow: hidden;
-    transition:
-      border-color 0.3s var(--ease-soft),
-      box-shadow 0.45s var(--ease-spring),
-      transform 0.45s var(--ease-spring);
-  }
-
-  .exp-card:hover,
-  .exp-card:focus-within {
-    border-color: var(--accent);
-    transform: translate(-3px, -3px);
-    box-shadow: 5px 5px 0 0 var(--accent);
-  }
-
-  .exp-card__inner {
-    padding: 1.5rem 1.75rem;
-  }
-
-  /* Card Header (only current badge) */
-  .exp-card__header {
-    margin-bottom: 0.75rem;
-  }
-
-  .exp-card__current-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.3rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--accent-text);
-    background: var(--accent-muted);
-    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
-  }
-
-  .exp-card__current-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: pulse-dot 2s ease-in-out infinite;
-  }
-
-  /* Position & Company */
-  .exp-card__position {
-    font-family: var(--font-display);
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 0.35rem;
-    line-height: 1.3;
-  }
-
-  .exp-card__company {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--accent-text);
-    margin-bottom: 0.75rem;
-  }
-
-  .exp-card__company-icon {
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
-    opacity: 0.6;
-  }
-
-  /* Mobile Date */
-  .exp-card__date-mobile {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
-  }
-
-  .exp-card__date-icon {
-    width: 14px;
-    height: 14px;
-    flex-shrink: 0;
-    opacity: 0.4;
-  }
-
-  @media (min-width: 768px) {
-    .exp-card__date-mobile {
-      display: none;
-    }
-  }
-
-  /* Description */
-  .exp-card__description {
-    font-size: 0.875rem;
-    line-height: 1.75;
-    color: var(--text-muted);
-    margin-bottom: 1.25rem;
-  }
-
-  /* Tech Stack */
-  .exp-card__tech-section {
-    border-top: 1px solid var(--border);
-    padding-top: 1rem;
-  }
-
-  .exp-card__tech-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .exp-card__tech-tag {
-    font-size: 0.7rem;
-    font-weight: 500;
-    padding: 0.3rem 0.625rem;
-    border-radius: 0.375rem;
-    background: var(--accent-muted);
-    color: var(--accent-text);
-    border: 1px solid transparent;
-    transition:
-      background-color 0.25s var(--ease-soft),
-      color 0.25s var(--ease-soft),
-      border-color 0.25s var(--ease-soft),
-      transform 0.4s var(--ease-spring);
-    cursor: default;
-  }
-
-  .exp-card:hover .exp-card__tech-tag {
-    border-color: color-mix(in srgb, var(--accent) 15%, transparent);
-  }
-
-  .exp-card__tech-tag:hover {
-    background: var(--accent);
-    color: var(--bg);
-    transform: translateY(-1px);
-  }
-
-  /* ===== Mobile Layout ===== */
-  @media (max-width: 767px) {
-    .exp-timeline__track {
-      left: 19px;
-    }
-
-    .exp-timeline__item {
-      display: flex;
-      gap: 0.75rem;
-      padding-left: 0;
-    }
-
-    .exp-timeline__node {
-      flex-shrink: 0;
-      width: 38px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 1.5rem;
-    }
-
-    .exp-timeline__item--left article,
-    .exp-timeline__item--right article {
-      flex: 1;
-      min-width: 0;
-    }
   }
 </style>

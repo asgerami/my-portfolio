@@ -6,117 +6,49 @@ import { hasCaseStudy } from "../utils/projects";
 export interface Props {
   project: CollectionEntry<"projects">;
   index?: number;
+  total?: number;
 }
-const { project, index = 0 } = Astro.props;
+const { project, index = 0, total = 1 } = Astro.props;
 const { data } = project;
 
-const imageUrl = data.image || null;
 /** Projects with a real write-up get a case-study page; the rest link straight out. */
-const caseStudyUrl = hasCaseStudy(project.body)
-  ? `/projects/${project.slug}/`
-  : null;
-/** The headline goes inward when there is something to read, outward otherwise. */
+const caseStudyUrl = hasCaseStudy(project.body) ? `/projects/${project.slug}/` : null;
+/** The title goes inward when there is something to read, outward otherwise. */
 const linkUrl = caseStudyUrl || data.demoUrl || data.githubUrl;
-/** The framed screenshot always points at the live thing, never the write-up. */
-const frameUrl = data.demoUrl || data.githubUrl;
-const isEven = index % 2 === 0;
 const num = String(index + 1).padStart(2, "0");
+const of = String(total).padStart(2, "0");
 
 /** Address shown in the frame's chrome: the live host, or the repo path. */
 function addressBar() {
-  if (data.demoUrl) {
-    try {
-      const url = new URL(data.demoUrl);
-      // Keep the path for project sites hosted under a shared domain, where
-      // the bare host ("asgerami.github.io") does not identify the project.
-      return url.hostname.replace(/^www\./, "") + url.pathname.replace(/\/$/, "");
-    } catch {
-      return data.demoUrl;
-    }
+  const raw = data.demoUrl || data.githubUrl;
+  if (!raw) return "";
+  try {
+    const url = new URL(raw);
+    // Keep the path for sites under a shared host (github.io, github.com).
+    return url.hostname.replace(/^www\./, "") + url.pathname.replace(/\/$/, "");
+  } catch {
+    return raw;
   }
-  if (data.githubUrl) {
-    try {
-      return "github.com" + new URL(data.githubUrl).pathname;
-    } catch {
-      return data.githubUrl;
-    }
-  }
-  return "";
 }
 
-/** Kicker line: what you did and when, then what the thing currently is. */
-const meta = [
-  data.role,
-  data.year,
-  data.demoUrl && "Live",
-  data.githubUrl && "Open source",
-]
-  .filter(Boolean)
-  .join(" · ");
+const meta = [data.year, data.role].filter(Boolean).join(" · ");
+const status = data.demoUrl ? "Live" : data.githubUrl ? "Open source" : "Shipped";
 ---
 
-<div class="work-shell">
-  <article class={`work-item ${isEven ? "is-left" : "is-right"}`}>
-    <div class="work-item__media">
-      {
-        imageUrl ? (
-          <a
-            class="work-frame"
-            href={frameUrl}
-            target={frameUrl ? "_blank" : undefined}
-            rel={frameUrl ? "noopener noreferrer" : undefined}
-            tabindex="-1"
-            aria-hidden="true"
-          >
-            <span class="work-frame__bar">
-              <span class="work-frame__dots" aria-hidden="true">
-                <i /> <i /> <i />
-              </span>
-              <span class="work-frame__url">{addressBar()}</span>
-            </span>
-            <span class="work-frame__shot">
-              {/* astro:assets emits resized WebP variants and stamps intrinsic
-                  width/height, so the frame reserves its space before the image
-                  lands instead of shifting the page. */}
-              <Image
-                src={imageUrl}
-                alt={`${data.title} screenshot`}
-                widths={[480, 768, 1120]}
-                sizes="(min-width: 1024px) 620px, (min-width: 640px) 60vw, 92vw"
-                loading="lazy"
-                decoding="async"
-              />
-            </span>
-            <span class="work-frame__sheen" aria-hidden="true" />
-          </a>
-        ) : (
-          <div class="work-frame work-frame--empty">
-            <span class="work-frame__bar">
-              <span class="work-frame__dots" aria-hidden="true">
-                <i /> <i /> <i />
-              </span>
-              <span class="work-frame__url">{addressBar()}</span>
-            </span>
-            <span class="work-frame__shot work-frame__shot--empty">
-              <span class="work-frame__mono">{data.title.charAt(0)}</span>
-            </span>
-          </div>
-        )
-      }
-    </div>
-
-    <div class="work-item__body">
-      <span class="work-item__tick" aria-hidden="true"></span>
-      <p class="work-item__kicker">
-        <span class="work-item__num">{num}</span>
-        {meta && <span class="work-item__status">{meta}</span>}
+<article class="work" style={`--i: ${index}`}>
+  <div class="work__card card spotlight">
+    <div class="work__copy">
+      <p class="work__kicker font-mono">
+        <span class="work__num">{num}<span class="work__of">/{of}</span></span>
+        {meta && <span>{meta}</span>}
       </p>
 
-      <h3 class="work-item__title">
+      <h3 class="work__title">
         {
           linkUrl ? (
             <a
               href={linkUrl}
+              class="work__stretched"
               target={caseStudyUrl ? undefined : "_blank"}
               rel={caseStudyUrl ? undefined : "noopener noreferrer"}
             >
@@ -128,460 +60,346 @@ const meta = [
         }
       </h3>
 
-      <p class="work-item__desc">{data.description}</p>
+      <p class="work__desc text-pretty">{data.description}</p>
 
       {
         data.techStack && data.techStack.length > 0 && (
-          <ul class="work-item__tech" aria-label="Tech stack">
+          <ul class="tag-list work__tags" aria-label="Tech stack">
             {data.techStack.map((tech) => (
-              <li>{tech}</li>
+              <li class="tag">{tech}</li>
             ))}
           </ul>
         )
       }
 
-      <div class="work-item__links">
+      <div class="work__links">
         {
           caseStudyUrl && (
-            <a class="work-item__link work-item__link--primary" href={caseStudyUrl}>
-              Case study
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 8l4 4m0 0l-4 4m4-4H3"
-                />
+            <a class="btn btn--primary" href={caseStudyUrl}>
+              Read case study
+              <svg class="icon-arrow-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
           )
         }
         {
           data.demoUrl && (
-            <a
-              class="work-item__link"
-              href={data.demoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Live site
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M7 17L17 7M17 7H7m10 0v10"
-                />
+            <a class="btn" href={data.demoUrl} target="_blank" rel="noopener noreferrer">
+              Live
+              <svg class="icon-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
           )
         }
         {
           data.githubUrl && (
-            <a
-              class="work-item__link"
-              href={data.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a class="btn" href={data.githubUrl} target="_blank" rel="noopener noreferrer">
               Source
-              <svg fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+              <svg class="icon-arrow-ur" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
           )
         }
       </div>
     </div>
-  </article>
-</div>
+
+    <div class="work__media" aria-hidden="true">
+      <div class="work__frame">
+        <div class="work__bar">
+          <span class="work__dots"><i></i><i></i><i></i></span>
+          <span class="work__url font-mono">{addressBar() || data.title.toLowerCase()}</span>
+          <span class="work__status font-mono"><span class="live-dot"></span>{status}</span>
+        </div>
+        {
+          data.image ? (
+            <div class="work__shot">
+              {/* astro:assets emits resized WebP variants and stamps intrinsic
+                  width/height, so the frame reserves its space before the image
+                  lands instead of shifting the page. */}
+              <Image
+                src={data.image}
+                alt=""
+                widths={[480, 768, 1120]}
+                sizes="(min-width: 1024px) 600px, 92vw"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          ) : (
+            <div class="work__poster grid-bg">
+              <span class="work__poster-title serif-accent">{data.title}</span>
+              {data.techStack && (
+                <span class="work__poster-stack font-mono">{data.techStack.slice(0, 3).join(" / ")}</span>
+              )}
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</article>
 
 <style>
   /* ---------------------------------------------------------------------
-     Each project is a "spread": a framed screenshot with the copy card
-     overlapping its inner edge, sides alternating down the page. The overlap
-     and the alternation carry the rhythm, so no divider rules are needed.
-
-     Layout comes from a container query on the card's own wrapper, not the
-     viewport, so a spread stays correct inside any column. Without
-     @container support the stacked layout renders - a readable default.
+     Stacking cards: on wide screens each card sticks a little lower than
+     the last, so scrolling deals them onto a pile. Small screens get a
+     plain column - a tall card pinned on a phone just traps the reader.
      --------------------------------------------------------------------- */
-  .work-shell {
+  .work {
     container-type: inline-size;
     container-name: work;
   }
+  .work + :global(.work) {
+    margin-top: 1.25rem;
+  }
+  @media (min-width: 960px) and (min-height: 700px) {
+    .work {
+      position: sticky;
+      top: calc(var(--nav-h) + 1.25rem + var(--i) * 1.1rem);
+    }
+    .work + :global(.work) {
+      margin-top: 2.5rem;
+    }
+  }
 
-  .work-item {
-    position: relative;
+  .work__card {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    padding: 1.25rem 0 2.5rem;
+    gap: 1.75rem;
+    padding: 1.25rem;
+    border-radius: 1.75rem;
+    transition: border-color 0.3s var(--ease-soft);
+  }
+  .work__card:hover {
+    border-color: var(--border-strong);
+  }
+  @container work (min-width: 52rem) {
+    .work__card {
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.15fr);
+      align-items: stretch;
+      gap: 2.5rem;
+      padding: 1.5rem 1.5rem 1.5rem 2.5rem;
+      min-height: 30rem;
+    }
   }
 
-  .work-item__media {
-    min-width: 0;
+  .work__copy {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0.25rem 0.25rem;
+  }
+  @container work (min-width: 52rem) {
+    .work__copy {
+      padding: 1rem 0;
+    }
   }
 
-  /* Stacked: the copy card still tucks under the frame's bottom edge */
-  .work-item__body {
+  .work__kicker {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .work__num {
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .work__of {
+    color: var(--text-faint);
+  }
+
+  .work__title {
+    margin-top: 1.25rem;
+    font-size: clamp(2.25rem, 6cqi, 3.6rem);
+    font-weight: 600;
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+    color: var(--text);
+  }
+  .work__title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* The title link stretches over the whole card; other links sit above it. */
+  .work__stretched::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+  }
+  .work__card:has(.work__stretched:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .work__stretched:focus-visible {
+    outline: none;
+  }
+
+  .work__desc {
+    margin-top: 1rem;
+    max-width: 34rem;
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+  .work__tags {
+    margin-top: 1.4rem;
+  }
+  .work__links {
     position: relative;
     z-index: 2;
-    margin: -2rem 0 0 0;
-    width: calc(100% - 1.5rem);
-    padding: 1.4rem 1.4rem 1.5rem;
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    background-color: var(--bg-elevated);
-    transition:
-      border-color 0.3s var(--ease-soft),
-      transform 0.45s var(--ease-spring);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.75rem;
   }
-  .is-left .work-item__body {
-    margin-left: auto;
-  }
-
-  @container work (min-width: 44rem) {
-    .work-item {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      align-items: center;
-      padding: 2.5rem 0 3.5rem;
-    }
-    .work-item__media {
-      grid-row: 1;
-    }
-    .work-item__body {
-      grid-row: 1;
-      width: auto;
-      margin: 0;
-      padding: 1.75rem 1.85rem 1.9rem;
-    }
-    /* Columns deliberately share one track, so the copy card sits over the
-       screenshot's inner edge instead of beside it. */
-    .is-left .work-item__media {
-      grid-column: 1 / span 7;
-    }
-    .is-left .work-item__body {
-      grid-column: 7 / span 6;
-    }
-    .is-right .work-item__media {
-      grid-column: 6 / span 7;
-    }
-    .is-right .work-item__body {
-      grid-column: 1 / span 6;
+  @container work (min-width: 52rem) {
+    .work__links {
+      margin-top: auto;
+      padding-top: 2rem;
     }
   }
 
-  /* ---------------------------------------------------------------------
-     Browser chrome around the screenshot - signals "this is a real, live
-     thing" and gives the flat screenshots an edge to sit against.
-     --------------------------------------------------------------------- */
-  .work-frame {
+  /* --- Media --------------------------------------------------------- */
+  .work__media {
     position: relative;
-    display: block;
+    order: -1;
+    min-width: 0;
+    border-radius: 1.15rem;
+    background: var(--bg-subtle);
     overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 0.85rem;
-    background-color: var(--bg-elevated);
-    text-decoration: none;
-    transition:
-      border-color 0.3s var(--ease-soft),
-      box-shadow 0.45s var(--ease-spring),
-      transform 0.45s var(--ease-spring);
+  }
+  @container work (min-width: 52rem) {
+    .work__media {
+      order: 0;
+      display: flex;
+      align-items: center;
+      padding: 2rem 0 2rem 2rem;
+    }
+  }
+  /* Accent glow behind the frame */
+  .work__media::before {
+    content: "";
+    position: absolute;
+    right: -20%;
+    bottom: -30%;
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 22%, transparent), transparent);
+    pointer-events: none;
   }
 
-  .work-frame__bar {
+  .work__frame {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.9rem;
+    background: var(--bg-elevated);
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.45);
+    transition: transform 0.7s var(--ease-soft);
+  }
+  @container work (min-width: 52rem) {
+    .work__frame {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0;
+    }
+  }
+  .work__card:hover .work__frame {
+    transform: translateX(-0.5rem) scale(1.01);
+  }
+
+  .work__bar {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem 0.75rem;
+    gap: 0.75rem;
+    padding: 0.55rem 0.8rem;
     border-bottom: 1px solid var(--border);
-    background-color: color-mix(in srgb, var(--border) 22%, var(--bg-elevated));
+    background: var(--bg-elevated);
   }
-  /* On right-hand spreads the copy card covers the frame's left edge, so the
-     chrome mirrors to keep the dots and address visible. */
-  @container work (min-width: 44rem) {
-    .is-right .work-frame__bar {
-      flex-direction: row-reverse;
-    }
-  }
-  .work-frame__dots {
+  .work__dots {
     display: flex;
     gap: 0.3rem;
     flex-shrink: 0;
   }
-  .work-frame__dots i {
-    width: 0.5rem;
-    height: 0.5rem;
+  .work__dots i {
+    width: 0.55rem;
+    height: 0.55rem;
     border-radius: 50%;
-    background-color: var(--border);
-    transition: background-color 0.3s var(--ease-soft);
+    background: var(--border-strong);
   }
-  .work-frame__url {
+  .work__url {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
-    font-size: 0.68rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    white-space: nowrap;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.68rem;
     color: var(--text-muted);
   }
-
-  .work-frame__shot {
-    display: block;
-    overflow: hidden;
-  }
-  .work-frame__shot img {
-    display: block;
-    width: 100%;
-    height: auto;
-    transition: transform 0.6s var(--ease-soft);
-  }
-  .work-frame__shot--empty {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 16 / 9;
-  }
-  .work-frame__mono {
-    font-family: var(--font-display);
-    font-size: clamp(2.5rem, 8cqw, 4.5rem);
-    font-weight: 700;
-    color: var(--text-muted);
-    opacity: 0.3;
-  }
-
-  /* Cursor sheen, clipped to the frame. Its opacity is driven purely by
-     :hover in CSS - the script below only moves it - so it can never linger
-     on one project while the pointer is over another. */
-  .work-frame__sheen {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      16rem 16rem at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--accent) 26%, transparent) 0%,
-      color-mix(in srgb, var(--accent) 9%, transparent) 40%,
-      transparent 72%
-    );
-    transition: opacity 0.35s var(--ease-soft);
-  }
-
-  /* One hover target per spread: pointing anywhere in the article lights it */
-  .work-item:hover .work-frame,
-  .work-item:focus-within .work-frame {
-    border-color: var(--accent);
-    box-shadow: 6px 6px 0 0 var(--accent);
-    transform: translate(-3px, -3px);
-  }
-  .work-item:hover .work-frame__dots i,
-  .work-item:focus-within .work-frame__dots i {
-    background-color: var(--accent);
-  }
-  .work-item:hover .work-frame__shot img,
-  .work-item:focus-within .work-frame__shot img {
-    transform: scale(1.015);
-  }
-  .work-item:hover .work-item__body,
-  .work-item:focus-within .work-item__body {
-    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  }
-  .work-item:hover .work-item__tick,
-  .work-item:focus-within .work-item__tick {
-    width: 3.5rem;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .work-frame:hover .work-frame__sheen {
-      opacity: 1;
-    }
-  }
-
-  /* ---------------------------------------------------------------------
-     Copy card
-     --------------------------------------------------------------------- */
-  .work-item__tick {
-    display: block;
-    width: 1.75rem;
-    height: 2px;
-    margin-bottom: 0.9rem;
-    border-radius: 2px;
-    background-color: var(--accent);
-    transition: width 0.45s var(--ease-spring);
-  }
-
-  .work-item__kicker {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.5rem;
-    font-family: var(--font-display);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .work-item__num {
-    font-variant-numeric: tabular-nums;
-    color: var(--accent-text);
-  }
-  .work-item__status::before {
-    content: "";
-    display: inline-block;
-    width: 0.9rem;
-    height: 1px;
-    margin-right: 0.6rem;
-    vertical-align: middle;
-    background-color: var(--border);
-  }
-
-  .work-item__title {
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 700;
-    line-height: 1.15;
-    color: var(--text);
-  }
-  @container work (min-width: 44rem) {
-    .work-item__title {
-      font-size: 2rem;
-    }
-  }
-  @container work (min-width: 58rem) {
-    .work-item__title {
-      font-size: 2.3rem;
-    }
-  }
-  .work-item__title a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.25s var(--ease-soft);
-  }
-  .work-item__title a:hover {
-    color: var(--accent-text);
-  }
-
-  .work-item__desc {
-    margin-top: 0.75rem;
-    font-size: 0.9rem;
-    line-height: 1.65;
-    color: var(--text-muted);
-  }
-  @container work (min-width: 44rem) {
-    .work-item__desc {
-      font-size: 0.95rem;
-    }
-  }
-
-  .work-item__tech {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 1.15rem;
-  }
-  .work-item__tech li {
-    padding: 0.2rem 0.6rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    color: var(--text-muted);
-  }
-
-  .work-item__links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-    margin-top: 1.35rem;
-  }
-  .work-item__link {
+  .work__status {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text);
-    text-decoration: none;
-    transition:
-      color 0.25s var(--ease-soft),
-      transform 0.4s var(--ease-spring);
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
   }
-  .work-item__link svg {
-    width: 0.9rem;
-    height: 0.9rem;
-    transition: transform 0.35s var(--ease-spring);
-  }
-  .work-item__link:hover {
-    color: var(--accent-text);
-  }
-  /* The inward link is the one that should win the eye */
-  .work-item__link--primary {
-    color: var(--accent-text);
-  }
-  .work-item__link--primary::before {
-    content: "";
+  .work__status .live-dot {
     width: 0.4rem;
     height: 0.4rem;
-    border-radius: 50%;
-    background-color: var(--accent);
-  }
-  .work-item__link:hover svg {
-    transform: translate(2px, -2px);
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .work-frame__sheen {
-      display: none;
-    }
+  .work__shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top left;
+  }
+
+  .work__poster {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    aspect-ratio: 16 / 10;
+    padding: 1.75rem;
+    overflow: hidden;
+    background-color: var(--bg);
+    background-position: -1px -1px;
+  }
+  .work__poster::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 70% at 85% 15%, color-mix(in srgb, var(--accent) 28%, transparent), transparent 70%);
+    pointer-events: none;
+  }
+  .work__poster-title {
+    position: relative;
+    font-size: clamp(3rem, 11cqi, 6rem);
+    line-height: 0.9;
+    color: var(--text);
+  }
+  .work__poster-stack {
+    position: relative;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
   }
 </style>
-
-<script>
-  /**
-   * Moves the cursor sheen inside whichever project frame the pointer is over.
-   *
-   * Visibility is CSS `:hover` only - this script writes --mx/--my and nothing
-   * else - so a sheen can never stay lit on a project the pointer has already
-   * left, which is what made the old spotlight flicker between cards.
-   *
-   * Bound once on `document` with event delegation, so it costs one listener
-   * regardless of project count and survives client-side navigation.
-   */
-  (function () {
-    if ((window as any).__workSheenBound) return;
-    (window as any).__workSheenBound = true;
-
-    let pending: PointerEvent | null = null;
-    let frame = 0;
-
-    function apply() {
-      frame = 0;
-      const event = pending;
-      pending = null;
-      if (!event) return;
-
-      const target = event.target as Element | null;
-      const el = target?.closest?.(".work-frame") as HTMLElement | null;
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-
-      const px = ((event.clientX - rect.left) / rect.width) * 100;
-      const py = ((event.clientY - rect.top) / rect.height) * 100;
-      el.style.setProperty("--mx", px.toFixed(1) + "%");
-      el.style.setProperty("--my", py.toFixed(1) + "%");
-    }
-
-    document.addEventListener(
-      "pointermove",
-      (event) => {
-        if (event.pointerType !== "mouse") return;
-        pending = event;
-        if (!frame) frame = requestAnimationFrame(apply);
-      },
-      { passive: true }
-    );
-  })();
-</script>

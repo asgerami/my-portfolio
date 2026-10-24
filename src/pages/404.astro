@@ -5,35 +5,47 @@ import Layout from "../layouts/Layout.astro";
 <Layout
   title="Page not found"
   description="That page does not exist. Head back to the homepage or browse the writing."
+  wideLayout={true}
 >
-  <div class="py-20 md:py-32 max-w-2xl">
-    <p class="section-label mb-4">404</p>
-    <h1
-      class="font-display text-4xl md:text-6xl font-bold tracking-tight mb-5"
-      style="color: var(--text);"
-    >
-      This page doesn't exist.
+  <section class="lost">
+    <p class="lost__code serif-accent" aria-hidden="true" data-enter style="--d: 0">404</p>
+    <h1 class="page-hero__title" data-enter style="--d: 1">
+      Lost in the <span class="serif-accent">stack.</span>
     </h1>
-    <div class="hero-rule mb-6" aria-hidden="true"></div>
-    <p class="text-base md:text-lg leading-relaxed mb-8" style="color: var(--text-muted);">
-      The link may be out of date, or the page may have moved. Everything else is
-      still where you left it.
+    <p class="page-hero__lead text-pretty" data-enter style="--d: 2">
+      The link may be out of date, or the page may have moved. Everything else is still where you
+      left it. Press <kbd>/</kbd> to search the site.
     </p>
-    <div class="flex flex-wrap gap-4">
-      <a
-        href="/"
-        class="btn-spring inline-flex items-center gap-2 rounded-xl border-2 px-6 py-2.5 text-sm font-semibold"
-        style="border-color: var(--accent); color: var(--accent-text); background-color: transparent;"
-      >
-        Back to home
-      </a>
-      <a
-        href="/blog"
-        class="btn-spring inline-flex items-center gap-2 rounded-xl border-2 px-6 py-2.5 text-sm font-semibold"
-        style="border-color: var(--border); color: var(--text); background-color: var(--bg-elevated);"
-      >
-        Read the writing
-      </a>
+    <div class="lost__actions" data-enter style="--d: 3">
+      <a href="/" class="btn btn--primary">Back to home</a>
+      <a href="/blog" class="btn">Read the writing</a>
+      <button type="button" class="btn btn--ghost" data-cmdk-open>Search</button>
     </div>
-  </div>
+  </section>
 </Layout>
+
+<style>
+  .lost {
+    position: relative;
+    padding: clamp(4rem, 12vw, 8rem) 0 2rem;
+  }
+  .lost__code {
+    font-size: clamp(7rem, 26vw, 18rem);
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--border-strong);
+    margin-bottom: 1.5rem;
+  }
+  .lost__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  kbd {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+  }
+</style>
