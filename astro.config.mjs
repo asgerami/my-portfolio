@@ -7,7 +7,7 @@ import sitemap from "@astrojs/sitemap";
 export default defineConfig({
   // Required for canonical URLs, absolute og:image URLs, the sitemap and the
   // RSS feed. Without it none of those can be generated.
-  site: "https://asgerami.com",
+  site: "https://www.asgerami.com",
 
   integrations: [sitemap()],
 

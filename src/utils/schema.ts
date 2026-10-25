@@ -10,6 +10,7 @@ import {
   COMPANY,
   EMAIL,
   KNOWS_ABOUT,
+  COUNTRY_CODE,
   LOCATION,
   NAME,
   ROLE,
@@ -26,6 +27,17 @@ export const COMPANY_ID = `${SITE_URL}/#company`;
 export type SchemaNode = Record<string, unknown>;
 
 export const personRef = { "@id": PERSON_ID };
+
+const address = { "@type": "PostalAddress", addressCountry: COUNTRY_CODE };
+
+/** How to reach the person behind the site (and behind the company). */
+const contactPoint = {
+  "@type": "ContactPoint",
+  contactType: "founder",
+  email: EMAIL,
+  url: `${SITE_URL}/contact/`,
+  availableLanguage: ["English"],
+};
 
 export const baseGraph: SchemaNode[] = [
   {
@@ -47,6 +59,8 @@ export const baseGraph: SchemaNode[] = [
     description: SITE_DESCRIPTION,
     email: `mailto:${EMAIL}`,
     homeLocation: { "@type": "Country", name: LOCATION },
+    address,
+    contactPoint,
     alumniOf: { "@type": "CollegeOrUniversity", name: ALMA_MATER },
     worksFor: { "@id": COMPANY_ID },
     knowsAbout: KNOWS_ABOUT,
@@ -59,6 +73,9 @@ export const baseGraph: SchemaNode[] = [
     url: COMPANY.url,
     description: COMPANY.description,
     founder: personRef,
+    contactPoint,
+    address,
+    sameAs: [`${SITE_URL}/projects/driftwatch/`],
   },
 ];
 

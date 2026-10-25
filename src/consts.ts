@@ -7,7 +7,7 @@
  */
 
 /** Canonical origin. Must match `site` in astro.config.mjs (no trailing slash). */
-export const SITE_URL = "https://asgerami.com";
+export const SITE_URL = "https://www.asgerami.com";
 
 export const NAME = "Amir Aman";
 export const SHORT_NAME = "Amir";
@@ -27,6 +27,8 @@ export const EMAIL = "amiraman467@gmail.com";
 
 /** Shown in the bento clock card and the footer clock. */
 export const LOCATION = "Ethiopia";
+/** ISO 3166-1 alpha-2, for schema.org PostalAddress. */
+export const COUNTRY_CODE = "ET";
 export const TIMEZONE = "Africa/Addis_Ababa";
 export const TIMEZONE_LABEL = "GMT+3";
 
