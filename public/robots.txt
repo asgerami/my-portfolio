@@ -1,6 +1,8 @@
 # Search engines and AI assistants are welcome to read and cite this site.
-# A plain-text summary for language models lives at /llms.txt, and the full
-# text of every case study and essay at /llms-full.txt.
+# A plain-text summary for language models lives at /llms.txt, the full text
+# of every case study and essay at /llms-full.txt, and every page has a
+# Markdown version at <path>.md (or ask for Accept: text/markdown).
+# MCP server: /api/mcp. OpenAPI description: /openapi.json.
 
 User-agent: *
 Allow: /
@@ -25,4 +27,4 @@ User-agent: MistralAI-User
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://asgerami.com/sitemap-index.xml
+Sitemap: https://www.asgerami.com/sitemap.xml

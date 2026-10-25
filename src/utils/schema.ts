@@ -35,7 +35,7 @@ const contactPoint = {
   "@type": "ContactPoint",
   contactType: "founder",
   email: EMAIL,
-  url: `${SITE_URL}/#contact`,
+  url: `${SITE_URL}/contact/`,
   availableLanguage: ["English"],
 };
 

@@ -120,13 +120,26 @@ ${posts
   )
   .join("\n")}
 
+## Pages
+
+- [About](${abs("/about/")}): background, what I build and how I work
+- [Contact](${abs("/contact/")}): email and other ways to reach me
+- [Privacy](${abs("/privacy/")}): what the site does and does not collect
+- [All projects](${abs("/projects/")})
+- [Experience timeline](${abs("/experience/")})
+
+## For agents
+
+- Every page has a Markdown version at the same path with \`.md\` added (the homepage is ${abs("/index.md")}), also returned for \`Accept: text/markdown\`
+- MCP server (Streamable HTTP): ${abs("/api/mcp")}, with tools search_site, get_page, list_projects, list_writing and get_contact
+- JSON index of the whole site: ${abs("/data/index.json")}
+- OpenAPI description: ${abs("/openapi.json")}
+
 ## Optional
 
 - [Full text of every case study and essay](${abs("/llms-full.txt")})
-- [All projects](${abs("/projects")})
-- [Experience timeline](${abs("/experience")})
 - [RSS feed](${abs("/rss.xml")})
-- [Sitemap](${abs("/sitemap-index.xml")})
+- [Sitemap](${abs("/sitemap.xml")})
 `;
 }
 

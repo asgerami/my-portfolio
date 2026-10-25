@@ -52,8 +52,26 @@ const experience = defineCollection({
   }),
 });
 
+/**
+ * Standalone pages (/about, /contact, /privacy). The markdown body is the one
+ * source for both the HTML page and its /<page>.md twin.
+ */
+const pages = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    /** Display headline; falls back to `title`. */
+    heading: z.string().optional(),
+    description: z.string(),
+    /** schema.org type of the page, e.g. AboutPage or ContactPage. */
+    pageType: z.string().default("WebPage"),
+    updated: z.coerce.date(),
+  }),
+});
+
 export const collections = {
   blog,
   projects,
   experience,
+  pages,
 };

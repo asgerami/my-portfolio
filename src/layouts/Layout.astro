@@ -12,6 +12,7 @@ import CommandPalette from "../components/CommandPalette.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import { NAME, SITE_TITLE, SITE_DESCRIPTION, SITE_URL, SOCIALS, X_HANDLE } from "../consts";
 import { baseGraph, personRef, WEBSITE_ID, type SchemaNode } from "../utils/schema";
+import { mdPathFor } from "../utils/mdpath";
 
 export interface Props {
   title: string;
@@ -33,6 +34,8 @@ export interface Props {
   wideLayout?: boolean;
   /** Standalone pages (app privacy policies): no site nav or footer. */
   bare?: boolean;
+  /** Whether this page has a Markdown twin (see utils/markdown.ts). */
+  markdown?: boolean;
 }
 
 const {
@@ -47,6 +50,7 @@ const {
   mainEntity,
   wideLayout = false,
   bare = false,
+  markdown = !bare,
 } = Astro.props;
 
 const pageTitle = fullTitle ? title : `${title} | ${NAME}`;
@@ -161,7 +165,11 @@ const navLinks = [
     <!-- Plain-text summary for AI assistants and LLM crawlers (llmstxt.org) -->
     <link rel="alternate" type="text/plain" title="LLM-readable summary" href="/llms.txt" />
 
-    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    {markdown && (
+      <link rel="alternate" type="text/markdown" title="Markdown version" href={mdPathFor(Astro.url.pathname)} />
+    )}
+    <link rel="service-desc" type="application/openapi+json" href="/openapi.json" />
     <link
       rel="alternate"
       type="application/rss+xml"

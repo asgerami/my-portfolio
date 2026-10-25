@@ -1,0 +1,60 @@
+---
+/**
+ * /about, /contact and /privacy, rendered from src/content/pages. The same
+ * markdown is served raw at /<page>.md (see [page].md.ts).
+ */
+import Layout from "../layouts/Layout.astro";
+import { getCollection } from "astro:content";
+import { breadcrumbs, personRef } from "../utils/schema";
+
+export async function getStaticPaths() {
+  const pages = await getCollection("pages");
+  return pages.map((page) => ({ params: { page: page.slug }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const { data } = page;
+const { Content } = await page.render();
+const updated = data.updated.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<Layout
+  title={data.title}
+  description={data.description}
+  pageType={data.pageType}
+  mainEntity={data.pageType === "WebPage" ? undefined : personRef}
+  schema={[breadcrumbs([[data.title, `/${page.slug}`]])]}
+>
+  <article class="standalone">
+    <header class="page-hero standalone__hero">
+      <p class="section-label section-head__eyebrow" data-enter style="--d: 0">{data.title}</p>
+      <h1 class="page-hero__title" data-enter style="--d: 1">{data.heading ?? data.title}</h1>
+      <p class="page-hero__lead text-pretty" data-enter style="--d: 2">{data.description}</p>
+      <p class="standalone__updated font-mono">
+        Updated <time datetime={data.updated.toISOString()}>{updated}</time>
+      </p>
+    </header>
+
+    <div class="blog-content">
+      <Content />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .standalone__hero {
+    padding-bottom: clamp(2rem, 5vw, 3rem);
+  }
+  /* The reading column is narrow; the shared hero size would overflow it */
+  .standalone__hero .page-hero__title {
+    font-size: clamp(2.75rem, 7vw, 4.5rem);
+  }
+  .standalone__updated {
+    font-size: 0.72rem;
+    color: var(--text-faint);
+  }
+</style>

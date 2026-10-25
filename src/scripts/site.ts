@@ -79,16 +79,113 @@ function filter(query: string) {
   select(items[0]);
 }
 
-function openPalette() {
+type PaletteItem = {
+  label: string;
+  hint?: string;
+  search: string;
+  href?: string;
+  external?: boolean;
+  action?: string;
+};
+type PaletteGroup = { title: string; items: PaletteItem[] };
+
+// Entries live in /search.json, fetched once per visit and rebuilt into each
+// page's dialog (the ClientRouter swaps the dialog along with the page).
+let entries: Promise<PaletteGroup[]> | null = null;
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const ICON_PATHS = {
+  external: "M7 17 17 7M8 7h9v9",
+  internal: "M5 12h14m-6-6 6 6-6 6",
+  action: "M9 10 4 15l5 5M20 4v7a4 4 0 0 1-4 4H4",
+};
+
+function goIcon(kind: keyof typeof ICON_PATHS) {
+  const svg = document.createElementNS(SVG_NS, "svg");
+  svg.setAttribute("class", "cmdk__go");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("aria-hidden", "true");
+  const path = document.createElementNS(SVG_NS, "path");
+  path.setAttribute("d", ICON_PATHS[kind]);
+  path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("stroke-linejoin", "round");
+  svg.append(path);
+  return svg;
+}
+
+function span(className: string, text: string) {
+  const el = document.createElement("span");
+  el.className = className;
+  el.textContent = text;
+  return el;
+}
+
+function renderEntries(list: HTMLElement, groups: PaletteGroup[]) {
+  const fragment = document.createDocumentFragment();
+  for (const group of groups) {
+    const wrap = document.createElement("div");
+    wrap.className = "cmdk__group";
+    wrap.setAttribute("role", "group");
+    wrap.setAttribute("aria-label", group.title);
+    const title = document.createElement("p");
+    title.className = "cmdk__group-title";
+    title.setAttribute("aria-hidden", "true");
+    title.textContent = group.title;
+    wrap.append(title);
+    for (const item of group.items) {
+      const el = item.href ? document.createElement("a") : document.createElement("button");
+      el.className = "cmdk__item";
+      el.setAttribute("role", "option");
+      el.tabIndex = -1;
+      el.dataset.search = item.search;
+      if (el instanceof HTMLAnchorElement) {
+        el.href = item.href!;
+        if (item.external) {
+          el.target = "_blank";
+          el.rel = "noopener noreferrer";
+        }
+      } else {
+        el.type = "button";
+        el.dataset.action = item.action;
+      }
+      el.append(span("cmdk__label", item.label));
+      if (item.hint) el.append(span("cmdk__hint", item.hint));
+      el.append(goIcon(item.action ? "action" : item.external ? "external" : "internal"));
+      wrap.append(el);
+    }
+    fragment.append(wrap);
+  }
+  list.prepend(fragment);
+}
+
+async function loadEntries(d: HTMLDialogElement) {
+  if (d.dataset.loaded) return;
+  d.dataset.loaded = "";
+  entries ??= fetch("/search.json").then((r) => r.json() as Promise<PaletteGroup[]>);
+  try {
+    const list = d.querySelector<HTMLElement>(".cmdk__list");
+    if (list) renderEntries(list, await entries);
+  } catch {
+    // Offline or blocked: the palette opens empty rather than breaking.
+    entries = null;
+    delete d.dataset.loaded;
+  }
+}
+
+async function openPalette() {
   const d = dialog();
   if (!d || d.open) return;
   d.showModal();
   const i = input();
   if (i) {
     i.value = "";
-    filter("");
     i.focus();
   }
+  await loadEntries(d);
+  filter(i?.value ?? "");
 }
 
 function closePalette() {

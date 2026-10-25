@@ -9,7 +9,9 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 import {
   EMAIL,
+  INTRO,
   LOCATION,
+  NOW,
   NAME,
   RESUME_URL,
   SITE_TITLE,
@@ -51,20 +53,6 @@ function shortDate(date: Date) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-const now = [
-  {
-    tag: "Founder",
-    text: "Building Driftwatch, a breaking-change radar for third-party APIs.",
-  },
-  {
-    tag: "Freelance",
-    text: "Building web platforms, Android apps and backends for clients.",
-  },
-  {
-    tag: "Training",
-    text: "Teaching Nimzo, my from-scratch chess engine, to play past 1000 Elo.",
-  },
-];
 ---
 
 <Layout title={SITE_TITLE} fullTitle={true} wideLayout={true} pageType="ProfilePage" mainEntity={personRef}>
@@ -83,10 +71,7 @@ const now = [
 
     <div class="hero__foot">
       <p class="hero__lead text-pretty" data-enter style="--d: 1">
-        I'm <strong>Amir Aman</strong>, a software engineer in Ethiopia. I build production web apps
-        with TypeScript and Next.js, Android apps with React Native, and backends in Node, Python and
-        Go. Lately: MCP tooling for AI agents, a chess engine trained from scratch, and creatures that
-        evolve to walk in your browser.
+        I'm <strong>{NAME}</strong>{INTRO}
       </p>
       <div class="hero__actions" data-enter style="--d: 2">
         <button type="button" class="btn btn--primary" data-copy={EMAIL}>
@@ -181,14 +166,14 @@ const now = [
 
       <article class="bento__cell bento__now card spotlight tilt" data-stories>
         <div class="stories__bars" aria-hidden="true">
-          {now.map(() => <span class="stories__bar"><i></i></span>)}
+          {NOW.map(() => <span class="stories__bar"><i></i></span>)}
         </div>
         <p class="section-label bento__label">
           <span class="live-dot"></span> Now
         </p>
         <ol class="stories__list">
           {
-            now.map((item, i) => (
+            NOW.map((item, i) => (
               <li class={`stories__item${i === 0 ? " is-active" : ""}`}>
                 <span class="tag">{item.tag}</span>
                 <span class="stories__text">{item.text}</span>

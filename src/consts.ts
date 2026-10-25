@@ -39,6 +39,17 @@ export const TIMEZONE_LABEL = "GMT+3";
  */
 export const RESUME_URL: string | null = null;
 
+/** Hero intro, after "I'm <name>". Shared by the homepage and /index.md. */
+export const INTRO =
+  ", a software engineer in Ethiopia. I build production web apps with TypeScript and Next.js, Android apps with React Native, and backends in Node, Python and Go. Lately: MCP tooling for AI agents, a chess engine trained from scratch, and creatures that evolve to walk in your browser.";
+
+/** The homepage "Now" card, and the same list in /index.md. */
+export const NOW = [
+  { tag: "Founder", text: "Building Driftwatch, a breaking-change radar for third-party APIs." },
+  { tag: "Freelance", text: "Building web platforms, Android apps and backends for clients." },
+  { tag: "Training", text: "Teaching Nimzo, my from-scratch chess engine, to play past 1000 Elo." },
+];
+
 /** Feeds schema.org (alumniOf, worksFor) and /llms.txt. */
 export const ALMA_MATER = "Adama Science and Technology University";
 export const COMPANY = {

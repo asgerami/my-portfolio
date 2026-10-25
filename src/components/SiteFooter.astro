@@ -4,17 +4,15 @@
  * in the footer instead of being re-built at the bottom of each page.
  */
 import { EMAIL, NAME, SOCIALS, LOCATION, TIMEZONE_LABEL } from "../consts";
-import { siGithub, siX, siTelegram } from "simple-icons";
+import { SOCIAL_ICONS } from "../utils/stack";
 
-const LINKEDIN_PATH =
-  "M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z";
-
-const socials = [
-  { label: "GitHub", href: SOCIALS.github, path: siGithub.path },
-  { label: "X", href: SOCIALS.x, path: siX.path },
-  { label: "LinkedIn", href: SOCIALS.linkedin, path: LINKEDIN_PATH },
-  { label: "Telegram", href: SOCIALS.telegram, path: siTelegram.path },
-];
+const hrefs: Record<string, string> = {
+  GitHub: SOCIALS.github,
+  X: SOCIALS.x,
+  LinkedIn: SOCIALS.linkedin,
+  Telegram: SOCIALS.telegram,
+};
+const socials = SOCIAL_ICONS.map((icon) => ({ label: icon.name, href: hrefs[icon.name], id: icon.id }));
 
 const year = new Date().getFullYear();
 ---
@@ -55,17 +53,25 @@ const year = new Date().getFullYear();
             <li>
               <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}>
                 <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d={s.path} />
+                  <use href={`/icons.svg#${s.id}`} />
                 </svg>
               </a>
             </li>
           ))
         }
       </ul>
-      <p class="site-footer__meta font-mono">
-        <span>{LOCATION} · <time data-clock>{TIMEZONE_LABEL}</time></span>
-        <span>© {year} {NAME}</span>
-      </p>
+      <div class="site-footer__middle">
+        <nav class="site-footer__links" aria-label="Site">
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/llms.txt">llms.txt</a>
+        </nav>
+        <p class="site-footer__meta font-mono">
+          <span>{LOCATION} · <time data-clock>{TIMEZONE_LABEL}</time></span>
+          <span>© {year} {NAME}</span>
+        </p>
+      </div>
       <a href="#top" class="site-footer__top font-mono">
         Back to top
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -185,6 +191,29 @@ const year = new Date().getFullYear();
     width: 1rem;
     height: 1rem;
   }
+  .site-footer__middle {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  @media (min-width: 768px) {
+    .site-footer__links {
+      justify-content: center;
+    }
+  }
+  .site-footer__links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s var(--ease-soft);
+  }
+  .site-footer__links a:hover {
+    color: var(--text);
+  }
   .site-footer__meta {
     display: flex;
     flex-wrap: wrap;
@@ -193,7 +222,30 @@ const year = new Date().getFullYear();
     color: var(--text-muted);
   }
   @media (min-width: 768px) {
-    .site-footer__meta {
+    .site-footer__middle {
+    display: grid;
+    gap: 0.6rem;
+  }
+  .site-footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  @media (min-width: 768px) {
+    .site-footer__links {
+      justify-content: center;
+    }
+  }
+  .site-footer__links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s var(--ease-soft);
+  }
+  .site-footer__links a:hover {
+    color: var(--text);
+  }
+  .site-footer__meta {
       justify-content: center;
     }
   }

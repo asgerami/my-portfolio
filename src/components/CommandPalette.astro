@@ -1,84 +1,13 @@
 ---
 /**
- * ⌘K / Ctrl+K command palette.
+ * ⌘K / Ctrl+K command palette: the native <dialog> shell only.
  *
- * Every entry is real markup rendered at build time: links are <a> elements
- * (so they work with the ClientRouter and open in new tabs normally) and
- * actions are <button>s. The script only filters, moves the highlight and
- * opens/closes the native <dialog>, which brings focus trapping, Escape and
- * the backdrop for free.
+ * Entries come from /search.json (src/utils/palette.ts) and are built by
+ * site.ts the first time the palette opens: links as <a> elements (so they
+ * work with the ClientRouter and open in new tabs normally), actions as
+ * <button>s. Keeping them out of the page keeps every page's HTML lean. The
+ * <dialog> brings focus trapping, Escape and the backdrop for free.
  */
-import { getCollection } from "astro:content";
-import { EMAIL, SOCIALS } from "../consts";
-import { hasCaseStudy } from "../utils/projects";
-
-type Item =
-  | { kind: "link"; label: string; href: string; hint?: string; external?: boolean; keywords?: string }
-  | { kind: "action"; label: string; action: string; hint?: string; keywords?: string };
-
-const projects = (await getCollection("projects"))
-  .filter((p) => !p.data.clientWork)
-  .sort((a, b) => (a.data.order ?? 99) - (b.data.order ?? 99) || a.data.title.localeCompare(b.data.title));
-
-const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime(),
-);
-
-const groups: { title: string; items: Item[] }[] = [
-  {
-    title: "Navigate",
-    items: [
-      { kind: "link", label: "Home", href: "/", keywords: "index start" },
-      { kind: "link", label: "Selected work", href: "/#work", keywords: "projects portfolio" },
-      { kind: "link", label: "All projects", href: "/projects", keywords: "archive client freelance apps work" },
-      { kind: "link", label: "Experience", href: "/experience", keywords: "career cv resume jobs" },
-      { kind: "link", label: "Writing", href: "/blog", keywords: "blog posts essays articles" },
-    ],
-  },
-  {
-    title: "Actions",
-    items: [
-      { kind: "action", label: "Copy email address", action: "copy-email", hint: EMAIL, keywords: "contact mail hire" },
-      { kind: "action", label: "Toggle theme", action: "toggle-theme", hint: "Light / Dark", keywords: "dark light mode" },
-      { kind: "link", label: "Send an email", href: `mailto:${EMAIL}`, keywords: "contact hire" },
-    ],
-  },
-  {
-    title: "Projects",
-    items: projects.map((p) => {
-      const caseStudy = hasCaseStudy(p.body) ? `/projects/${p.slug}/` : null;
-      const href = caseStudy ?? p.data.demoUrl ?? p.data.githubUrl ?? "/projects";
-      return {
-        kind: "link" as const,
-        label: p.data.title,
-        href,
-        external: !caseStudy && href.startsWith("http"),
-        hint: p.data.year,
-        keywords: [...(p.data.techStack ?? []), p.data.description].join(" "),
-      };
-    }),
-  },
-  {
-    title: "Writing",
-    items: posts.map((post) => ({
-      kind: "link" as const,
-      label: post.data.title,
-      href: `/blog/${post.slug}`,
-      hint: String(post.data.pubDate.getFullYear()),
-      keywords: [...(post.data.tags ?? []), post.data.description].join(" "),
-    })),
-  },
-  {
-    title: "Elsewhere",
-    items: [
-      { kind: "link", label: "GitHub", href: SOCIALS.github, external: true, hint: "@asgerami" },
-      { kind: "link", label: "X / Twitter", href: SOCIALS.x, external: true, hint: "@asgerami" },
-      { kind: "link", label: "LinkedIn", href: SOCIALS.linkedin, external: true },
-      { kind: "link", label: "Telegram", href: SOCIALS.telegram, external: true },
-      { kind: "link", label: "RSS feed", href: "/rss.xml", keywords: "subscribe feed" },
-    ],
-  },
-];
 ---
 
 <dialog id="cmdk" class="cmdk" aria-label="Command menu">
@@ -103,63 +32,20 @@ const groups: { title: string; items: Item[] }[] = [
     </div>
 
     <div id="cmdk-list" class="cmdk__list" role="listbox" aria-label="Commands">
-      {
-        groups.map((group) => (
-          <div class="cmdk__group" role="group" aria-label={group.title}>
-            <p class="cmdk__group-title" aria-hidden="true">{group.title}</p>
-            {group.items.map((item) =>
-              item.kind === "link" ? (
-                <a
-                  class="cmdk__item"
-                  role="option"
-                  href={item.href}
-                  target={item.external ? "_blank" : undefined}
-                  rel={item.external ? "noopener noreferrer" : undefined}
-                  data-search={`${item.label} ${item.keywords ?? ""} ${group.title}`.toLowerCase()}
-                  tabindex="-1"
-                >
-                  <span class="cmdk__label">{item.label}</span>
-                  {item.hint && <span class="cmdk__hint">{item.hint}</span>}
-                  <svg class="cmdk__go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    {item.external ? (
-                      <path d="M7 17 17 7M8 7h9v9" stroke-linecap="round" stroke-linejoin="round" />
-                    ) : (
-                      <path d="M5 12h14m-6-6 6 6-6 6" stroke-linecap="round" stroke-linejoin="round" />
-                    )}
-                  </svg>
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  class="cmdk__item"
-                  role="option"
-                  data-action={item.action}
-                  data-search={`${item.label} ${item.keywords ?? ""} ${group.title}`.toLowerCase()}
-                  tabindex="-1"
-                >
-                  <span class="cmdk__label">{item.label}</span>
-                  {item.hint && <span class="cmdk__hint">{item.hint}</span>}
-                  <svg class="cmdk__go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path d="M9 10 4 15l5 5M20 4v7a4 4 0 0 1-4 4H4" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </button>
-              ),
-            )}
-          </div>
-        ))
-      }
       <p class="cmdk__empty" hidden>Nothing matches that. Try “Go” or “chess”.</p>
     </div>
 
     <footer class="cmdk__footer" aria-hidden="true">
       <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
       <span><kbd>↵</kbd> open</span>
-      <span class="cmdk__footer-brand">asgerami.com</span>
+      <span class="cmdk__footer-brand">www.asgerami.com</span>
     </footer>
   </div>
 </dialog>
 
-<style>
+<style is:global>
+  /* Global: the entries are created by site.ts and carry no scope class.
+     Every selector is namespaced under .cmdk. */
   .cmdk {
     width: min(40rem, calc(100vw - 2rem));
     max-height: min(32rem, calc(100dvh - 6rem));
@@ -309,7 +195,7 @@ const groups: { title: string; items: Item[] }[] = [
   .cmdk__footer-brand {
     margin-left: auto;
   }
-  kbd,
+  .cmdk kbd,
   .cmdk__kbd {
     display: inline-grid;
     place-items: center;

@@ -1,15 +1,12 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import sitemap from "@astrojs/sitemap";
 
 // https://astro.build/config
 export default defineConfig({
-  // Required for canonical URLs, absolute og:image URLs, the sitemap and the
-  // RSS feed. Without it none of those can be generated.
+  // Required for canonical URLs, absolute og:image URLs and the RSS feed.
+  // /sitemap.xml is built by src/pages/sitemap.xml.ts.
   site: "https://www.asgerami.com",
-
-  integrations: [sitemap()],
 
   vite: {
     plugins: [tailwindcss()],
@@ -21,6 +18,10 @@ export default defineConfig({
   },
 
   compressHTML: true,
+
+  // Scope component styles with a short class rather than a
+  // data-astro-cid-* attribute on every element: same isolation, leaner HTML.
+  scopedStyleStrategy: "class",
 
   // Images are imported through `astro:assets` (src/assets/**), so this service
   // actually runs: it emits resized, hashed WebP variants at build time.
