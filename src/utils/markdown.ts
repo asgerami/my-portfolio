@@ -55,10 +55,15 @@ const assetImages = import.meta.glob<{ default: ImageMetadata }>(
   { eager: true },
 );
 function resolveImages(body: string) {
-  return body.replace(/!\[([^\]]*)\]\((?:\.\.\/)+assets\/([^)\s]+)\)/g, (match, alt, rest) => {
-    const image = assetImages[`/src/assets/${rest}`];
-    return image ? `![${alt}](${abs(image.default.src)})` : match;
-  });
+  // An optional title is dropped: the only titles used are "viz:<name>"
+  // markers telling the post page to swap in an interactive figure.
+  return body.replace(
+    /!\[([^\]]*)\]\((?:\.\.\/)+assets\/([^)\s]+)(?:\s+"[^"]*")?\)/g,
+    (match, alt, rest) => {
+      const image = assetImages[`/src/assets/${rest}`];
+      return image ? `![${alt}](${abs(image.default.src)})` : match;
+    },
+  );
 }
 
 function doc(d: Omit<Doc, "markdown"> & { body: string }): Doc {

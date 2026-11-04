@@ -1,0 +1,260 @@
+/* Interactive figures in blog posts (src/scripts/viz.ts). The figures are
+   created by script, so these selectors are global and namespaced .viz. */
+
+.viz {
+  --viz-mark: #5f9600;
+  position: relative;
+  margin: 2.5rem 0;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  background: var(--bg-elevated);
+  color: var(--text);
+}
+.dark .viz {
+  --viz-mark: #c5f23a;
+}
+
+.viz__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 !important;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.viz__eyebrow::before {
+  content: "";
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 2px;
+  background: var(--viz-mark);
+}
+.viz__title {
+  margin: 0.4rem 0 1.25rem !important;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.viz__note {
+  margin-top: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: var(--text-faint);
+}
+
+/* ---- slider */
+.viz__control {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.4rem 1rem;
+}
+.viz__control-name {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.viz__control-value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.viz__range {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--viz-mark);
+  cursor: pointer;
+}
+
+/* ---- readouts */
+.viz__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  padding: 1rem 0;
+  border-block: 1px solid var(--border);
+}
+.viz__stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.2rem;
+}
+.viz__stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+.viz__stat-value {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ---- tiles */
+.viz__tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: var(--gap, 3px);
+  min-height: 220px;
+}
+.viz__tile {
+  width: var(--tile, 24px);
+  height: var(--tile, 24px);
+  border-radius: 3px;
+  background: var(--viz-mark);
+  transition: background-color 0.15s, transform 0.3s var(--ease-spring);
+  animation: viz-pop 0.45s var(--ease-spring) both;
+  animation-delay: var(--delay, 0ms);
+}
+.viz__tile:hover {
+  background: var(--text);
+  transform: scale(1.25);
+}
+@keyframes viz-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+/* ---- chips */
+.viz__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.viz__chip {
+  height: 2rem;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+.viz__chip:hover {
+  color: var(--text);
+  border-color: var(--text-faint);
+}
+.viz__chip[aria-pressed="true"] {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+
+/* ---- bars */
+.viz__bars {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.viz__bar-row {
+  border-radius: 0.5rem;
+  outline-offset: 4px;
+}
+.viz__bar-name {
+  margin: 0 !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.viz__bar-sub {
+  margin-left: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+/* The value label rides at the end of its bar; the track leaves room for it
+   so every bar shares one scale. */
+.viz__bar-track {
+  position: relative;
+  height: 1.6rem;
+  margin: 0.4rem 7.5rem 0 0;
+}
+.viz__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--w, 0) * 100%);
+  min-width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: var(--viz-mark);
+  transition: width 0.7s var(--ease-soft), opacity 0.2s;
+}
+.viz__bar-value {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--w, 0) * 100% + 0.6rem);
+  transform: translateY(-50%);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  color: var(--text);
+  transition: left 0.7s var(--ease-soft);
+}
+.viz__bars:has(.viz__bar-row:hover) .viz__bar-row:not(:hover) .viz__bar {
+  opacity: 0.45;
+}
+.viz__axis {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.9rem 7.5rem 0 0;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-faint);
+}
+
+/* ---- tooltip */
+.viz__tip {
+  position: absolute;
+  z-index: 5;
+  display: grid;
+  gap: 0.15rem;
+  max-width: 15rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.6rem;
+  background: var(--bg);
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.5);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 8px));
+  transition: opacity 0.15s;
+}
+.viz__tip strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.viz__tip.is-shown {
+  opacity: 1;
+}
+
+@media (max-width: 520px) {
+  .viz {
+    padding: 1.15rem;
+  }
+  .viz__bar-track,
+  .viz__axis {
+    margin-right: 6.5rem;
+  }
+}

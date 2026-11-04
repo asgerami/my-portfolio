@@ -23,7 +23,7 @@ The International Space Station ( ISS) has the largest solar arrays ever flown b
 
 So one 100 MW site needs roughly 120 ISS worth of solar arrays.
 
-![One square for the ISS's solar arrays today, about 2,500 m² producing 84 to 120 kW, next to a grid of 120 identical squares for a 100 MW data center, about 300,000 m² of panels, around 40 football fields](../../assets/blog/data-centers-in-space/power.webp)
+![One square for the ISS's solar arrays today, about 2,500 m² producing 84 to 120 kW, next to a grid of 120 identical squares for a 100 MW data center, about 300,000 m² of panels, around 40 football fields](../../assets/blog/data-centers-in-space/power.webp "viz:solar")
 
 - It took over 10 years to build at first but i don't think building it gonna be a problem with the huge advancements that happened in solar technology, the main issue is how are you gonna lift 300,000 m² of solar panels? According to my calculations( claude's ) using the nest solar panels on the market, 300k m² of solar panels will weight 830,000 KG - 1 milllion KG, even with the new starship ( can carry 100,000 KG payloads) it will take 8-10 trips.
 - this is an obstacle we can get over absolutely, give it 20 years maybe. who know maybe there will be a future where we figure out how to built mini nuclear stations in space to solve the power issue, but then the question shifts to do you really want a nuclear reactors to fly over your head 24/7 ,possible giving you radioactive showers in case of a malfunction?
@@ -36,7 +36,7 @@ Space is cold, but a vacuum doesn’t carry heat away. The only way out is radia
 
 Even using Starcloud’s figure (~630 W/m² at 20°C), it’s still ~160,000 m². About 190 ISS radiator sets, or 22 football fields. which will weight 1,300,000 to 9,600,000 KG of radiators alone.
 
-![Bar chart of the area needed in orbit for one 100 MW data center: radiators at ISS-style performance 1,200,000 m² (about 1,400 ISS radiator sets); solar panels 300,000 m² (about 40 football fields); radiators at Starcloud's figure of about 630 W/m² at 20°C 160,000 m² (about 22 football fields); and, for scale, the ISS's solar arrays today at 2,500 m²](../../assets/blog/data-centers-in-space/area.webp)
+![Bar chart of the area needed in orbit for one 100 MW data center: radiators at ISS-style performance 1,200,000 m² (about 1,400 ISS radiator sets); solar panels 300,000 m² (about 40 football fields); radiators at Starcloud's figure of about 630 W/m² at 20°C 160,000 m² (about 22 football fields); and, for scale, the ISS's solar arrays today at 2,500 m²](../../assets/blog/data-centers-in-space/area.webp "viz:area")
 
 ## Other Problems
 

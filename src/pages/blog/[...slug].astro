@@ -5,6 +5,7 @@ import { getCollection } from "astro:content";
 import { NAME } from "../../consts";
 import { readingMinutes } from "../../utils/reading";
 import { breadcrumbs } from "../../utils/schema";
+import "../../styles/viz.css";
 
 export async function getStaticPaths() {
   const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
@@ -131,6 +132,11 @@ const fmt = (d: Date) => d.toLocaleDateString("en-US", { year: "numeric", month:
     </footer>
   </article>
 </Layout>
+
+<script>
+  // Swaps images titled "viz:<name>" for interactive figures (no-op otherwise)
+  import "../../scripts/viz.ts";
+</script>
 
 <style>
   /* Reading progress: a scroll-driven animation, no JS. Browsers without
