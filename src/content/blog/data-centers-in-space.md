@@ -3,7 +3,7 @@ title: "Data Centers in Space: Physically Possible, Economically Pointless, for 
 description: "Not impossible. Just not the easy fix for AI’s power problem it’s being sold as by elon."
 pubDate: 2026-11-04
 heroImage: "../../assets/blog/data-centers-in-space/hero.webp"
-heroAlt: "Earth seen from orbit at dusk: the Mediterranean, the Red Sea and Arabia in daylight, with night and city lights falling across Iran and India"
+heroAlt: "The International Space Station against black space, with its solar array wings and white radiator panels spread out on either side"
 tags: ["AI", "Space", "Data Centers", "Opinion"]
 ---
 
